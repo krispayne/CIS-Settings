@@ -1,17 +1,10 @@
 #!/bin/bash
  
 ########################################################################
-<<<<<<< HEAD
 #					CIS Level 1 Benchmark Settings
 #							for 10.9
 #						   Kris Payne
 #						   ~/.109cis
-=======
-# 									 CIS Level 1 Benchmark Settings
-#																for 10.9
-# 														 Kris Payne
-#															 ~/.109cis
->>>>>>> FETCH_HEAD
 ########################################################################
 
 ########################################################################
@@ -199,9 +192,5 @@ defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 ### 						The Restarts
 ########################################################################
 
-<<<<<<< HEAD
 #killall Finder
 #sudo shutdown -r now
-=======
-sudo killall -HUP blued
->>>>>>> FETCH_HEAD
