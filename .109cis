@@ -29,7 +29,7 @@ sudo softwareupdate -i -a
 ########################################################################
 
 # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
-sudo defaults write /Library/Preferences/com.apple.Bluetooth \ ControllerPowerState -int 0
+sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
 
 # 2.1.2 Disable Bluetooth "Discoverable" mode when not pairing devices (Scored)
 
