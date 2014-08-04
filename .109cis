@@ -1,14 +1,13 @@
 #!/bin/bash
- 
 ########################################################################
-#					CIS Level 1 Benchmark Settings
-#							for 10.9
-#						   Kris Payne
-#						   ~/.109cis
+#                   CIS Level 1 Benchmark Settings
+#                            for 10.9
+#                           Kris Payne
+#                            ~/.109cis
 ########################################################################
 
 ########################################################################
-###							SUDO UP, MF
+###                         SUDO UP, MF
 ########################################################################
 sudo -v
 
@@ -26,7 +25,7 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 sudo softwareupdate -i -a
 
 ########################################################################
-###						2 System Preferences
+###                     2 System Preferences
 ########################################################################
 
 # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
@@ -94,7 +93,7 @@ defaults write -app Terminal SecureKeyboardEntry 1
 defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
 ########################################################################
-### 					 3 Logging and Auditing
+###                     3 Logging and Auditing
 ########################################################################
 
 # 3.1.2 Retain system.log for 90 or more days (Scored)
@@ -112,14 +111,14 @@ defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 # Set via script
 
 ########################################################################
-### 					4 Network Configurations
+###                     4 Network Configurations
 ########################################################################
 
 # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
 # Set via script
 
 ########################################################################
-### 		5 System Access, Authentication and Authorization
+###       5 System Access, Authentication and Authorization
 ########################################################################
 
 # 5.1.1 Secure Home Folders (Scored)
@@ -159,10 +158,10 @@ defaults write com.apple.screensaver askForPassword -int 1
 # Password policy is set via Active Directory
 
 # 5.14 Create an access warning for the login window (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "your text here"
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "Use of this system is monitored."
 
 ########################################################################
-### 				6 User Accounts and Environment
+###                 6 User Accounts and Environment
 ########################################################################
 
 # 6.1.1 Display login window as name and password (Scored)
@@ -176,7 +175,7 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -boo
 
 # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
 sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
-sudo defaults write \ /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
 # 6.2 Turn on filename extensions (Scored)
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
@@ -185,11 +184,11 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
 ########################################################################
-### 				7 Additional Considerations
+###                   7 Additional Considerations
 ########################################################################
 
 ########################################################################
-### 						The Restarts
+###                         The Restarts
 ########################################################################
 
 #killall Finder
