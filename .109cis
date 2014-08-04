@@ -1,14 +1,14 @@
 #!/bin/bash
 
 ########################################################################
-# 										CIS Level 1 Benchmark Settings
-#																for 10.9
-# 														 Kris Payne
-#															 ~/.109cis
+#					CIS Level 1 Benchmark Settings
+#							for 10.9
+#						   Kris Payne
+#						   ~/.109cis
 ########################################################################
 
 ########################################################################
-###														SUDO UP, MF
+###							SUDO UP, MF
 ########################################################################
 sudo -v
 
@@ -16,17 +16,17 @@ sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 ########################################################################
-### 		1 Install Updates, Patches and Additional Security Software
+### 	1 Install Updates, Patches and Additional Security Software
 ########################################################################
 
 # Auto update is mandated in Level 1, however we set this in a Casper policy to limit bandwidth during critical hours
 # SWU server points to kochcasd1.restorationhardware.com via policy. Updates are then controlled at the server level
 
 # 1.1 Verify all application software is current (Scored)
-softwareupdate -i -a
+sudo softwareupdate -i -a
 
 ########################################################################
-###												2 System Preferences
+###						2 System Preferences
 ########################################################################
 
 # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
@@ -38,11 +38,12 @@ sudo defaults write /Library/Preferences/com.apple.Bluetooth \ ControllerPowerSt
 sudo defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
 
 # 2.2.1 Enable "Set time and date automatically" (Scored)
-sudo systemsetup –setnetworktimeserver time.apple.com
+sudo systemsetup -setnetworktimeserver time.apple.com
+sudo systemsetup -setusingnetworktime on
 
 # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
 # Set for 10 minutes in our environment
-defaults -currentHost write com.apple.screensaver idleTime -int 600
+defaults -currentHost write com.apple.screensaver idleTime 600
 
 # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
 sudo pmset -a displaysleep 15
@@ -51,8 +52,8 @@ sudo pmset -a displaysleep 15
 sudo systemsetup -setremoteappleevents off
 
 # 2.4.2 Disable Internet Sharing (Scored)
-sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.nat \ NAT -dict Enabled -int 0
-sudo launchctl unload -w /System/Library/LaunchDaemons/ \ com.apple.InternetSharing.plist
+#sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.nat \ NAT -dict Enabled -int 0
+#sudo launchctl unload -w /System/Library/LaunchDaemons/ \ com.apple.InternetSharing.plist
 
 # 2.4.3 Disable Screen Sharing (Scored)
 # Screen sharing controlled by Remote Management
@@ -66,11 +67,11 @@ cupsctl --no-share-printers
 # 2.4.6 Disable DVD or CD Sharing (Scored)
 
 # 2.4.8 Disable File Sharing (Scored)
-sudo launchctl unload -w \ /System/Library/LaunchDaemons/com.apple.AppleFileServer.plist
-sudo launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
-sudo defaults delete \ /Library/Preferences/SystemConfiguration/com.apple.smb.server EnabledServices
-sudo launchctl unload -w /System/Library/LaunchDaemons/nmbd.plist
-sudo launchctl unload -w /System/Library/LaunchDaemons/smbd.plist
+#sudo launchctl unload -w \ /System/Library/LaunchDaemons/com.apple.AppleFileServer.plist
+#sudo launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
+#sudo defaults delete \ /Library/Preferences/SystemConfiguration/com.apple.smb.server EnabledServices
+#sudo launchctl unload -w /System/Library/LaunchDaemons/nmbd.plist
+#sudo launchctl unload -w /System/Library/LaunchDaemons/smbd.plist
 
 # 2.4.9 Disable Remote Management (Scored)
 # Remote Management is used in our environment
@@ -82,7 +83,7 @@ sudo launchctl unload -w /System/Library/LaunchDaemons/smbd.plist
 sudo spctl --master-enable
 
 # 2.6.2 Enable Firewall (Scored)
-defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
 # 2.7 Pair the remote control infrared receiver if enabled (Scored)
 
@@ -93,7 +94,7 @@ defaults write -app Terminal SecureKeyboardEntry 1
 defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
 ########################################################################
-### 										3 Logging and Auditing
+### 					 3 Logging and Auditing
 ########################################################################
 
 # 3.1.2 Retain system.log for 90 or more days (Scored)
@@ -102,7 +103,7 @@ defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 # Set via script
 
 # 3.2 Enable security auditing (Scored)
-sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
+#sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
 
 # 3.3 Configure Security Auditing Flags (Scored)
 # Set via script
@@ -111,14 +112,14 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
 # Set via script
 
 ########################################################################
-### 										4 Network Configurations
+### 					4 Network Configurations
 ########################################################################
 
 # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
 # Set via script
 
 ########################################################################
-### 				5 System Access, Authentication and Authorization
+### 		5 System Access, Authentication and Authorization
 ########################################################################
 
 # 5.1.1 Secure Home Folders (Scored)
@@ -141,7 +142,7 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
 # 5.4 Do not enable the "root" account (Scored)
 
 # 5.5 Disable automatic login (Scored)
-sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
+#sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
 
 # 5.6 Require a password to wake the computer from sleep or screen saver (Scored)
 defaults write com.apple.screensaver askForPassword -int 1
@@ -158,24 +159,24 @@ defaults write com.apple.screensaver askForPassword -int 1
 # Password policy is set via Active Directory
 
 # 5.14 Create an access warning for the login window (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow \ LoginwindowText "your text here"
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "your text here"
 
 ########################################################################
-### 								6 User Accounts and Environment
+### 				6 User Accounts and Environment
 ########################################################################
 
 # 6.1.1 Display login window as name and password (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow \ SHOWFULLNAME -bool yes
+sudo defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
 # 6.1.2 Disable "Show password hints" (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow \ RetriesUntilHint -int 0
+sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
 
 # 6.1.3 Disable guest account login (Scored)
 sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 
 # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
-sudo defaults write /Library/Preferences/com.apple.AppleFileServer \ guestAccess -bool no
-sudo defaults write \ /Library/Preferences/SystemConfiguration/com.apple.smb.server \ AllowGuestAccess -bool no
+sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
+sudo defaults write \ /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
 # 6.2 Turn on filename extensions (Scored)
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
@@ -184,13 +185,12 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
 ########################################################################
-### 									7 Additional Considerations
+### 				7 Additional Considerations
 ########################################################################
 
-
-
 ########################################################################
-### 													The Restarts
+### 						The Restarts
 ########################################################################
 
-sudo killall -HUP blued
+#killall Finder
+#sudo shutdown -r now
