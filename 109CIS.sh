@@ -26,7 +26,7 @@ echo 1 Software Updates
 # SWU server points to kochcasd1.restorationhardware.com via policy. Updates are then controlled at the server level
 
 # 1.1 Verify all application software is current (Scored)
-#sudo softwareupdate -i -a -v
+sudo softwareupdate -i -a -v
 
 ########################################################################
 ###                     2 System Preferences
@@ -88,22 +88,23 @@ cupsctl --no-share-printers
 # We do not use FileVault in our environment
 
 # 2.6.1 Enable Gatekeeper (Scored)
-#sudo spctl --master-enable
+sudo spctl --master-enable
 
 # 2.6.2 Enable Firewall (Scored)
-#sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
 # 2.7 Pair the remote control infrared receiver if enabled (Scored)
 
 # 2.8 Enable Secure Keyboard Entry in terminal.app (Scored)
-#defaults write -app Terminal SecureKeyboardEntry 1
+defaults write -app Terminal SecureKeyboardEntry 1
 
 # 2.11 Configure Secure Empty Trash (Scored) (Level 2)
-#defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
+defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
 ########################################################################
 ###                     3 Logging and Auditing
 ########################################################################
+echo 3 Logging and Audting
 
 # 3.1.2 Retain system.log for 90 or more days (Scored)
 # 3.1.3 Retain appfirewall.log for 90 or more days (Scored)
@@ -122,6 +123,7 @@ cupsctl --no-share-printers
 ########################################################################
 ###                     4 Network Configurations
 ########################################################################
+echo 4 Network Configurations
 
 # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
 # Set via script
@@ -129,6 +131,7 @@ cupsctl --no-share-printers
 ########################################################################
 ###       5 System Access, Authentication and Authorization
 ########################################################################
+echo 5 System Access, Authentication and Authorization
 
 # 5.1.1 Secure Home Folders (Scored)
 # Set via script: foreach $user sudo chmod -R og-rwx /Users/$user
@@ -153,7 +156,7 @@ cupsctl --no-share-printers
 #sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
 
 # 5.6 Require a password to wake the computer from sleep or screen saver (Scored)
-#defaults write com.apple.screensaver askForPassword -int 1
+defaults write com.apple.screensaver askForPassword -int 1
 
 # 5.7 Require an administrator password to access system-wide preferences (Not Scored)
 
@@ -167,30 +170,31 @@ cupsctl --no-share-printers
 # Password policy is set via Active Directory
 
 # 5.14 Create an access warning for the login window (Scored)
-#sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
 
 ########################################################################
 ###                 6 User Accounts and Environment
 ########################################################################
+echo 6 User Accounts and Environment
 
 # 6.1.1 Display login window as name and password (Scored)
-#sudo defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
+sudo defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
 # 6.1.2 Disable "Show password hints" (Scored)
-#sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
+sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
 
 # 6.1.3 Disable guest account login (Scored)
-#sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
+sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 
 # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
-#sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
-#sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
+sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
 # 6.2 Turn on filename extensions (Scored)
-#defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
 # 6.3 Disable the automatic run of safe files in Safari (Scored)
-#defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
+defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
 ########################################################################
 ###                   7 Additional Considerations
@@ -202,6 +206,7 @@ echo Finished!
 ###                         The Restarts
 ########################################################################
 
-killall Finder
-killall SystemUIServer
-#sudo shutdown -r now
+sudo killall Finder
+sudo killall SystemUIServer
+sudo killall -HUP blued
+sudo shutdown -r now
