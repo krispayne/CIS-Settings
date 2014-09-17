@@ -3,7 +3,6 @@
 #                   CIS Level 1 Benchmark Settings
 #                            for 10.9
 #                           Kris Payne
-#                            ~/.109cis
 ########################################################################
 
 echo Starting...
@@ -57,11 +56,7 @@ sudo pmset -a displaysleep 15 sleep 15
 sudo systemsetup -setremoteappleevents off
 
 # 2.4.2 Disable Internet Sharing (Scored)
-####################################################
-###################### NEED TO FIX THIS SECTION
-####################################################
-#sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.nat NAT -dict Enabled -int 0
-#sudo launchctl unload -w /System/Library/LaunchDaemons/ com.apple.InternetSharing.plist
+# Handled in netShareOff.sh
 
 # 2.4.3 Disable Screen Sharing (Scored)
 # Screen sharing controlled by Remote Management
@@ -75,11 +70,7 @@ cupsctl --no-share-printers
 # 2.4.6 Disable DVD or CD Sharing (Scored)
 
 # 2.4.8 Disable File Sharing (Scored)
-#sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.AppleFileServer.plist
-#sudo launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
-#sudo defaults delete /Library/Preferences/SystemConfiguration/com.apple.smb.server EnabledServices
-#sudo launchctl unload -w /System/Library/LaunchDaemons/nmbd.plist
-#sudo launchctl unload -w /System/Library/LaunchDaemons/smbd.plist
+# Handled in netShareOff.sh
 
 # 2.4.9 Disable Remote Management (Scored)
 # Remote Management is used in our environment
@@ -209,4 +200,4 @@ echo Finished!
 sudo killall Finder
 sudo killall SystemUIServer
 sudo killall -HUP blued
-sudo shutdown -r now
+#sudo shutdown -r now
