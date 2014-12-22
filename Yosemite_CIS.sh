@@ -16,10 +16,9 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # 1 Install Updates, Patches and Additional Security Software
 
 echo 1 Software Updates
-#sleep 3
 
 # Auto update is mandated in Level 1, however we set this in a Casper policy to limit bandwidth during critical hours
-# SWU server points to kochcasd1.restorationhardware.com via policy. Updates are then controlled at the server level
+# SWU server points internally via policy. Updates are then controlled at the server level
 
 # 1.1 Verify all application software is current (Scored)
 sudo softwareupdate -i -a -v
