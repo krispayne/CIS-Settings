@@ -1,4 +1,4 @@
-CIS
+CIS Settings
 ========
 
 CIS settings for Mavericks and Yosemite
