@@ -1,23 +1,20 @@
 #!/bin/bash
 ########################################################################
-#                   CIS Level 1 Benchmark Settings
-#                            for 10.9
-#                           Kris Payne
+# CIS Level 1 Benchmark Settings beta
+# 10.10
+# Kris Payne
 ########################################################################
 
 echo Starting...
 
-########################################################################
-###                         SUDO UP, MF
-########################################################################
+# SUDO UP, MF
 sudo -v
 
 # Keep-alive: update existing `sudo` time stamp until `109CIS.sh` has finished
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-########################################################################
-### 	1 Install Updates, Patches and Additional Security Software
-########################################################################
+# 1 Install Updates, Patches and Additional Security Software
+
 echo 1 Software Updates
 #sleep 3
 
@@ -27,9 +24,7 @@ echo 1 Software Updates
 # 1.1 Verify all application software is current (Scored)
 sudo softwareupdate -i -a -v
 
-########################################################################
-###                     2 System Preferences
-########################################################################
+# 2 System Preferences
 echo 2 System Preferences
 #sleep 3
 
@@ -92,9 +87,7 @@ defaults write -app Terminal SecureKeyboardEntry 1
 # 2.11 Configure Secure Empty Trash (Scored) (Level 2)
 # defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
-########################################################################
-###                     3 Logging and Auditing
-########################################################################
+# 3 Logging and Auditing
 echo 3 Logging and Audting
 
 # 3.1.2 Retain system.log for 90 or more days (Scored)
@@ -111,17 +104,13 @@ echo 3 Logging and Audting
 # 3.4 Retain install.log for 365 or more days (Scored)
 # Set via script
 
-########################################################################
-###                     4 Network Configurations
-########################################################################
+# 4 Network Configurations
 echo 4 Network Configurations
 
 # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
 # Set via script
 
-########################################################################
-###       5 System Access, Authentication and Authorization
-########################################################################
+# 5 System Access, Authentication and Authorization
 echo 5 System Access, Authentication and Authorization
 
 # 5.1.1 Secure Home Folders (Scored)
@@ -163,9 +152,7 @@ echo 5 System Access, Authentication and Authorization
 # 5.14 Create an access warning for the login window (Scored)
 # sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
 
-########################################################################
-###                 6 User Accounts and Environment
-########################################################################
+#  6 User Accounts and Environment
 echo 6 User Accounts and Environment
 
 # 6.1.1 Display login window as name and password (Scored)
@@ -187,15 +174,11 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 # 6.3 Disable the automatic run of safe files in Safari (Scored)
 defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
-########################################################################
-###                   7 Additional Considerations
-########################################################################
+# 7 Additional Considerations
 
-echo Finished!
+echo Finished! Time to restart...
 
-########################################################################
-###                         The Restarts
-########################################################################
+# The Restarts
 
 sudo killall Finder
 sudo killall SystemUIServer
