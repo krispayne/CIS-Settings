@@ -125,9 +125,26 @@ echo 3 Logging and Audting
 
 # 3.1 Configure asl.conf
 # 3.1.1 Configure Security Auditing Flags
+# Contributed by John Oliver on CIS forums
+# https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
+/usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control
+/usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control
+
 # 3.1.2 Retain system.log for 90 or more days (Scored)
+# Contributed by John Oliver on CIS forums
+# https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
+/usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf
+
 # 3.1.3 Retain appfirewall.log for 90 or more days (Scored)
+# Contributed by John Oliver on CIS forums
+# https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
+/usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf
+
 # 3.1.4 Retain authd.log for 90 or more days (Scored)
+# Contributed by John Oliver on CIS forums
+# https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
+/usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
+
 # test and implment via script
 
 # 3.2 Enable security auditing (Scored)
@@ -140,7 +157,9 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
 # set in 3.1.1
 
 # 3.5 Retain install.log for 365 or more days
-# test and implment via script
+# Contributed by John Oliver on CIS forums
+# https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
+/usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
 
 ### 4 Network Configurations
 echo 4 Network Configurations
