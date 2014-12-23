@@ -199,7 +199,15 @@ defaults write com.apple.screensaver askForPassword -int 1
 # Password policy is set via Active Directory
 
 # 5.14 Create an access warning for the login window (Scored)
-# sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
+
+# 5.15 Do not enter a password-related hint
+
+# 5.16 Disable Fast User Switching
+
+# 5.17 Secure individual keychain items
+
+# 5.18 Create specialized keychains for different purposes
 
 #  6 User Accounts and Environment
 echo 6 User Accounts and Environment
