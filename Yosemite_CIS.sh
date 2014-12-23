@@ -5,20 +5,6 @@
 # Kris Payne
 ########################################################################
 
-progress (){
-	local pid=$1
-  local delay=0.75
-  local spinstr='|/-\'
-  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-      local temp=${spinstr#?}
-      printf " [%c]  " "$spinstr"
-      local spinstr=$temp${spinstr%"$temp"}
-      sleep $delay
-      printf "\b\b\b\b\b\b"
-  done
-  printf "    \b\b\b\b"
-}
-
 echo Starting...
 
 # SUDO UP, MF
@@ -30,7 +16,7 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 echo 1 Software Updates
 
 # 1.1 Verify all application software is current (Scored)
-sudo softwareupdate -i -a -v & progress
+sudo softwareupdate -i -a -v
 
 # 1.2 Enable Auto Updates
 # sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1  
