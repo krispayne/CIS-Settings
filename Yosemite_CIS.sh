@@ -14,10 +14,10 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 ### 1 Install Updates, Patches and Additional Security Software
 echo 1 Software Updates
+progress
 
 # 1.1 Verify all application software is current (Scored)
 sudo softwareupdate -i -a -v
-# Benchmark audit: `softwareupdate -l`
 
 # 1.2 Enable Auto Updates
 # sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1  
@@ -34,6 +34,7 @@ sudo softwareupdate -i -a -v
 
 ### 2 System Preferences
 echo 2 System Preferences
+progress
 
 # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
 sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
@@ -120,6 +121,7 @@ defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
 ### 3 Logging and Auditing
 echo 3 Logging and Audting
+progress
 
 # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
 
@@ -163,6 +165,7 @@ sudo /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/va
 
 ### 4 Network Configurations
 echo 4 Network Configurations
+progress
 
 # 4.1 Disable Bonjour advertising service
 
@@ -173,6 +176,7 @@ echo 4 Network Configurations
 
 ### 5 System Access, Authentication and Authorization
 echo 5 System Access, Authentication and Authorization
+progress
 
 # 5.1 File System Permissions and Access Controls
 
@@ -229,6 +233,7 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "
 
 ###  6 User Accounts and Environment
 echo 6 User Accounts and Environment
+progress
 
 # 6.1 Accounts Preferences Action Items
 # 6.1.1 Display login window as name and password (Scored)
@@ -255,6 +260,7 @@ defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
 ### 7 Additional Considerations
 echo 7 Additional Considerations
+progress
 
 # 7.1 iCloud configuration
 # 7.2 Wireless Adapters on Mobile Clients
@@ -276,3 +282,11 @@ sudo killall Finder
 sudo killall SystemUIServer
 sudo killall -HUP blued
 #sudo shutdown -r now
+
+progress ()
+{
+while true;do echo -n .;sleep 1;done &
+sleep 10 # or do something else here
+kill $!; trap 'kill $!' SIGTERM
+echo done
+}
