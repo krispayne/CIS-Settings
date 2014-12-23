@@ -1,7 +1,7 @@
 #!/bin/bash
 ########################################################################
 # CIS Level 1 Benchmark Settings beta
-# 10.10
+# Yosemite (10.10)
 # Kris Payne
 ########################################################################
 
@@ -212,18 +212,19 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "
 #  6 User Accounts and Environment
 echo 6 User Accounts and Environment
 
+# 6.1 Accounts Preferences Action Items
 # 6.1.1 Display login window as name and password (Scored)
-# sudo defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
+sudo defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
 # 6.1.2 Disable "Show password hints" (Scored)
-# sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
+sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
 
 # 6.1.3 Disable guest account login (Scored)
-# sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
+sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 
 # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
-# sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
-# sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
+sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
 # 6.2 Turn on filename extensions (Scored)
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
@@ -231,7 +232,23 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 # 6.3 Disable the automatic run of safe files in Safari (Scored)
 defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
+# 6.4 Use parental controls for systems that are not centrally managed
+# Centrally Managed
+
 # 7 Additional Considerations
+echo 7 Additional Considerations
+
+# 7.1 iCloud configuration
+# 7.2 Wireless Adapters on Mobile Clients
+# 7.3 iSight Camera Privacy and Confidentiality Concerns
+# 7.4 Computer Name Considerations
+# 7.5 Software Inventory Considerations
+# 7.6 Firewall Consideration
+# 7.7 Automatic Actions for Optical Media
+# 7.8 App Store Automatically download apps purchased on other Macs Considerations
+
+# 7.9 Extensible Firmware Interface (EFI) password
+# Configured in imaging.
 
 echo Finished! Time to restart...
 
