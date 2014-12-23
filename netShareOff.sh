@@ -1,5 +1,6 @@
 #!/bin/bash
 # Turn off Internet/File Sharing as part of CIS Benchmark
+# These options are all off by defaults and running the launchctl unload on them will begin crippling the system
 
 # 2.4.2 Disable Internet Sharing (Scored)
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.nat NAT -dict Enabled -int 0
