@@ -16,19 +16,19 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 echo 1 Software Updates
 
 # 1.1 Verify all application software is current (Scored)
-sudo softwareupdate -i -a -v
+sudo /usr/sbin/softwareupdate -i -a -v
 
 # 1.2 Enable Auto Updates
-# sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1  
+# sudo /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1  
 # SWU managed via policy in Casper
 
 # 1.3 Enable App Store auto updte
-# sudo defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -int 1
+# sudo /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -int 1
 # Policies via AutoPKG and Casper
 
 # 1.4 Enable system data files and security auto updates
-# sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1
-# sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
+# sudo /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1
+# sudo /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
 # Policy in Casper
 
 
@@ -36,7 +36,7 @@ sudo softwareupdate -i -a -v
 echo 2 System Preferences
 
 # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
-sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
 
 # 2.1.2 Disable Bluetooth "Discoverable" mode when not pairing devices (Scored)
 #uuid=`/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | cut -c22-57`
@@ -46,25 +46,25 @@ sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerStat
 # Need to test.
 
 # 2.1.3 Show Bluetooth status in menu bar (Scored)
-defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+/usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
 
 # 2.2.1 Enable "Set time and date automatically" (Scored)
-sudo systemsetup -setnetworktimeserver time.apple.com
-sudo systemsetup -setusingnetworktime on
+sudo /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
+sudo /usr/sbin/systemsetup -setusingnetworktime on
 
 # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
-defaults -currentHost write com.apple.screensaver idleTime 600
+/usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
 
 # 2.3.2 Secure screen saver corners
 
 # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
-sudo pmset -a displaysleep 15
+sudo /usr/bin/pmset -a displaysleep 15
 
 # 2.3.4 Set a screen corner to Start Screen Saver
-# defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
+# /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
 
 # 2.4.1 Disable Remote Apple Events (Scored)
-sudo systemsetup -setremoteappleevents off
+sudo /usr/sbin/systemsetup -setremoteappleevents off
 
 # 2.4.2 Disable Internet Sharing (Scored)
 # Handled in netShareOff.sh
@@ -73,7 +73,7 @@ sudo systemsetup -setremoteappleevents off
 # Screen sharing controlled by Remote Management Preferences
 
 # 2.4.4 Disable Printer Sharing (Scored)
-cupsctl --no-share-printers
+/usr/sbin/cupsctl --no-share-printers
 
 # 2.4.5 Disable Remote Login (Scored)
 # Controlled at Firewall
@@ -89,34 +89,34 @@ cupsctl --no-share-printers
 # 2.4.9 Disable Remote Management (Scored)
 
 # 2.5.1 Disable "Wake for network access"
-sudo pmset -a womp 0 
+sudo /usr/bin/pmset -a womp 0 
 
 # 2.5.2 Disable sleeping the computer when connected to power
-sudo pmset -c sleep 0
+sudo /usr/bin/pmset -c sleep 0
 
 # 2.6.1 Enable FileVault (Scored)
 # We do not use FileVault in our environment
 
 # 2.6.2 Enable Gatekeeper (Scored)
-sudo spctl --master-enable
+sudo /usr/sbin/spctl --master-enable
 
 # 2.6.3 Enable Firewall (Scored)
-sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
 # 2.7 Pair the remote control infrared receiver if enabled (Scored)
 # Disable:
-sudo defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
 
 # 2.8 Enable Secure Keyboard Entry in terminal.app (Scored)
-defaults write -app Terminal SecureKeyboardEntry 1
+/usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
 
 # 2.9 Java 6 is not the default Java runtime
 
 # 2.10 Disable Core Dumps
-sudo launchctl limit core 0
+sudo /bin/launchctl limit core 0
 
 # 2.11 Configure Secure Empty Trash (Scored) (Level 2)
-defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
+/usr/bin/defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
 
 ### 3 Logging and Auditing
@@ -145,8 +145,6 @@ sudo /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ 
 # Contributed by John Oliver on CIS forums
 # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
 sudo /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
-
-# test and implment via script
 
 # 3.2 Enable security auditing (Scored)
 sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
@@ -201,11 +199,11 @@ echo 5 System Access, Authentication and Authorization
 # Disabled by default
 
 # 5.5 Disable automatic login (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow.plist autoLoginUser 0
-sudo defaults delete /Library/Preferences/com.apple.loginwindow.plist autoLoginUser
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow.plist autoLoginUser 0
+sudo /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow.plist autoLoginUser
 
 # 5.6 Require a password to wake the computer from sleep or screen saver (Scored)
-defaults write com.apple.screensaver askForPassword -int 1
+/usr/bin/defaults write com.apple.screensaver askForPassword -int 1
 
 # 5.7 Require an administrator password to access system-wide preferences (Not Scored)
 # Set via script sysPrefAdmin.sh
@@ -220,7 +218,7 @@ defaults write com.apple.screensaver askForPassword -int 1
 # Password policy is set via Active Directory
 
 # 5.14 Create an access warning for the login window (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
 
 # 5.15 Do not enter a password-related hint
 
@@ -236,23 +234,23 @@ echo 6 User Accounts and Environment
 
 # 6.1 Accounts Preferences Action Items
 # 6.1.1 Display login window as name and password (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
 # 6.1.2 Disable "Show password hints" (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
 
 # 6.1.3 Disable guest account login (Scored)
-sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 
 # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
-sudo defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
-sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
+sudo /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
+sudo /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
 # 6.2 Turn on filename extensions (Scored)
-defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+/usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
 # 6.3 Disable the automatic run of safe files in Safari (Scored)
-defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
+/usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
 # 6.4 Use parental controls for systems that are not centrally managed
 # Centrally Managed
@@ -277,7 +275,7 @@ echo Finished! Time to restart...
 
 ### The Restarts
 
-sudo killall Finder
-sudo killall SystemUIServer
-sudo killall -HUP blued
-#sudo shutdown -r now
+sudo /usr/bin/killall Finder
+sudo /usr/bin/killall SystemUIServer
+sudo /usr/bin/killall -HUP blued
+#sudo /sbin/shutdown -r now
