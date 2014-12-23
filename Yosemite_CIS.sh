@@ -189,7 +189,7 @@ echo 5 System Access, Authentication and Authorization
 # Set up and test
 
 # 5.2 Reduce the sudo timeout period (Scored)
-# Set via script
+# listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
 
 # 5.3 Automatically lock the login keychain after 15 minutes of inactivity and when sleeping (Scored)
 # Cannot be easily implmented in our environment
