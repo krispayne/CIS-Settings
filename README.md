@@ -1,7 +1,7 @@
 CIS Settings
 ========
 
-CIS settings for Mavericks and Yosemite
+CIS settings for Mac (10.9 and 10.10)
 
 This is an attempt at checking off the list for CIS Level 1 settings on an OS X installation via BASH
 
