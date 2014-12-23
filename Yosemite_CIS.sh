@@ -198,7 +198,8 @@ echo 5 System Access, Authentication and Authorization
 # Disabled by default
 
 # 5.5 Disable automatic login (Scored)
-sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
+sudo defaults write /Library/Preferences/com.apple.loginwindow.plist autoLoginUser 0
+sudo defaults delete /Library/Preferences/com.apple.loginwindow.plist autoLoginUser
 
 # 5.6 Require a password to wake the computer from sleep or screen saver (Scored)
 defaults write com.apple.screensaver askForPassword -int 1
