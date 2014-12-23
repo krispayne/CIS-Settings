@@ -26,6 +26,7 @@ echo 1 Software Updates
 
 # 1.1 Verify all application software is current (Scored)
 sudo softwareupdate -i -a -v
+# Benchmark audit: `softwareupdate -l`
 
 ########################################################################
 ###                     2 System Preferences
