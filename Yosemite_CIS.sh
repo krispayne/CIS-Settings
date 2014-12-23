@@ -178,7 +178,6 @@ echo 5 System Access, Authentication and Authorization
 # 5.1 File System Permissions and Access Controls
 
 # 5.1.1 Secure Home Folders (Scored)
-# Set via script: foreach $user sudo chmod -R og-rwx /Users/$user
 
 # 5.1.2 Repair permissions regularly to ensure binaries and other System files have appropriate permissions (Not Scored)
 # Set via policy in Casper (weekly)
