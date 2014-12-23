@@ -9,12 +9,10 @@ echo Starting...
 
 # SUDO UP, MF
 sudo -v
-
-# Keep-alive: update existing `sudo` time stamp until `109CIS.sh` has finished
+# Keep-alive: update existing `sudo` time stamp until the script has finished
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# 1 Install Updates, Patches and Additional Security Software
-
+### 1 Install Updates, Patches and Additional Security Software
 echo 1 Software Updates
 
 # 1.1 Verify all application software is current (Scored)
@@ -34,9 +32,8 @@ sudo softwareupdate -i -a -v
 # sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
 # Policy in Casper
 
-# 2 System Preferences
+### 2 System Preferences
 echo 2 System Preferences
-#sleep 3
 
 # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
 sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
@@ -121,7 +118,7 @@ sudo launchctl limit core 0
 # 2.11 Configure Secure Empty Trash (Scored) (Level 2)
 defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 
-# 3 Logging and Auditing
+### 3 Logging and Auditing
 echo 3 Logging and Audting
 
 # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
@@ -145,7 +142,7 @@ sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
 # 3.5 Retain install.log for 365 or more days
 # test and implment via script
 
-# 4 Network Configurations
+### 4 Network Configurations
 echo 4 Network Configurations
 
 # 4.1 Disable Bonjour advertising service
@@ -155,7 +152,7 @@ echo 4 Network Configurations
 
 # 4.3 Create network specific locations
 
-# 5 System Access, Authentication and Authorization
+### 5 System Access, Authentication and Authorization
 echo 5 System Access, Authentication and Authorization
 
 # 5.1 File System Permissions and Access Controls
@@ -210,7 +207,7 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "
 
 # 5.18 Create specialized keychains for different purposes
 
-#  6 User Accounts and Environment
+###  6 User Accounts and Environment
 echo 6 User Accounts and Environment
 
 # 6.1 Accounts Preferences Action Items
@@ -236,7 +233,7 @@ defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 # 6.4 Use parental controls for systems that are not centrally managed
 # Centrally Managed
 
-# 7 Additional Considerations
+### 7 Additional Considerations
 echo 7 Additional Considerations
 
 # 7.1 iCloud configuration
@@ -253,7 +250,7 @@ echo 7 Additional Considerations
 
 echo Finished! Time to restart...
 
-# The Restarts
+### The Restarts
 
 sudo killall Finder
 sudo killall SystemUIServer
