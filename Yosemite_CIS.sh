@@ -30,7 +30,8 @@ sudo softwareupdate -i -a -v
 # Policies via AutoPKG and Casper
 
 # 1.4 Enable system data files and security auto updates
-# sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1 && sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
+# sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1
+# sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
 # Policy in Casper
 
 # 2 System Preferences
