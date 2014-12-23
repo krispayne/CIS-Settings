@@ -5,6 +5,14 @@
 # Kris Payne
 ########################################################################
 
+progress ()
+{
+	while true;do echo -n .;sleep 1;done &
+	sleep 10 # or do something else here
+	kill $!; trap 'kill $!' SIGTERM
+	echo done
+}
+
 echo Starting...
 
 # SUDO UP, MF
@@ -282,11 +290,3 @@ sudo killall Finder
 sudo killall SystemUIServer
 sudo killall -HUP blued
 #sudo shutdown -r now
-
-progress ()
-{
-while true;do echo -n .;sleep 1;done &
-sleep 10 # or do something else here
-kill $!; trap 'kill $!' SIGTERM
-echo done
-}
