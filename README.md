@@ -1,6 +1,8 @@
 CIS Settings
 ========
 
+## This repo is getting some sort of activity. If you are using these scripts, please contribute push/pulls to help make them better. They are very young and I haven't looked at them in a while. Thanks!
+
 ## CIS settings for Mac (10.9 and 10.10)
 
 This is an attempt at checking off the list for CIS Level 1 settings on an OS X installation via BASH
