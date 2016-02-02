@@ -46,8 +46,8 @@ softwareUpdates() {
     #elif [ `defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall` = "CriticalUpdateInstall = 1;" ]; then
     #    echo ConfigDataInstall is 1
     #else
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
     #fi
 
     # Policy in Casper
