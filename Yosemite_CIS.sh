@@ -5,9 +5,9 @@
 # Kris Payne
 ########################################################################
 
-mainScript(){
+mainScript() {
 
-    echo Starting...
+    echo Starting CIS Settings
     
     # RUN AS ROOT
 
@@ -28,7 +28,7 @@ mainScript(){
 }
 
 ### 1 Install Updates, Patches and Additional Security Software
-softwareUpdates(){
+softwareUpdates() {
 
     echo 1 Software Updates
 
@@ -50,7 +50,7 @@ softwareUpdates(){
 }
 
 ### 2 System Preferences
-systemPreferences(){
+systemPreferences() {
     
     echo 2 System Preferences
 
@@ -140,8 +140,9 @@ systemPreferences(){
 }
 
 ### 3 Logging and Auditing
-loggingAndAuditing(){
-echo 3 Logging and Audting
+loggingAndAuditing() {
+    
+    echo 3 Logging and Audting
 
     # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
 
@@ -184,7 +185,8 @@ echo 3 Logging and Audting
 }
 
 ### 4 Network Configurations
-networkConfigurations()
+networkConfigurations() {
+
     echo 4 Network Configurations
 
     # 4.1 Disable Bonjour advertising service
@@ -197,7 +199,8 @@ networkConfigurations()
 }
 
 ### 5 System Access, Authentication and Authorization
-systemAccess(){
+systemAccess() {
+
     echo 5 System Access, Authentication and Authorization
     
     # 5.1 File System Permissions and Access Controls
@@ -255,7 +258,7 @@ systemAccess(){
 }
 
 ###  6 User Accounts and Environment
-userEnvironment(){
+userEnvironment() {
 
     echo 6 User Accounts and Environment
     
@@ -285,7 +288,7 @@ userEnvironment(){
 }
 
 ### 7 Additional Considerations
-additionalConsiderations(){
+additionalConsiderations() {
 
     echo 7 Additional Considerations
     
@@ -303,7 +306,7 @@ additionalConsiderations(){
 }
 
 ### The Restarts
-cleanAndReboot(){
+cleanAndReboot() {
 
     echo Finished! Time to restart...
         
