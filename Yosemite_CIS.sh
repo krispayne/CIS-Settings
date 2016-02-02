@@ -68,8 +68,16 @@ systemPreferences() {
     /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
 
     # 2.2.1 Enable "Set time and date automatically" (Scored)
-    /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-    /usr/sbin/systemsetup -setusingnetworktime on
+    if [ /usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }' = "On"]; then
+        echo NetworkTime already set. Ensuring server is time.apple.com
+    else
+        if [ ! -e /etc/ntp.conf]; then
+            echo Create ntp.conf
+            /usr/bin/touch /etc/ntp.conf
+        fi
+        /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
+        /usr/sbin/systemsetup -setusingnetworktime on
+    fi
 
     # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
     /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
