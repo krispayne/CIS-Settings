@@ -322,14 +322,14 @@ mainScript() {
     # RUN AS ROOT
 
     # comment out sections you do not want to run.
-    #softwareUpdates
+    softwareUpdates
     systemPreferences
     loggingAndAuditing
     networkConfigurations
     systemAccess
     userEnvironment
     additionalConsiderations
-    #cleanAndReboot
+    cleanAndReboot
 }
 
 # Run mainScript
