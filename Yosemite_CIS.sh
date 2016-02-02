@@ -98,7 +98,11 @@ systemPreferences() {
     #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
 
     # 2.4.1 Disable Remote Apple Events (Scored)
-    /usr/sbin/systemsetup -setremoteappleevents off
+    if [ `/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }'` = "Off" ]; then
+        echo Remote Apple Events already set to off.
+    else
+        /usr/sbin/systemsetup -setremoteappleevents off
+    fi
 
     # 2.4.2 Disable Internet Sharing (Scored)
     # Handled in netShareOff.sh
