@@ -68,40 +68,57 @@ softwareUpdates() {
 systemPreferences() {
     
     echo 2 System Preferences
+        echo 2.1 Bluetooth 
+        # 2.1 Bluetooth
 
-    # 2.1.1 Disable Bluetooth, if no paired devices exist (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+        # 2.1.1 Turn off Bluetooth, if no paired devices exist (Scored)
+        if [ `/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState` = "1" ]; then
+            echo Bluetooth ControllerPowerState is 1
 
-    # 2.1.2 Disable Bluetooth "Discoverable" mode when not pairing devices (Scored)
-    # uuid=`/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | cut -c22-57`
-    # /usr/bin/defaults write /Users/$@/Library/Preferences/ByHost/com.apple.Bluetooth.$uuid DiscoverableState -bool no
-    # /usr/sbin/chown $@ /Users/$@/Library/Preferences/ByHost/com.apple.Bluetooth.$uuid.plist
-    # Stolen from http://krypted.com/mac-security/disabling-bluetooth-discoverable-mode/
-    # Need to test.
+            if [ `system_profiler | grep "Bluetooth:" -A 20 | grep Connectable` = "Connectable: Yes"]; then
+                echo Bluetooth ControllerPowerState is 1 and there are paired devices
+            elif [ `system_profiler | grep "Bluetooth:" -A 20 | grep Connectable` = "Connectable: No" ]; then
+                echo Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.
+                /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+            fi
 
-    # 2.1.3 Show Bluetooth status in menu bar (Scored)
-    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
-
-    # 2.2.1 Enable "Set time and date automatically" (Scored)
-    if [ `/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }'` = "On" ]; then
-        echo NetworkTime already on. Ensuring server is time.apple.com
-
-        if [ `/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }'` = "time.apple.com" ]; then
-            echo NetworkTime is set and is set to time.apple.com
+        elif [ `/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState` = "0" ]; then
+            echo Bluetooth ControllerPowerState is 0
+        else
+        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
         fi
 
-    else
-        if [ ! -e /etc/ntp.conf ]; then
-            echo Create /etc/ntp.conf
-            /usr/bin/touch /etc/ntp.conf
-        fi
+        # 2.1.2 Disable Bluetooth "Discoverable" mode when not pairing devices (Scored)
+        # uuid=`/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | cut -c22-57`
+        # /usr/bin/defaults write /Users/$@/Library/Preferences/ByHost/com.apple.Bluetooth.$uuid DiscoverableState -bool no
+        # /usr/sbin/chown $@ /Users/$@/Library/Preferences/ByHost/com.apple.Bluetooth.$uuid.plist
+        # Stolen from http://krypted.com/mac-security/disabling-bluetooth-discoverable-mode/
+        # Need to test.
+    
+        # 2.1.3 Show Bluetooth status in menu bar (Scored)
+        /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
 
-        echo Set NetworkTime to time.apple.com
-        /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-        echo Ensure it is on
-        /usr/sbin/systemsetup -setusingnetworktime on
         
-    fi
+        # 2.2.1 Enable "Set time and date automatically" (Scored)
+        if [ `/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }'` = "On" ]; then
+            echo NetworkTime already on. Ensuring server is time.apple.com
+
+            if [ `/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }'` = "time.apple.com" ]; then
+                echo NetworkTime is set and is set to time.apple.com
+            fi
+
+        else
+            if [ ! -e /etc/ntp.conf ]; then
+                echo Create /etc/ntp.conf
+                /usr/bin/touch /etc/ntp.conf
+            fi
+
+            echo Set NetworkTime to time.apple.com
+            /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
+            echo Ensure it is on
+            /usr/sbin/systemsetup -setusingnetworktime on
+        
+        fi
 
     # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
     /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
