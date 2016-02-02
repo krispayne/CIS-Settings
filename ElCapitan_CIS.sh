@@ -5,28 +5,6 @@
 # Kris Payne
 ########################################################################
 
-mainScript() {
-
-    echo Starting CIS Settings
-    
-    # RUN AS ROOT
-
-    # SUDO UP, MF
-    #sudo -v
-    # Keep-alive: update existing `sudo` time stamp until the script has finished
-    #while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
-    # comment out sections you do not want to run.
-    softwareUpdates
-    systemPreferences
-    loggingAndAuditing
-    networkConfigurations
-    systemAccess
-    userEnvironment
-    additionalConsiderations
-    cleanAndReboot
-}
-
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
@@ -68,8 +46,25 @@ systemPreferences() {
     /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
 
     # 2.2.1 Enable "Set time and date automatically" (Scored)
-    /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-    /usr/sbin/systemsetup -setusingnetworktime on
+    if [ `/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }'` = "On" ]; then
+        echo NetworkTime already on. Ensuring server is time.apple.com
+
+        if [ `/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }'` = "time.apple.com" ]; then
+            echo NetworkTime is set and is set to time.apple.com
+        fi
+
+    else
+        if [ ! -e /etc/ntp.conf ]; then
+            echo Create /etc/ntp.conf
+            /usr/bin/touch /etc/ntp.conf
+        fi
+
+        echo Set NetworkTime to time.apple.com
+        /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
+        echo Ensure it is on
+        /usr/sbin/systemsetup -setusingnetworktime on
+        
+    fi
 
     # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
     /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
@@ -83,7 +78,11 @@ systemPreferences() {
     #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
 
     # 2.4.1 Disable Remote Apple Events (Scored)
-    /usr/sbin/systemsetup -setremoteappleevents off
+    if [ `/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }'` = "Off" ]; then
+        echo Remote Apple Events already set to off.
+    else
+        /usr/sbin/systemsetup -setremoteappleevents off
+    fi
 
     # 2.4.2 Disable Internet Sharing (Scored)
     # Handled in netShareOff.sh
@@ -314,6 +313,23 @@ cleanAndReboot() {
     /usr/bin/killall SystemUIServer
     /usr/bin/killall -HUP blued
     /sbin/shutdown -r now 
+}
+
+mainScript() {
+
+    echo Starting CIS Settings
+    
+    # RUN AS ROOT
+
+    # comment out sections you do not want to run.
+    #softwareUpdates
+    systemPreferences
+    loggingAndAuditing
+    networkConfigurations
+    systemAccess
+    userEnvironment
+    additionalConsiderations
+    #cleanAndReboot
 }
 
 # Run mainScript
