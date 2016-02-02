@@ -34,7 +34,7 @@ softwareUpdates() {
     #if [ `/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate` = "1" ]; then
     #    echo Auto Update Apps already enabled.
     #else
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -int 1
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
     #fi
 
     # Policies via AutoPKG and Casper
@@ -53,6 +53,14 @@ softwareUpdates() {
     # Policy in Casper
 
     # 1.5 Enable OS X update installs
+
+    #if [ `/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired` = "1" ]; then
+    #    echo OS X is set to auto update
+    #else
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
+    #fi
+
+    # Policy in Casper
 
 }
 
