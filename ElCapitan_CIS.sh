@@ -251,35 +251,38 @@ loggingAndAuditing() {
     # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
 
     # 3.1 Configure asl.conf
-    # 3.1.1 Configure Security Auditing Flags
-    # Contributed by John Oliver on CIS forums
-    # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control
-    /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control
+    echo Configure asl.conf
 
-    # 3.1.2 Retain system.log for 90 or more days (Scored)
+    # 3.1.1 Retain system.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf
 
-    # 3.1.3 Retain appfirewall.log for 90 or more days (Scored)
+    # 3.1.2 Retain appfirewall.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf
 
-    # 3.1.4 Retain authd.log for 90 or more days (Scored)
+    # 3.1.3 Retain authd.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
 
     # 3.2 Enable security auditing (Scored)
-    launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
+    if [ `/bin/launchctl list | grep -i auditd | awk '{ print $3 }'` = "com.apple.auditd" ]; then
+        echo Auditing enabled
+    else
+        /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
+    fi
+    
+    # 3.3 Configure Security Auditing Flags
+    # Contributed by John Oliver on CIS forums
+    # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
+    /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control
+    /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control
 
-    # 3.3 Enable remote logging for Desktops on trusted networks
-    # test and implement via script
-
-    # 3.4 Configure Security Auditing Flags
-    # set in 3.1.1
+    # 3.4 Enable remote logging for Desktops on trusted networks
+    # Needs work. Do not have remote logging server setup in my environment to test.
 
     # 3.5 Retain install.log for 365 or more days
     # Contributed by John Oliver on CIS forums
