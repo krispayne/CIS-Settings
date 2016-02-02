@@ -68,14 +68,21 @@ systemPreferences() {
     /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
 
     # 2.2.1 Enable "Set time and date automatically" (Scored)
-    if [ /usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }' = "On"]; then
-        echo NetworkTime already set. Ensuring server is time.apple.com
+    if [ `/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }'` = "On" ]; then
+        echo NetworkTime already on. Ensuring server is time.apple.com
+
+        if [ `/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }'` = "time.apple.com" ]; then
+            echo NetworkTime is set and is set to time.apple.com
+        fi
+
     else
-        if [ ! -e /etc/ntp.conf]; then
-            echo Create ntp.conf
+        if [ ! -e /etc/ntp.conf ]; then
+            echo Create /etc/ntp.conf
             /usr/bin/touch /etc/ntp.conf
         fi
+        echo Set NetworkTime to time.apple.com
         /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
+        echo Ensure it is on
         /usr/sbin/systemsetup -setusingnetworktime on
     fi
 
