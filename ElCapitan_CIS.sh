@@ -11,24 +11,49 @@ softwareUpdates() {
     echo 1 Install Updates, Patches and Additional Security Software
 
     # 1.1 Verify all Apple provided software is current (Scored)
-    if [ `/usr/sbin/softwareupdate -l` = "No new software available" ]; then
+    if [ `/usr/sbin/softwareupdate -l | grep "No new software available."` = "No new software available." ]; then
         echo Software is up to date
     else
         /usr/sbin/softwareupdate -i -a -v
     fi
 
-    # 1.2 Enable Auto Updates
-    # /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1  
+    # 1.2 Enable Auto Update
+    # Checks to see if computer is polling automatically for updates from Apple
+
+    #if [ `/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled` = 1 ]; then
+    #    echo Automatic Update Check already enabled.
+    #else
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
+    #fi
+
     # SWU managed via policy in Casper
 
-    # 1.3 Enable App Store auto updte
-    # /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -int 1
+    # 1.3 Enable app update installs
+    # Sets Mac App Store auto-update for installed apps.
+    
+    #if [ `/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate` = "1" ]; then
+    #    echo Auto Update Apps already enabled.
+    #else
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -int 1
+    #fi
+
     # Policies via AutoPKG and Casper
 
-    # 1.4 Enable system data files and security auto updates
-    # /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1
-    # /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
+    # 1.4 Enable system data files and security update installs
+    
+    #if [ `defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall` = "ConfigDataInstall = 1;" ]; then
+    #    echo ConfigDataInstall is 1
+    #elif [ `defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall` = "CriticalUpdateInstall = 1;" ]; then
+    #    echo ConfigDataInstall is 1
+    #else
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -int 1
+    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
+    #fi
+
     # Policy in Casper
+
+    # 1.5 Enable OS X update installs
+
 }
 
 ### 2 System Preferences
