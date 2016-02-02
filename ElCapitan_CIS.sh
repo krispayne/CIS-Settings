@@ -138,76 +138,109 @@ systemPreferences() {
         # 2.2.2 Ensure time set is within appropriate limits
         /usr/sbin/ntpdate -sv time.apple.com
 
-    # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
-    /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
+        # 2.3 Desktop & Screen Saver
+        echo "2.3 Desktop & Screen Saver"
 
-    # 2.3.2 Secure screen saver corners
+        # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
+        /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
+        # going to move this to a user based configuration profile 
+    
+        # 2.3.2 Secure screen saver corners
+        # going to move this to a user based configuration profile 
 
-    # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
-    /usr/bin/pmset -a displaysleep 15
+        # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
+        /usr/bin/pmset -a displaysleep 15
+    
+        # 2.3.4 Set a screen corner to Start Screen Saver
+        #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
+    
+        # 2.4 Sharing
+        echo 2.4 Sharing
 
-    # 2.3.4 Set a screen corner to Start Screen Saver
-    #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
+        # 2.4.1 Disable Remote Apple Events (Scored)
+        if [ `/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }'` = "Off" ]; then
+            echo Remote Apple Events already set to off.
+        else
+            /usr/sbin/systemsetup -setremoteappleevents off
+        fi
+    
+        # 2.4.2 Disable Internet Sharing (Scored)
+        # Internet Sharing is off by default. Running these commands without checking 
+        # first will send the machine into a downward sprial of doom and depair.
+        # It's your funeral if you uncomment. Left in for remediation/completeness sake.
+        # /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.nat NAT -dict Enabled -int 0
+        # /bin/launchctl unload -w /System/Library/LaunchDaemons/ com.apple.InternetSharing.plist
 
-    # 2.4.1 Disable Remote Apple Events (Scored)
-    if [ `/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }'` = "Off" ]; then
-        echo Remote Apple Events already set to off.
-    else
-        /usr/sbin/systemsetup -setremoteappleevents off
-    fi
+    
+        # 2.4.3 Disable Screen Sharing (Scored)
+        # Screen sharing controlled by Remote Management Preferences
+    
+        # 2.4.4 Disable Printer Sharing (Scored)
+        /usr/sbin/cupsctl --no-share-printers
+    
+        # 2.4.5 Disable Remote Login (Scored)
+        # Controlled at Firewall
+        # Also, open only for one user on systems. Defined in Casper
+    
+        # 2.4.6 Disable DVD or CD Sharing (Scored)
+        # Devices do not have Optical Drives
+    
+        # 2.4.7 Disable Bluetooth Sharing
+        # Needs work.
+    
+        # 2.4.8 Disable File Sharing (Scored)
+        # Handled in netShareOff.sh
+    
+        # 2.4.9 Disable Remote Management (Scored)
+        # Used in our environment. Disabling not preferred. Limited to one user, defined in Casper.
+    
+        # 2.5 Energy Saver
+        echo 2.5 Energy Saver
 
-    # 2.4.2 Disable Internet Sharing (Scored)
-    # Handled in netShareOff.sh
+        # 2.5.1 Disable "Wake for network access"
+        /usr/bin/pmset -a womp 0 
+    
+        # 2.5.2 Disable sleeping the computer when connected to power
+        /usr/bin/pmset -c sleep 0
+    
+        # 2.6 Security & Privacy
+        echo "2.6 Security & Privacy"
 
-    # 2.4.3 Disable Screen Sharing (Scored)
-    # Screen sharing controlled by Remote Management Preferences
+        # 2.6.1 Enable FileVault (Scored)
+        # We do not use FileVault in our environment
+    
+        # 2.6.2 Enable Gatekeeper (Scored)
+        /usr/sbin/spctl --master-enable
+    
+        # 2.6.3 Enable Firewall (Scored)
+        /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
-    # 2.4.4 Disable Printer Sharing (Scored)
-    /usr/sbin/cupsctl --no-share-printers
+        # 2.6.4 Enable Firewall Stealth Mode
+        if [ `/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode` = "Stealth mode enabled" ]; then
+            echo Firewall Stealth Mode enabled.
+        else
+            /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
+        fi
 
-    # 2.4.5 Disable Remote Login (Scored)
-    # Controlled at Firewall
-    # Also, open only for one user on systems. Defined in Casper
+        # 2.6.5 Review Application Firewall Rules
+        # Needs work.
+        
+        # 2.7 iCloud
+        # echo 2.7 iCloud
+        # this section is currently only set for Recommendations, not Published standards.
 
-    # 2.4.6 Disable DVD or CD Sharing (Scored)
-    # Devices do not have Optical Drives
-
-    # 2.4.7 Disable Bluetooth Sharing
-
-    # 2.4.8 Disable File Sharing (Scored)
-    # Handled in netShareOff.sh
-
-    # 2.4.9 Disable Remote Management (Scored)
-
-    # 2.5.1 Disable "Wake for network access"
-    /usr/bin/pmset -a womp 0 
-
-    # 2.5.2 Disable sleeping the computer when connected to power
-    /usr/bin/pmset -c sleep 0
-
-    # 2.6.1 Enable FileVault (Scored)
-    # We do not use FileVault in our environment
-
-    # 2.6.2 Enable Gatekeeper (Scored)
-    /usr/sbin/spctl --master-enable
-
-    # 2.6.3 Enable Firewall (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
-
-    # 2.7 Pair the remote control infrared receiver if enabled (Scored)
-    # Disable:
-    /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
-
-    # 2.8 Enable Secure Keyboard Entry in terminal.app (Scored)
-    /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
-
-    # 2.9 Java 6 is not the default Java runtime
-
-    # 2.10 Disable Core Dumps
-    /bin/launchctl limit core 0
-
-    # 2.11 Configure Secure Empty Trash (Scored) (Level 2)
-    /usr/bin/defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
+        # 2.8 Pair the remote control infrared receiver if enabled (Scored)
+        # Disable:
+        /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
+    
+        # 2.9 Enable Secure Keyboard Entry in terminal.app (Scored)
+        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
+    
+        # 2.10 Java 6 is not the default Java runtime
+    
+        # 2.11 Securely delete files as needed (Recommended)
+        # Need to re-work this into either configuration profile or User Template.
+        # /usr/bin/defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 }
 
 ### 3 Logging and Auditing
