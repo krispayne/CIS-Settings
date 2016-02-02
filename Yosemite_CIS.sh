@@ -58,10 +58,12 @@ systemPreferences() {
             echo Create /etc/ntp.conf
             /usr/bin/touch /etc/ntp.conf
         fi
+
         echo Set NetworkTime to time.apple.com
         /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
         echo Ensure it is on
         /usr/sbin/systemsetup -setusingnetworktime on
+        
     fi
 
     # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver (Scored)
