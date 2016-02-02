@@ -1,6 +1,6 @@
 #!/bin/bash
 ########################################################################
-# CIS Level 1 Benchmark Settings beta
+# CIS Level 1 Benchmark Settings 1.0.0
 # El Capitan (10.11)
 # Kris Payne
 ########################################################################
@@ -8,10 +8,14 @@
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
-    echo 1 Software Updates
+    echo 1 Install Updates, Patches and Additional Security Software
 
-    # 1.1 Verify all application software is current (Scored)
-    /usr/sbin/softwareupdate -i -a -v
+    # 1.1 Verify all Apple provided software is current (Scored)
+    if [ `/usr/sbin/softwareupdate -l` = "No new software available" ]; then
+        echo Software is up to date
+    else
+        /usr/sbin/softwareupdate -i -a -v
+    fi
 
     # 1.2 Enable Auto Updates
     # /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1  
