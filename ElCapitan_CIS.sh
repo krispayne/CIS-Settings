@@ -8,11 +8,11 @@
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
-    printf "1 Install Updates, Patches and Additional Security Software"
+    printf "1 Install Updates, Patches and Additional Security Software\n"
 
     # 1.1 Verify all Apple provided software is current (Scored)
     if [[ "$(/usr/sbin/softwareupdate -l | grep \"No new software available.\")" = "No new software available." ]]; then
-        printf "Software is up to date"
+        printf "Software is up to date.\n"
     else
         /usr/sbin/softwareupdate -i -a -v
     fi
@@ -21,7 +21,7 @@ softwareUpdates() {
     # Checks to see if computer is polling automatically for updates from Apple
 
     #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
-    #    printf "Automatic Update Check already enabled."
+    #    printf "Automatic Update Check already enabled.\n"
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
     #fi
@@ -32,7 +32,7 @@ softwareUpdates() {
     # Sets Mac App Store auto-update for installed apps.
     
     #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
-    #    printf "Auto Update Apps already enabled."
+    #    printf "Auto Update Apps already enabled.\n"
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
     #fi
@@ -42,9 +42,9 @@ softwareUpdates() {
     # 1.4 Enable system data files and security update installs
     
     #if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall)" = "ConfigDataInstall = 1;" ]]; then
-    #    printf "ConfigDataInstall is 1"
+    #    printf "ConfigDataInstall is 1.\n"
     #elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
-    #    printf "ConfigDataInstall is 1"
+    #    printf "ConfigDataInstall is 1.\n"
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
     #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
@@ -55,7 +55,7 @@ softwareUpdates() {
     # 1.5 Enable OS X update installs
 
     #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
-    #    printf "OS X is set to auto update"
+    #    printf "OS X is set to auto update.\n"
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
     #fi
@@ -67,25 +67,25 @@ softwareUpdates() {
 ### 2 System Preferences
 systemPreferences() {
     
-    printf "2 System Preferences"
+    printf "2 System Preferences\n"
 
-        printf "2.1 Bluetooth"
+        printf "2.1 Bluetooth\n"
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist (Scored)
-        # printf "Turn off Bluetooth, if no paired devices exist"
+        # printf "Turn off Bluetooth, if no paired devices exist.\n"
         #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
-        #    printf "Bluetooth ControllerPowerState is 1."
+        #    printf "Bluetooth ControllerPowerState is 1.\n"
 
         #    if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable)" = "Connectable: Yes"]]; then
-        #        printf "Bluetooth ControllerPowerState is 1 and there are paired devices."
+        #        printf "Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
         #    elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable)" = "Connectable: No" ]]; then
-        #        printf "Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.""
+        #        printf "Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.\n"
         #        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
         #    fi
 
         #elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
-        #    printf "Bluetooth ControllerPowerState is 0."
+        #    printf "Bluetooth ControllerPowerState is 0.\n"
         #else
         #/usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
         #fi
@@ -95,7 +95,7 @@ systemPreferences() {
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
         if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = Off ]]; then
-            printf "Bluetooth Discoverable is off."
+            printf "Bluetooth Discoverable is off.\n"
         fi
 
         # uuid=`/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | cut -c22-57`
@@ -106,31 +106,31 @@ systemPreferences() {
     
         # 2.1.3 Show Bluetooth status in menu bar (Scored)
         #if [[ $(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu) = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"]]; then
-        #   printf "Bluetooth shown in menu bar."
+        #   printf "Bluetooth shown in menu bar.\n"
         #else
         #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
         #fi
 
         # 2.2 Date & Time
-            printf "2.2 Date & Time"
+            printf "2.2 Date & Time\n"
         
         # 2.2.1 Enable "Set time and date automatically" (Scored)
         if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
-            printf "NetworkTime already on. Ensuring server is time.apple.com."
+            printf "NetworkTime already on. Ensuring server is time.apple.com.\n"
 
             if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
-                printf "NetworkTime is set and is set to time.apple.com."
+                printf "NetworkTime is set and is set to time.apple.com.\n"
             fi
 
         else
             if [[ ! -e /etc/ntp.conf ]]; then
-                printf "Create '/etc/ntp.conf'"
+                printf "Create '/etc/ntp.conf'\n"
                 /usr/bin/touch /etc/ntp.conf
             fi
 
-            printf "Set NetworkTime to time.apple.com."
+            printf "Set NetworkTime to time.apple.com.\n"
             /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-            printf "Ensure NetworkTime is on."
+            printf "Ensure NetworkTime is on.\n"
             /usr/sbin/systemsetup -setusingnetworktime on
         
         fi
@@ -139,7 +139,7 @@ systemPreferences() {
         /usr/sbin/ntpdate -sv time.apple.com
 
         # 2.3 Desktop & Screen Saver
-        printf "2.3 Desktop & Screen Saver"
+        printf "2.3 Desktop & Screen Saver\n"
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
         /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
@@ -155,11 +155,11 @@ systemPreferences() {
         #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
     
         # 2.4 Sharing
-        printf "2.4 Sharing"
+        printf "2.4 Sharing\n"
 
         # 2.4.1 Disable Remote Apple Events (Scored)
         if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
-            printf "Remote Apple Events already set to off."
+            printf "Remote Apple Events already set to off.\n"
         else
             /usr/sbin/systemsetup -setremoteappleevents off
         fi
@@ -195,7 +195,7 @@ systemPreferences() {
         # Used in our environment. Disabling not preferred. Limited to one user, defined in Casper.
     
         # 2.5 Energy Saver
-        printf "2.5 Energy Saver"
+        printf "2.5 Energy Saver\n"
 
         # 2.5.1 Disable "Wake for network access"
         /usr/bin/pmset -a womp 0 
@@ -204,7 +204,7 @@ systemPreferences() {
         /usr/bin/pmset -c sleep 0
     
         # 2.6 Security & Privacy
-        printf "2.6 Security & Privacy"
+        printf "2.6 Security & Privacy\n"
 
         # 2.6.1 Enable FileVault (Scored)
         # We do not use FileVault in our environment
@@ -217,7 +217,7 @@ systemPreferences() {
 
         # 2.6.4 Enable Firewall Stealth Mode
         if [[ "$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode)" = "Stealth mode enabled" ]]; then
-            printf "Firewall Stealth Mode enabled."
+            printf "Firewall Stealth Mode enabled.\n"
         else
             /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
         fi
@@ -246,12 +246,12 @@ systemPreferences() {
 ### 3 Logging and Auditing
 loggingAndAuditing() {
     
-    printf "3 Logging and Audting"
+    printf "3 Logging and Audting\n"
 
     # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
 
     # 3.1 Configure asl.conf
-    printf "Configure asl.conf"
+    printf "Configure asl.conf\n"
 
     # 3.1.1 Retain system.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
@@ -270,7 +270,7 @@ loggingAndAuditing() {
 
     # 3.2 Enable security auditing (Scored)
     if [[ "$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')" = "com.apple.auditd" ]]; then
-        printf "Security Auditing enabled"
+        printf "Security Auditing enabled.\n"
     else
         /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
     fi
@@ -298,7 +298,7 @@ loggingAndAuditing() {
 ####
 networkConfigurations() {
 
-    printf "4 Network Configurations"
+    printf "4 Network Configurations\n"
 
     # 4.1 Disable Bonjour advertising service
 
@@ -312,7 +312,7 @@ networkConfigurations() {
 ### 5 System Access, Authentication and Authorization
 systemAccess() {
 
-    printf "5 System Access, Authentication and Authorization"
+    printf "5 System Access, Authentication and Authorization\n"
     
     # 5.1 File System Permissions and Access Controls
     
@@ -371,7 +371,7 @@ systemAccess() {
 ###  6 User Accounts and Environment
 userEnvironment() {
 
-    printf "6 User Accounts and Environment"
+    printf "6 User Accounts and Environment\n"
     
     # 6.1 Accounts Preferences Action Items
     # 6.1.1 Display login window as name and password (Scored)
@@ -401,7 +401,7 @@ userEnvironment() {
 ### 7 Additional Considerations
 additionalConsiderations() {
 
-    printf "7 Additional Considerations"
+    printf "7 Additional Considerations\n"
     
     # 7.1 iCloud configuration
     # 7.2 Wireless Adapters on Mobile Clients
@@ -419,7 +419,7 @@ additionalConsiderations() {
 ### The Restarts
 cleanAndReboot() {
 
-    printf "Finished! Time to restart..."
+    printf "Finished! Time to restart...\n"
         
     /usr/bin/killall Finder
     /usr/bin/killall SystemUIServer
@@ -429,7 +429,7 @@ cleanAndReboot() {
 
 mainScript() {
 
-    printf "Starting CIS Settings"
+    printf "Starting CIS Settings\n\n"
     
     # RUN AS ROOT
 
