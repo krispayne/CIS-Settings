@@ -10,7 +10,9 @@ Several lines do not work and have been commented out. Certain one's will hose a
 **Use at your own risk, please. There may be dragons.**
 
 10.9 Mavericks dotfile is mostly ready, but not very pretty. Based off 1.0 benchmarks
+
 10.10 Yosemite is being updated to match 1.0 benchmarks. Currently based off a beta of 1.0.
+
 10.11 El Capitan is based off 1.0 benchmarks.
 
 The benchmarks are available at the [Center for Internet Security] (https://benchmarks.cisecurity.org/)
