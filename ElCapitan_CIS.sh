@@ -329,7 +329,7 @@ systemAccess() {
     printf "5 System Access, Authentication and Authorization\n"
     
     # 5.1 File System Permissions and Access Controls
-    printf "5.1 File System Permissions and Access Controls"
+    printf "5.1 File System Permissions and Access Controls\n"
     
     # 5.1.1 Secure Home Folders (Scored)
     # 5.1.2 Check System Wide Applications for appropriate permissions
@@ -340,7 +340,7 @@ systemAccess() {
     # 5.1.5 Check Library folder for world writable files (Scored)
 
     # 5.2 Password Management
-    printf "5.2 Password Management"
+    printf "5.2 Password Management\n"
 
     # 5.2.1 Configure account lockout threshold
     # 5.2.2 Set a minimum password length
@@ -392,8 +392,8 @@ userEnvironment() {
     printf "6 User Accounts and Environment\n"
     
     # 6.1 Accounts Preferences Action Items
-    printf "6.1 Accounts Preferences Action Items"
-    
+    printf "6.1 Accounts Preferences Action Items\n"
+
     # 6.1.1 Display login window as name and password (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
     
@@ -420,19 +420,28 @@ userEnvironment() {
 ### 7 Additional Considerations
 additionalConsiderations() {
 
-    printf "7 Additional Considerations\n"
+    printf "7 Appendix: Additional Considerations\n"
     
-    # 7.1 iCloud configuration
-    # 7.2 Wireless Adapters on Mobile Clients
-    # 7.3 iSight Camera Privacy and Confidentiality Concerns
-    # 7.4 Computer Name Considerations
-    # 7.5 Software Inventory Considerations
-    # 7.6 Firewall Consideration
-    # 7.7 Automatic Actions for Optical Media
-    # 7.8 App Store Automatically download apps purchased on other Macs Considerations
-    
-    # 7.9 Extensible Firmware Interface (EFI) password
-    # Configured in imaging.
+    # 7.1 Wireless technology on OS X
+    # 7.2 iSight Camera Privacy and Confidentiality Concerns
+    # 7.3 Computer Name Considerations
+    # 7.4 Software Inventory Considerations
+    # 7.5 Firewall Consideration
+    # 7.6 Automatic Actions for Optical Media
+    # 7.7 App Store Automatically download apps purchased on other Macs Considerations
+    # 7.8 Extensible Firmware Interface (EFI) password
+    # 7.9 Apple ID password reset
+    # 7.10 Repairing permissions is no longer needed with 10.11
+    # 7.11 App Store Password Settings
+}
+
+### 8 Artifacts
+artifacts() {
+
+    printf "8 Artifacts\n"
+
+    # 8.1 Password Policy Plist generated through OS X Server
+    # 8.2 Password Policy Plist from man page
 }
 
 ### The Restarts
