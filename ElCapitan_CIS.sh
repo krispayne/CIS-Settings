@@ -392,6 +392,8 @@ userEnvironment() {
     printf "6 User Accounts and Environment\n"
     
     # 6.1 Accounts Preferences Action Items
+    printf "6.1 Accounts Preferences Action Items"
+    
     # 6.1.1 Display login window as name and password (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
     
