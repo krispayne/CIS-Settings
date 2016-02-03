@@ -61,7 +61,6 @@ softwareUpdates() {
     fi
 
     # Policy in Casper
-
 }
 
 ### 2 System Preferences
@@ -288,14 +287,9 @@ loggingAndAuditing() {
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
-
 }
 
 ### 4 Network Configurations
-
-####
-#### BOOKMARK
-####
 networkConfigurations() {
 
     printf "4 Network Configurations\n"
@@ -327,8 +321,6 @@ networkConfigurations() {
     # Remediate:
     # /sbin/nfsd disable
     # rm /etc/export
-
-
 }
 
 ### 5 System Access, Authentication and Authorization
@@ -340,55 +332,58 @@ systemAccess() {
     printf "5.1 File System Permissions and Access Controls"
     
     # 5.1.1 Secure Home Folders (Scored)
-    
-    # 5.1.2 Repair permissions regularly to ensure binaries and other System files have appropriate permissions (Not Scored)
+    # 5.1.2 Check System Wide Applications for appropriate permissions
     # Set via policy in Casper (weekly)
     
     # 5.1.3 Check System Wide Applications for appropriate permissions (Scored)
     # 5.1.4 Check System folder for world writable files (Scored)
     # 5.1.5 Check Library folder for world writable files (Scored)
-    # Set via policy in Casper (weekly)
-    # Set up and test
-    
-    # 5.2 Reduce the  timeout period (Scored)
+
+    # 5.2 Password Management
+    printf "5.2 Password Management"
+
+    # 5.2.1 Configure account lockout threshold
+    # 5.2.2 Set a minimum password length
+    # 5.2.3 Complex passwords must contain an Alphabetic Character
+    # 5.2.4 Complex passwords must contain a Numeric Character
+    # 5.2.5 Complex passwords must contain a Special Character
+    # 5.2.6 Complex passwords must uppercase and lowercase letters
+    # 5.2.7 Password Age
+    # 5.2.8 Password History
+
+
+    # 5.3 Reduce the sudo timeout period
     # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
     
-    # 5.3 Automatically lock the login keychain after 15 minutes of inactivity and when sleeping (Scored)
+    # 5.4 Automatically lock the login keychain for inactivity
     # Cannot be easily implmented in our environment
-    
-    # 5.4 Do not enable the "root" account (Scored)
+
+    # 5.5 Ensure login keychain is locked when the computer sleeps
+    # 5.6 Enable OCSP and CRL certificate checking
+    # 5.7 Do not enable the "root" account (Scored)
     # Disabled by default
     
-    # 5.5 Disable automatic login (Scored)
+    # 5.8 Disable automatic login (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow.plist autoLoginUser 0
     /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow.plist autoLoginUser
     
-    # 5.6 Require a password to wake the computer from sleep or screen saver (Scored)
+    # 5.9 Require a password to wake the computer from sleep or screen saver (Scored)
     /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
     
-    # 5.7 Require an administrator password to access system-wide preferences (Not Scored)
+    # 5.10 Require an administrator password to access system-wide preferences (Not Scored)
     # Set via script sysPrefAdmin.sh
     
-    # 5.8 Disable ability to login to another user's active and locked session (Scored)
-    
-    # 5.9 Complex passwords must contain an Alphabetic Character (Scored)
-    # 5.10 Complex passwords must contain a Numeric Character (Scored)
-    # 5.11 Complex passwords must contain a Symbolic Character (Scored)
-    # 5.12 Set a minimum password length (Scored)
-    # 5.13 Configure account lockout threshold (Scored)
-    # Password policy is set via Active Directory
-    
-    # 5.14 Create an access warning for the login window (Scored)
+    # 5.11 Disable ability to login to another user's active and locked session (Scored)
+    # 5.12 Create a custom message for the Login Screen
+    # 5.13 Create a Login window banner
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
     
-    # 5.15 Do not enter a password-related hint
-
-    # 5.16 Disable Fast User Switching
-
-    # 5.17 Secure individual keychain items
-
-    # 5.18 Create specialized keychains for different purposes
-
+    # 5.14 Do not enter a password-related hint
+    # 5.15 Disable Fast User Switching
+    # 5.16 Secure individual keychain items
+    # 5.17 Create specialized keychains for different purposes
+    # 5.18 System Integrity Protection status
+    # 5.19 Install an approved tokend for smartcard authentication
 }
 
 ###  6 User Accounts and Environment
@@ -418,7 +413,6 @@ userEnvironment() {
     
     # 6.4 Use parental controls for systems that are not centrally managed
     # Centrally Managed
-
 }
 
 ### 7 Additional Considerations
