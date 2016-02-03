@@ -20,45 +20,45 @@ softwareUpdates() {
     # 1.2 Enable Auto Update
     # Checks to see if computer is polling automatically for updates from Apple
 
-    #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
-    #    printf "Automatic Update Check already enabled.\n"
-    #else
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
-    #fi
+    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
+        printf "Automatic Update Check already enabled.\n"
+    else
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
+    fi
 
     # SWU managed via policy in Casper
 
     # 1.3 Enable app update installs
     # Sets Mac App Store auto-update for installed apps.
     
-    #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
-    #    printf "Auto Update Apps already enabled.\n"
-    #else
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
-    #fi
+    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
+        printf "Auto Update Apps already enabled.\n"
+    else
+        /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
+    fi
 
     # Policies via AutoPKG and Casper
 
     # 1.4 Enable system data files and security update installs
     
-    #if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall)" = "ConfigDataInstall = 1;" ]]; then
-    #    printf "ConfigDataInstall is 1.\n"
-    #elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
-    #    printf "ConfigDataInstall is 1.\n"
-    #else
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
-    #fi
+    if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall)" = "ConfigDataInstall = 1;" ]]; then
+        printf "ConfigDataInstall is 1.\n"
+    elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
+        printf "ConfigDataInstall is 1.\n"
+    else
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
+    fi
 
     # Policy in Casper
 
     # 1.5 Enable OS X update installs
 
-    #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
-    #    printf "OS X is set to auto update.\n"
-    #else
-    #    /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
-    #fi
+    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
+        printf "OS X is set to auto update.\n"
+    else
+        /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
+    fi
 
     # Policy in Casper
 
@@ -73,28 +73,28 @@ systemPreferences() {
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist (Scored)
-        # printf "Turn off Bluetooth, if no paired devices exist.\n"
-        #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
-        #    printf "Bluetooth ControllerPowerState is 1.\n"
+        printf "Turn off Bluetooth, if no paired devices exist.\n"
+        if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
+            printf "Bluetooth ControllerPowerState is 1.\n"
 
-        #    if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable)" = "Connectable: Yes"]]; then
-        #        printf "Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
-        #    elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable)" = "Connectable: No" ]]; then
-        #        printf "Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.\n"
-        #        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
-        #    fi
+            if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "Yes" ]]; then
+                printf "Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
+            elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "No" ]]; then
+                printf "Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.\n"
+                /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+            fi
 
-        #elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
-        #    printf "Bluetooth ControllerPowerState is 0.\n"
-        #else
-        #/usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
-        #fi
+        elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
+            printf "Bluetooth ControllerPowerState is 0.\n"
+        else
+        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+        fi
 
         # 2.1.2 Turn off Bluetooth "Discoverable" mode when not pairing devices
         # Starting with OS X (10.9) Bluetooth is only set to Discoverable when the Bluetooth System Preference 
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
-        if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = Off ]]; then
+        if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = "Off" ]]; then
             printf "Bluetooth Discoverable is off.\n"
         fi
 
@@ -105,11 +105,11 @@ systemPreferences() {
         # Need to test.
     
         # 2.1.3 Show Bluetooth status in menu bar (Scored)
-        #if [[ $(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu) = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"]]; then
-        #   printf "Bluetooth shown in menu bar.\n"
-        #else
-        #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
-        #fi
+        if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
+           printf "Bluetooth shown in menu bar.\n"
+        else
+            /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+        fi
 
         # 2.2 Date & Time
             printf "2.2 Date & Time\n"
