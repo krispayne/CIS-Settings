@@ -11,7 +11,7 @@ softwareUpdates() {
     echo 1 Install Updates, Patches and Additional Security Software
 
     # 1.1 Verify all Apple provided software is current (Scored)
-    if [ $(/usr/sbin/softwareupdate -l | grep "No new software available.") = "No new software available." ]; then
+    if [[ "$(/usr/sbin/softwareupdate -l | grep \"No new software available.\")" = "No new software available." ]]; then
         echo Software is up to date
     else
         /usr/sbin/softwareupdate -i -a -v
@@ -20,7 +20,7 @@ softwareUpdates() {
     # 1.2 Enable Auto Update
     # Checks to see if computer is polling automatically for updates from Apple
 
-    #if [ $(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled) = 1 ]; then
+    #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
     #    echo Automatic Update Check already enabled.
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
@@ -31,7 +31,7 @@ softwareUpdates() {
     # 1.3 Enable app update installs
     # Sets Mac App Store auto-update for installed apps.
     
-    #if [ $(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate) = "1" ]; then
+    #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
     #    echo Auto Update Apps already enabled.
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
@@ -41,9 +41,9 @@ softwareUpdates() {
 
     # 1.4 Enable system data files and security update installs
     
-    #if [ $(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall) = "ConfigDataInstall = 1;" ]; then
+    #if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall)" = "ConfigDataInstall = 1;" ]]; then
     #    echo ConfigDataInstall is 1
-    #elif [ $(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall) = "CriticalUpdateInstall = 1;" ]; then
+    #elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
     #    echo ConfigDataInstall is 1
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
@@ -54,7 +54,7 @@ softwareUpdates() {
 
     # 1.5 Enable OS X update installs
 
-    #if [ $(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired) = "1" ]; then
+    #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
     #    echo OS X is set to auto update
     #else
     #    /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
@@ -74,17 +74,17 @@ systemPreferences() {
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist (Scored)
         # echo Turn off Bluetooth, if no paired devices exist
-        #if [ $(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState) = "1" ]; then
+        #if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
         #    echo Bluetooth ControllerPowerState is 1
 
-        #    if [ $(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable) = "Connectable: Yes"]; then
+        #    if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable)" = "Connectable: Yes"]]; then
         #        echo Bluetooth ControllerPowerState is 1 and there are paired devices
-        #    elif [ $(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable) = "Connectable: No" ]; then
+        #    elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable)" = "Connectable: No" ]]; then
         #        echo Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.
         #        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
         #    fi
 
-        #elif [ $(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState) = "0" ]; then
+        #elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
         #    echo Bluetooth ControllerPowerState is 0
         #else
         #/usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
@@ -94,7 +94,7 @@ systemPreferences() {
         # Starting with OS X (10.9) Bluetooth is only set to Discoverable when the Bluetooth System Preference 
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
-        if [ $(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }') = Off ]; then
+        if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = Off ]]; then
             echo Bluetooth Discoverable is off.
         fi
 
@@ -105,7 +105,7 @@ systemPreferences() {
         # Need to test.
     
         # 2.1.3 Show Bluetooth status in menu bar (Scored)
-        #if [ $(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu) = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"]; then
+        #if [[ $(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu) = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"]]; then
         #   echo Bluetooth shown in menu bar
         #else
         #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
@@ -115,15 +115,15 @@ systemPreferences() {
         echo "2.2 Date & Time"
         
         # 2.2.1 Enable "Set time and date automatically" (Scored)
-        if [ $(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }') = "On" ]; then
+        if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
             echo NetworkTime already on. Ensuring server is time.apple.com
 
-            if [ $(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }') = "time.apple.com" ]; then
+            if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
                 echo NetworkTime is set and is set to time.apple.com
             fi
 
         else
-            if [ ! -e /etc/ntp.conf ]; then
+            if [[ ! -e /etc/ntp.conf ]]; then
                 echo Create /etc/ntp.conf
                 /usr/bin/touch /etc/ntp.conf
             fi
@@ -158,7 +158,7 @@ systemPreferences() {
         echo 2.4 Sharing
 
         # 2.4.1 Disable Remote Apple Events (Scored)
-        if [ $(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }') = "Off" ]; then
+        if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
             echo Remote Apple Events already set to off.
         else
             /usr/sbin/systemsetup -setremoteappleevents off
@@ -216,7 +216,7 @@ systemPreferences() {
         /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
         # 2.6.4 Enable Firewall Stealth Mode
-        if [ $(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode) = "Stealth mode enabled" ]; then
+        if [[ "$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode)" = "Stealth mode enabled" ]]; then
             echo Firewall Stealth Mode enabled.
         else
             /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
@@ -269,7 +269,7 @@ loggingAndAuditing() {
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
 
     # 3.2 Enable security auditing (Scored)
-    if [ $(/bin/launchctl list | grep -i auditd | awk '{ print $3 }') = "com.apple.auditd" ]; then
+    if [[ "$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')" = "com.apple.auditd" ]]; then
         echo Auditing enabled
     else
         /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
