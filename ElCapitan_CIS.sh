@@ -307,6 +307,28 @@ networkConfigurations() {
 
     # 4.3 Create network specific locations
 
+    # 4.4 Ensure http server is not running
+    # Audit:
+    # /bin/ps -ef | grep -i httpd
+    # Remediate:
+    # /usr/sbin/apachectl stop
+    # /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true
+
+    # 4.5 Ensure ftp server is not running
+    # Audit:
+    # /usr/sbin/launchctl list | egrep ftp
+    # Remediate:
+    # /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
+
+    # 4.6 Ensure nfs server is not running
+    # Audit:
+    # /bin/ps -ef | grep -i nfsd
+    # cat /etc/exports
+    # Remediate:
+    # /sbin/nfsd disable
+    # rm /etc/export
+
+
 }
 
 ### 5 System Access, Authentication and Authorization
@@ -315,6 +337,7 @@ systemAccess() {
     printf "5 System Access, Authentication and Authorization\n"
     
     # 5.1 File System Permissions and Access Controls
+    printf "5.1 File System Permissions and Access Controls"
     
     # 5.1.1 Secure Home Folders (Scored)
     
