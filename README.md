@@ -9,6 +9,8 @@ Several lines do not work and have been commented out. Certain one's will hose a
 
 **Use at your own risk, please. There may be dragons.**
 
-The Yosemite dotfile is experimental and not based on published benchmarks from CIS.
+The El Capitan file is in current development based off 1.0 Benchmark.
 
-The Mavericks dotfile is mostly ready, but not very pretty. The benchmark is available at the [Center for Internet Security] (https://benchmarks.cisecurity.org/)
+The Yosemite file is experimental and not based on published benchmarks from CIS.
+
+The Mavericks file is mostly ready, but not very pretty. The benchmark is available at the [Center for Internet Security] (https://benchmarks.cisecurity.org/)
