@@ -295,6 +295,14 @@ networkConfigurations() {
     printf "4 Network Configurations\n"
 
     # 4.1 Disable Bonjour advertising service
+    export checkBonjourAdvertising
+    checkBonjourAdvertising="$(defaults read /Library/Preferences/com.apple.alf globalstate)"
+    if [ "$checkBonjourAdvertising" = "1" ] || [ "$checkBonjourAdvertising" = "2" ]; then
+        printf "Bonjour Advertising is off.\n"
+    else
+        # need to work this section out. Editing a plist.
+        printf "Bonjour Advertising is on. Shut it down.\n"
+    fi
 
     # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
     # Set via script and policy in Casper
