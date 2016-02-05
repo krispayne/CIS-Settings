@@ -302,25 +302,30 @@ networkConfigurations() {
     # 4.3 Create network specific locations
 
     # 4.4 Ensure http server is not running
-    # Audit:
-    # /bin/ps -ef | grep -i httpd
-    # Remediate:
-    # /usr/sbin/apachectl stop
-    # /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true
+    if /bin/ps -ef | grep -i httpd > /dev/null; then
+        printf "HTTP server is running. Shut it down.\n"
+        /usr/sbin/apachectl stop && /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true
+    else
+        printf "HTTP server not enabled.\n"
+    fi
 
     # 4.5 Ensure ftp server is not running
-    # Audit:
-    # /usr/sbin/launchctl list | egrep ftp
-    # Remediate:
-    # /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
+    if /bin/launchctl list | egrep ftp > /dev/null; then
+        printf "FTP server is running. Shut it down.\n"
+        /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
+    else
+        printf "FTP server not enabled.\n"
+    fi
 
     # 4.6 Ensure nfs server is not running
-    # Audit:
-    # /bin/ps -ef | grep -i nfsd
-    # cat /etc/exports
-    # Remediate:
-    # /sbin/nfsd disable
-    # rm /etc/export
+    if /bin/ps -ef | grep -i nfsd > /dev/null; then
+        printf "NFS server is running. Shut it down.\n"
+        /sbin/nfsd disable
+    elif [[ -e /etc/exports ]]; then
+        rm /etc/export
+    else
+        printf "NFS server not enabled.\n"
+    fi
 }
 
 ### 5 System Access, Authentication and Authorization
@@ -474,3 +479,4 @@ mainScript() {
 
 # Run mainScript
 mainScript
+
