@@ -30,7 +30,7 @@ softwareUpdates() {
 
     # 1.3 Enable app update installs
     # Sets Mac App Store auto-update for installed apps.
-    
+
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
         printf "Auto Update Apps already enabled.\n"
     else
@@ -40,7 +40,7 @@ softwareUpdates() {
     # Policies via AutoPKG and Casper
 
     # 1.4 Enable system data files and security update installs
-    
+
     if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall)" = "ConfigDataInstall = 1;" ]]; then
         printf "ConfigDataInstall is 1.\n"
     elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
@@ -65,7 +65,7 @@ softwareUpdates() {
 
 ### 2 System Preferences
 systemPreferences() {
-    
+
     printf "2 System Preferences\n"
 
         printf "2.1 Bluetooth\n"
@@ -90,7 +90,7 @@ systemPreferences() {
         fi
 
         # 2.1.2 Turn off Bluetooth "Discoverable" mode when not pairing devices
-        # Starting with OS X (10.9) Bluetooth is only set to Discoverable when the Bluetooth System Preference 
+        # Starting with OS X (10.9) Bluetooth is only set to Discoverable when the Bluetooth System Preference
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
         if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = "Off" ]]; then
@@ -102,7 +102,7 @@ systemPreferences() {
         # /usr/sbin/chown $@ /Users/$@/Library/Preferences/ByHost/com.apple.Bluetooth.$uuid.plist
         # Stolen from http://krypted.com/mac-security/disabling-bluetooth-discoverable-mode/
         # Need to test.
-    
+
         # 2.1.3 Show Bluetooth status in menu bar (Scored)
         if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
            printf "Bluetooth shown in menu bar.\n"
@@ -112,7 +112,7 @@ systemPreferences() {
 
         # 2.2 Date & Time
             printf "2.2 Date & Time\n"
-        
+
         # 2.2.1 Enable "Set time and date automatically" (Scored)
         if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
             printf "NetworkTime already on. Ensuring server is time.apple.com.\n"
@@ -131,7 +131,7 @@ systemPreferences() {
             /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
             printf "Ensure NetworkTime is on.\n"
             /usr/sbin/systemsetup -setusingnetworktime on
-        
+
         fi
 
         # 2.2.2 Ensure time set is within appropriate limits
@@ -142,17 +142,17 @@ systemPreferences() {
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
         /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
-        # going to move this to a user based configuration profile 
-    
+        # going to move this to a user based configuration profile
+
         # 2.3.2 Secure screen saver corners
-        # going to move this to a user based configuration profile 
+        # going to move this to a user based configuration profile
 
         # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
         /usr/bin/pmset -a displaysleep 15
-    
+
         # 2.3.4 Set a screen corner to Start Screen Saver
         #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
-    
+
         # 2.4 Sharing
         printf "2.4 Sharing\n"
 
@@ -162,55 +162,55 @@ systemPreferences() {
         else
             /usr/sbin/systemsetup -setremoteappleevents off
         fi
-    
+
         # 2.4.2 Disable Internet Sharing (Scored)
-        # Internet Sharing is off by default. Running these commands without checking 
+        # Internet Sharing is off by default. Running these commands without checking
         # first will send the machine into a downward sprial of doom and depair.
         # It's your funeral if you uncomment. Left in for remediation/completeness sake.
         # /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.nat NAT -dict Enabled -int 0
         # /bin/launchctl unload -w /System/Library/LaunchDaemons/ com.apple.InternetSharing.plist
 
-    
+
         # 2.4.3 Disable Screen Sharing (Scored)
         # Screen sharing controlled by Remote Management Preferences
-    
+
         # 2.4.4 Disable Printer Sharing (Scored)
         /usr/sbin/cupsctl --no-share-printers
-    
+
         # 2.4.5 Disable Remote Login (Scored)
         # Controlled at Firewall
         # Also, open only for one user on systems. Defined in Casper
-    
+
         # 2.4.6 Disable DVD or CD Sharing (Scored)
         # Devices do not have Optical Drives
-    
+
         # 2.4.7 Disable Bluetooth Sharing
         # Needs work.
-    
+
         # 2.4.8 Disable File Sharing (Scored)
         # Handled in netShareOff.sh
-    
+
         # 2.4.9 Disable Remote Management (Scored)
         # Used in our environment. Disabling not preferred. Limited to one user, defined in Casper.
-    
+
         # 2.5 Energy Saver
         printf "2.5 Energy Saver\n"
 
         # 2.5.1 Disable "Wake for network access"
-        /usr/bin/pmset -a womp 0 
-    
+        /usr/bin/pmset -a womp 0
+
         # 2.5.2 Disable sleeping the computer when connected to power
         /usr/bin/pmset -c sleep 0
-    
+
         # 2.6 Security & Privacy
         printf "2.6 Security & Privacy\n"
 
         # 2.6.1 Enable FileVault (Scored)
         # We do not use FileVault in our environment
-    
+
         # 2.6.2 Enable Gatekeeper (Scored)
         /usr/sbin/spctl --master-enable
-    
+
         # 2.6.3 Enable Firewall (Scored)
         /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
 
@@ -223,7 +223,7 @@ systemPreferences() {
 
         # 2.6.5 Review Application Firewall Rules
         # Needs work.
-        
+
         # 2.7 iCloud
         # printf "2.7 iCloud"
         # this section is currently only set for Recommendations, not Published standards.
@@ -231,12 +231,12 @@ systemPreferences() {
         # 2.8 Pair the remote control infrared receiver if enabled (Scored)
         # Disable:
         /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
-    
+
         # 2.9 Enable Secure Keyboard Entry in terminal.app (Scored)
         /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
-    
+
         # 2.10 Java 6 is not the default Java runtime
-    
+
         # 2.11 Securely delete files as needed (Recommended)
         # Need to re-work this into either configuration profile or User Template.
         # /usr/bin/defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
@@ -244,7 +244,7 @@ systemPreferences() {
 
 ### 3 Logging and Auditing
 loggingAndAuditing() {
-    
+
     printf "3 Logging and Audting\n"
 
     # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
@@ -273,7 +273,7 @@ loggingAndAuditing() {
     else
         /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
     fi
-    
+
     # 3.3 Configure Security Auditing Flags
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
@@ -340,22 +340,36 @@ networkConfigurations() {
 systemAccess() {
 
     printf "5 System Access, Authentication and Authorization\n"
-    
+
     # 5.1 File System Permissions and Access Controls
     printf "5.1 File System Permissions and Access Controls\n"
-    
+
     # 5.1.1 Secure Home Folders (Scored)
+    # Home folders are owned by the user only by default
+
     # 5.1.2 Check System Wide Applications for appropriate permissions
-    # Set via policy in Casper (weekly)
-    
-    # 5.1.3 Check System Wide Applications for appropriate permissions (Scored)
-    # 5.1.4 Check System folder for world writable files (Scored)
-    # 5.1.5 Check Library folder for world writable files (Scored)
+    # TODO
+
+    # 5.1.3 Check System folder for world writable files (Scored)
+    # TODO
+
+    # 5.1.4 Check Library folder for world writable files (Scored)
+    # TODO
 
     # 5.2 Password Management
     printf "5.2 Password Management\n"
 
+    # TODO
+    # This is set by AD in our environment, but doesn't account for local-only users
+    # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remidiation procedure is for a logged in user.
+    # It might be that this should be configured via Configuration Policy instead
+
     # 5.2.1 Configure account lockout threshold
+    # Audit:
+    # pwpolicy -getaccountpolicies | grep -A 1 '<key>policyAttributeMaximumFailedAuthentications</key>' | tail -1 | cut -d'>' -f2 | cut -d '<' -f1
+    # Remediation
+    #  pwpolicy -setaccountpolicies
+
     # 5.2.2 Set a minimum password length
     # 5.2.3 Complex passwords must contain an Alphabetic Character
     # 5.2.4 Complex passwords must contain a Numeric Character
@@ -367,7 +381,7 @@ systemAccess() {
 
     # 5.3 Reduce the sudo timeout period
     # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
-    
+
     # 5.4 Automatically lock the login keychain for inactivity
     # Cannot be easily implmented in our environment
 
@@ -375,22 +389,22 @@ systemAccess() {
     # 5.6 Enable OCSP and CRL certificate checking
     # 5.7 Do not enable the "root" account (Scored)
     # Disabled by default
-    
+
     # 5.8 Disable automatic login (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow.plist autoLoginUser 0
     /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow.plist autoLoginUser
-    
+
     # 5.9 Require a password to wake the computer from sleep or screen saver (Scored)
     /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
-    
+
     # 5.10 Require an administrator password to access system-wide preferences (Not Scored)
     # Set via script sysPrefAdmin.sh
-    
+
     # 5.11 Disable ability to login to another user's active and locked session (Scored)
     # 5.12 Create a custom message for the Login Screen
     # 5.13 Create a Login window banner
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
-    
+
     # 5.14 Do not enter a password-related hint
     # 5.15 Disable Fast User Switching
     # 5.16 Secure individual keychain items
@@ -403,29 +417,29 @@ systemAccess() {
 userEnvironment() {
 
     printf "6 User Accounts and Environment\n"
-    
+
     # 6.1 Accounts Preferences Action Items
     printf "6.1 Accounts Preferences Action Items\n"
 
     # 6.1.1 Display login window as name and password (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
-    
+
     # 6.1.2 Disable "Show password hints" (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
-    
+
     # 6.1.3 Disable guest account login (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
-    
+
     # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
     /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
-    
+
     # 6.2 Turn on filename extensions (Scored)
     /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true
-    
+
     # 6.3 Disable the automatic run of safe files in Safari (Scored)
     /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
-    
+
     # 6.4 Use parental controls for systems that are not centrally managed
     # Centrally Managed
 }
@@ -434,7 +448,7 @@ userEnvironment() {
 additionalConsiderations() {
 
     printf "7 Appendix: Additional Considerations\n"
-    
+
     # 7.1 Wireless technology on OS X
     # 7.2 iSight Camera Privacy and Confidentiality Concerns
     # 7.3 Computer Name Considerations
@@ -461,17 +475,17 @@ artifacts() {
 cleanAndReboot() {
 
     printf "Finished! Time to restart...\n"
-        
+
     /usr/bin/killall Finder
     /usr/bin/killall SystemUIServer
     /usr/bin/killall -HUP blued
-    /sbin/shutdown -r now 
+    /sbin/shutdown -r now
 }
 
 mainScript() {
 
     printf "Starting CIS Settings\n\n"
-    
+
     # RUN AS ROOT
 
     # comment out sections you do not want to run.
@@ -487,4 +501,3 @@ mainScript() {
 
 # Run mainScript
 mainScript
-
