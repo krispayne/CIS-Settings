@@ -11,8 +11,6 @@ archive_log_location="/var/log/cis_install-`date +%Y-%m-%d-%H-%M-%S`.log"
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
-    ScriptLogging "`date +%Y-%m-%d\ %H:%M:%S`"
-
     ScriptLogging "1 Install Updates, Patches, and Additional Security Software"
     ScriptLogging "  -------------------  "
 
@@ -526,6 +524,7 @@ cleanAndReboot() {
     # ^ do we really need this if rebooting?
 
     ScriptLogging "`date +%Y-%m-%d\ %H:%M:%S`"
+    ScriptLogging " "
     /sbin/shutdown -r now
 }
 
@@ -546,6 +545,8 @@ mainScript() {
     ScriptLogging "  -------------------  "
     ScriptLogging " Starting CIS Settings "
     ScriptLogging "  -------------------  "
+    ScriptLogging " "
+    ScriptLogging "`date +%Y-%m-%d\ %H:%M:%S`"
     ScriptLogging " "
 
     # comment out sections you do not want to run.
