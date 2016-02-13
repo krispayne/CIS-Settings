@@ -11,7 +11,7 @@ archive_log_location="/var/log/cis_install-`date +%Y-%m-%d-%H-%M-%S`.log"
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
-    printf "1 Install Updates, Patches, and Additional Security Software\n"
+    printf "1 Install Updates, Patches, and Additional Security Software\n\n"
 
     # 1.1 Verify all Apple provided software is current (Scored)
     #export softwareUpdateCheck
@@ -19,7 +19,7 @@ softwareUpdates() {
     if [[ "$softwareUpdateCheck" -eq 0 ]]; then
         printf "\n"
     else
-        printf "Installing Software Updates.\n\n"
+        printf "  Installing Software Updates.\n\n"
         /usr/sbin/softwareupdate -i -a -v
     fi
 
@@ -27,7 +27,7 @@ softwareUpdates() {
     # Checks to see if computer is polling automatically for updates from Apple
 
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
-        printf "Automatic Update Check already enabled.\n"
+        printf "  Automatic Update Check already enabled.\n"
     else
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
     fi
@@ -38,7 +38,7 @@ softwareUpdates() {
     # Sets Mac App Store auto-update for installed apps.
 
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
-        printf "Auto Update Apps already enabled.\n"
+        printf "  Auto Update Apps already enabled.\n"
     else
         /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
     fi
@@ -48,11 +48,11 @@ softwareUpdates() {
     # 1.4 Enable system data files and security update installs
 
     if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep ConfigDataInstall)" = "ConfigDataInstall = 1;" ]]; then
-        printf "ConfigDataInstall is 1.\n"
+        printf "  ConfigDataInstall is 1.\n"
     elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
-        printf "ConfigDataInstall is 1.\n"
+        printf "  ConfigDataInstall is 1.\n"
     else
-        printf "Enabling system data files and security updates.\n"
+        printf "  Enabling system data files and security updates.\n"
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
     fi
@@ -62,37 +62,41 @@ softwareUpdates() {
     # 1.5 Enable OS X update installs
 
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
-        printf "OS X is set to auto update.\n"
+        printf "  OS X is set to auto update.\n"
     else
-        printf "Setting OS X to auto update.\n"
+        printf "  Setting OS X to auto update.\n"
         /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
     fi
 
     # Policy in Casper
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### 2 System Preferences
 systemPreferences() {
 
-    printf "2 System Preferences\n"
+    printf "2 System Preferences\n\n"
 
-        printf "2.1 Bluetooth\n"
+        printf "  2.1 Bluetooth\n"
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist (Scored)
-        printf "Turn off Bluetooth, if no paired devices exist.\n"
+        printf "  Turn off Bluetooth, if no paired devices exist.\n"
         if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
-            printf "Bluetooth ControllerPowerState is 1.\n"
+            printf "  Bluetooth ControllerPowerState is 1.\n"
 
             if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "Yes" ]]; then
-                printf "Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
+                printf "  Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
             elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "No" ]]; then
-                printf "Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.\n"
+                printf "  Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth.\n"
                 /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
             fi
 
         elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
-            printf "Bluetooth ControllerPowerState is 0.\n"
+            printf "  Bluetooth ControllerPowerState is 0.\n"
         else
         /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
         fi
@@ -102,7 +106,7 @@ systemPreferences() {
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
         if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = "Off" ]]; then
-            printf "Bluetooth Discoverable is off.\n"
+            printf "  Bluetooth Discoverable is off.\n"
         fi
 
         # uuid=`/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | cut -c22-57`
@@ -113,20 +117,20 @@ systemPreferences() {
 
         # 2.1.3 Show Bluetooth status in menu bar (Scored)
         if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
-           printf "Bluetooth shown in menu bar.\n"
+           printf "  Bluetooth shown in menu bar.\n"
         else
             /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
         fi
 
         # 2.2 Date & Time
-            printf "2.2 Date & Time\n"
+            printf "  2.2 Date & Time\n"
 
         # 2.2.1 Enable "Set time and date automatically" (Scored)
         if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
-            printf "NetworkTime already on. Ensuring server is time.apple.com.\n"
+            printf "  NetworkTime already on. Ensuring server is time.apple.com.\n"
 
             if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
-                printf "NetworkTime is set and is set to time.apple.com.\n"
+                printf "  NetworkTime is set and is set to time.apple.com.\n"
             fi
 
         else
@@ -135,9 +139,9 @@ systemPreferences() {
                 /usr/bin/touch /etc/ntp.conf
             fi
 
-            printf "Set NetworkTime to time.apple.com.\n"
+            printf "  Set NetworkTime to time.apple.com.\n"
             /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-            printf "Ensure NetworkTime is on.\n"
+            printf "  Ensure NetworkTime is on.\n"
             /usr/sbin/systemsetup -setusingnetworktime on
 
         fi
@@ -146,7 +150,7 @@ systemPreferences() {
         /usr/sbin/ntpdate -sv time.apple.com
 
         # 2.3 Desktop & Screen Saver
-        printf "2.3 Desktop & Screen Saver\n"
+        printf "  2.3 Desktop & Screen Saver\n"
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
         /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
@@ -162,11 +166,11 @@ systemPreferences() {
         #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
 
         # 2.4 Sharing
-        printf "2.4 Sharing\n"
+        printf "  2.4 Sharing\n"
 
         # 2.4.1 Disable Remote Apple Events (Scored)
         if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
-            printf "Remote Apple Events already set to off.\n"
+            printf "  Remote Apple Events already set to off.\n"
         else
             /usr/sbin/systemsetup -setremoteappleevents off
         fi
@@ -202,7 +206,7 @@ systemPreferences() {
         # Used in our environment. Disabling not preferred. Limited to one user, defined in Casper.
 
         # 2.5 Energy Saver
-        printf "2.5 Energy Saver\n"
+        printf "  2.5 Energy Saver\n"
 
         # 2.5.1 Disable "Wake for network access"
         /usr/bin/pmset -a womp 0
@@ -211,7 +215,7 @@ systemPreferences() {
         /usr/bin/pmset -c sleep 0
 
         # 2.6 Security & Privacy
-        printf "2.6 Security & Privacy\n"
+        printf "  2.6 Security & Privacy\n"
 
         # 2.6.1 Enable FileVault (Scored)
         # We do not use FileVault in our environment
@@ -224,7 +228,7 @@ systemPreferences() {
 
         # 2.6.4 Enable Firewall Stealth Mode
         if [[ "$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode)" = "Stealth mode enabled" ]]; then
-            printf "Firewall Stealth Mode enabled.\n"
+            printf "  Firewall Stealth Mode enabled.\n"
         else
             /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
         fi
@@ -248,17 +252,21 @@ systemPreferences() {
         # 2.11 Securely delete files as needed (Recommended)
         # Need to re-work this into either configuration profile or User Template.
         # /usr/bin/defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### 3 Logging and Auditing
 loggingAndAuditing() {
 
-    printf "3 Logging and Audting\n"
+    printf "3 Logging and Audting\n\n"
 
     # Test implementation with SumoLogic: http://www.sumologic.com/applications/mac-osx/
 
     # 3.1 Configure asl.conf
-    printf "Configure asl.conf\n"
+    printf "  Configure asl.conf\n"
 
     # 3.1.1 Retain system.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
@@ -277,7 +285,7 @@ loggingAndAuditing() {
 
     # 3.2 Enable security auditing (Scored)
     if [[ "$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')" = "com.apple.auditd" ]]; then
-        printf "Security Auditing enabled.\n"
+        printf "  Security Auditing enabled.\n"
     else
         /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
     fi
@@ -295,21 +303,25 @@ loggingAndAuditing() {
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### 4 Network Configurations
 networkConfigurations() {
 
-    printf "4 Network Configurations\n"
+    printf "4 Network Configurations\n\n"
 
     # 4.1 Disable Bonjour advertising service
     export checkBonjourAdvertising
     checkBonjourAdvertising="$(defaults read /Library/Preferences/com.apple.alf globalstate)"
     if [ "$checkBonjourAdvertising" = "1" ] || [ "$checkBonjourAdvertising" = "2" ]; then
-        printf "Bonjour Advertising is off.\n"
+        printf "  Bonjour Advertising is off.\n"
     else
         # need to work this section out. Editing a plist.
-        printf "Bonjour Advertising is on. Shut it down.\n"
+        printf "  Bonjour Advertising is on. Shut it down.\n"
     fi
 
     # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
@@ -318,39 +330,47 @@ networkConfigurations() {
     # 4.3 Create network specific locations
 
     # 4.4 Ensure http server is not running
+    # TODO
+    # Getting an error here
+    # HTTP server is running. Shut it down.
+    # /System/Library/LaunchDaemons/org.apache.httpd.plist: Could not find specified service
     if /bin/ps -ef | grep -i httpd > /dev/null; then
-        printf "HTTP server is running. Shut it down.\n"
+        printf "  HTTP server is running. Shut it down.\n"
         /usr/sbin/apachectl stop && /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true
     else
-        printf "HTTP server not enabled.\n"
+        printf "  HTTP server not enabled.\n"
     fi
 
     # 4.5 Ensure ftp server is not running
     if /bin/launchctl list | egrep ftp > /dev/null; then
-        printf "FTP server is running. Shut it down.\n"
+        printf "  FTP server is running. Shut it down.\n"
         /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
     else
-        printf "FTP server not enabled.\n"
+        printf "  FTP server not enabled.\n"
     fi
 
     # 4.6 Ensure nfs server is not running
     if /bin/ps -ef | grep -i nfsd > /dev/null; then
-        printf "NFS server is running. Shut it down.\n"
+        printf "  NFS server is running. Shut it down.\n"
         /sbin/nfsd disable
     elif [[ -e /etc/exports ]]; then
         rm /etc/export
     else
-        printf "NFS server not enabled.\n"
+        printf "  NFS server not enabled.\n"
     fi
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### 5 System Access, Authentication and Authorization
 systemAccess() {
 
-    printf "5 System Access, Authentication and Authorization\n"
+    printf "5 System Access, Authentication and Authorization\n\n"
 
     # 5.1 File System Permissions and Access Controls
-    printf "5.1 File System Permissions and Access Controls\n"
+    printf "  5.1 File System Permissions and Access Controls\n"
 
     # 5.1.1 Secure Home Folders (Scored)
     # Home folders are owned by the user only by default
@@ -365,7 +385,7 @@ systemAccess() {
     # TODO
 
     # 5.2 Password Management
-    printf "5.2 Password Management\n"
+    printf "  5.2 Password Management\n"
 
     # TODO
     # This is set by AD in our environment, but doesn't account for local-only users
@@ -401,9 +421,9 @@ systemAccess() {
     # 5.8 Disable automatic login (Scored)
 
     if /usr/bin/defaults read /Library/Preferences/com.apple.loginwindow | grep autoLoginUser > /dev/null; then
-        printf "Auto login is disabled.\n"
+        printf "  Auto login is disabled.\n"
     else
-        printf "Auto login enabled. Disabling.\n"
+        printf "  Auto login enabled. Disabling.\n"
         /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
     fi
 
@@ -426,15 +446,19 @@ systemAccess() {
     # 5.17 Create specialized keychains for different purposes
     # 5.18 System Integrity Protection status
     # 5.19 Install an approved tokend for smartcard authentication
+
+printf "\n\n"
+sleep 5
+
 }
 
 ###  6 User Accounts and Environment
 userEnvironment() {
 
-    printf "6 User Accounts and Environment\n"
+    printf "6 User Accounts and Environment\n\n"
 
     # 6.1 Accounts Preferences Action Items
-    printf "6.1 Accounts Preferences Action Items\n"
+    printf "  6.1 Accounts Preferences Action Items\n"
 
     # 6.1.1 Display login window as name and password (Scored)
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
@@ -457,12 +481,16 @@ userEnvironment() {
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Centrally Managed
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### 7 Additional Considerations
 additionalConsiderations() {
 
-    printf "7 Appendix: Additional Considerations\n"
+    printf "7 Appendix: Additional Considerations\n\n"
 
     # 7.1 Wireless technology on OS X
     # 7.2 iSight Camera Privacy and Confidentiality Concerns
@@ -475,25 +503,36 @@ additionalConsiderations() {
     # 7.9 Apple ID password reset
     # 7.10 Repairing permissions is no longer needed with 10.11
     # 7.11 App Store Password Settings
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### 8 Artifacts
 artifacts() {
 
-    printf "8 Artifacts\n"
+    printf "8 Artifacts\n\n"
 
     # 8.1 Password Policy Plist generated through OS X Server
     # 8.2 Password Policy Plist from man page
+
+printf "\n\n"
+sleep 5
+
 }
 
 ### The Restarts
 cleanAndReboot() {
 
-    printf "Finished! Time to restart...\n"
+    printf "Finished! Time to restart...\n\n"
 
-    /usr/bin/killall Finder
-    /usr/bin/killall SystemUIServer
-    /usr/bin/killall -HUP blued
+    #/usr/bin/killall Finder
+    #/usr/bin/killall SystemUIServer
+    #/usr/bin/killall -HUP blued
+    # ^ do we really need this if rebooting?
+
+    date +%Y-%m-%d\ %H:%M:%S
     /sbin/shutdown -r now
 }
 
@@ -507,17 +546,18 @@ ScriptLogging(){
 
 mainScript() {
 
-    printf "Starting CIS Settings\n\n"
+    printf "Starting CIS Settings\n\n\n"
 
     # comment out sections you do not want to run.
     softwareUpdates
-    #systemPreferences
-    #loggingAndAuditing
-    #networkConfigurations
-    #systemAccess
-    #userEnvironment
-    #additionalConsiderations
-    #cleanAndReboot
+    systemPreferences
+    loggingAndAuditing
+    networkConfigurations
+    systemAccess
+    userEnvironment
+    additionalConsiderations
+    artifacts
+    cleanAndReboot
 }
 
 # Run mainScript
