@@ -11,7 +11,7 @@ archive_log_location="/var/log/cis_install-`date +%Y-%m-%d-%H-%M-%S`.log"
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
-    echo `date +%Y-%m-%d\ %H:%M:%S`
+    ScriptLogging "`date +%Y-%m-%d\ %H:%M:%S`"
 
     ScriptLogging "1 Install Updates, Patches, and Additional Security Software"
     ScriptLogging "  -------------------  "
@@ -525,7 +525,7 @@ cleanAndReboot() {
     #/usr/bin/killall -HUP blued
     # ^ do we really need this if rebooting?
 
-    echo `date +%Y-%m-%d\ %H:%M:%S`
+    ScriptLogging "`date +%Y-%m-%d\ %H:%M:%S`"
     /sbin/shutdown -r now
 }
 
