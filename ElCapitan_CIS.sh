@@ -5,15 +5,21 @@
 # Kris Payne
 ########################################################################
 
+log_location="/var/log/cis_install.log"
+archive_log_location="/var/log/cis_install-`date +%Y-%m-%d-%H-%M-%S`.log"
+
 ### 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
-    printf "1 Install Updates, Patches and Additional Security Software\n"
+    printf "1 Install Updates, Patches, and Additional Security Software\n"
 
     # 1.1 Verify all Apple provided software is current (Scored)
-    if [[ "$(/usr/sbin/softwareupdate -l | grep \"No new software available.\")" = "No new software available." ]]; then
-        printf "Software is up to date.\n"
+    #export softwareUpdateCheck
+    softwareUpdateCheck="$( /usr/sbin/softwareupdate -l | grep -ic "No new software available." )"
+    if [[ "$softwareUpdateCheck" -eq 0 ]]; then
+        printf "\n"
     else
+        printf "Installing Software Updates.\n\n"
         /usr/sbin/softwareupdate -i -a -v
     fi
 
@@ -46,6 +52,7 @@ softwareUpdates() {
     elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | grep CriticalUpdateInstall)" = "CriticalUpdateInstall = 1;" ]]; then
         printf "ConfigDataInstall is 1.\n"
     else
+        printf "Enabling system data files and security updates.\n"
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
     fi
@@ -57,6 +64,7 @@ softwareUpdates() {
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
         printf "OS X is set to auto update.\n"
     else
+        printf "Setting OS X to auto update.\n"
         /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
     fi
 
@@ -391,17 +399,24 @@ systemAccess() {
     # Disabled by default
 
     # 5.8 Disable automatic login (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow.plist autoLoginUser 0
-    /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow.plist autoLoginUser
+
+    if /usr/bin/defaults read /Library/Preferences/com.apple.loginwindow | grep autoLoginUser > /dev/null; then
+        printf "Auto login is disabled.\n"
+    else
+        printf "Auto login enabled. Disabling.\n"
+        /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
+    fi
 
     # 5.9 Require a password to wake the computer from sleep or screen saver (Scored)
-    /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
+    # /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
 
     # 5.10 Require an administrator password to access system-wide preferences (Not Scored)
     # Set via script sysPrefAdmin.sh
 
     # 5.11 Disable ability to login to another user's active and locked session (Scored)
+
     # 5.12 Create a custom message for the Login Screen
+
     # 5.13 Create a Login window banner
     /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
 
@@ -482,21 +497,27 @@ cleanAndReboot() {
     /sbin/shutdown -r now
 }
 
+ScriptLogging(){
+
+    DATE=`date +%Y-%m-%d\ %H:%M:%S`
+    LOG="$log_location"
+
+    echo "$DATE" " $1" >> $LOG
+}
+
 mainScript() {
 
     printf "Starting CIS Settings\n\n"
 
-    # RUN AS ROOT
-
     # comment out sections you do not want to run.
     softwareUpdates
-    systemPreferences
-    loggingAndAuditing
-    networkConfigurations
-    systemAccess
-    userEnvironment
-    additionalConsiderations
-    cleanAndReboot
+    #systemPreferences
+    #loggingAndAuditing
+    #networkConfigurations
+    #systemAccess
+    #userEnvironment
+    #additionalConsiderations
+    #cleanAndReboot
 }
 
 # Run mainScript
