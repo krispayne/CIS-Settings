@@ -5,10 +5,11 @@
 # Kris Payne
 ########################################################################
 
+# Log and log archive location
 log_location="/var/log/cis_install.log"
 archive_log_location="/var/log/cis_install-`date +%Y-%m-%d-%H-%M-%S`.log"
 
-### 1 Install Updates, Patches and Additional Security Software
+# 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
     ScriptLogging "1 Install Updates, Patches, and Additional Security Software"
@@ -73,7 +74,7 @@ softwareUpdates() {
 sleep 5
 }
 
-### 2 System Preferences
+# 2 System Preferences
 systemPreferences() {
 
     ScriptLogging "2 System Preferences"
@@ -257,7 +258,7 @@ systemPreferences() {
 sleep 5
 }
 
-### 3 Logging and Auditing
+# 3 Logging and Auditing
 loggingAndAuditing() {
 
     ScriptLogging "3 Logging and Audting"
@@ -308,7 +309,7 @@ sleep 5
 
 }
 
-### 4 Network Configurations
+# 4 Network Configurations
 networkConfigurations() {
 
     ScriptLogging "4 Network Configurations"
@@ -361,7 +362,7 @@ networkConfigurations() {
 sleep 5
 }
 
-### 5 System Access, Authentication and Authorization
+# 5 System Access, Authentication and Authorization
 systemAccess() {
 
     ScriptLogging "5 System Access, Authenticationn and Authorization"
@@ -447,7 +448,7 @@ systemAccess() {
 sleep 5
 }
 
-###  6 User Accounts and Environment
+#  6 User Accounts and Environment
 userEnvironment() {
 
     ScriptLogging "6 User Accounts and Environment"
@@ -480,7 +481,7 @@ userEnvironment() {
 sleep 5
 }
 
-### 7 Additional Considerations
+# 7 Additional Considerations
 additionalConsiderations() {
 
     ScriptLogging "7 Appendix: Additional Considerations"
@@ -500,7 +501,7 @@ additionalConsiderations() {
 sleep 5
 }
 
-### 8 Artifacts
+# 8 Artifacts
 artifacts() {
 
     ScriptLogging "8 Artifacts"
@@ -511,7 +512,7 @@ artifacts() {
 sleep 5
 }
 
-### The Restarts
+# The Restarts
 cleanAndReboot() {
 
     ScriptLogging "  -------------------  "
