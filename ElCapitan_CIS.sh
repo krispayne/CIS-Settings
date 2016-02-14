@@ -30,7 +30,7 @@ softwareUpdates() {
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
         ScriptLogging "  Automatic Update Check already enabled."
     else
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1 2>&1 >> ScriptLogging
     fi
 
     # SWU managed via policy in Casper
@@ -41,7 +41,7 @@ softwareUpdates() {
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
         ScriptLogging "  Auto Update Apps already enabled."
     else
-        /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
+        /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE 2>&1 >> ScriptLogging
     fi
 
     # Policies via AutoPKG and Casper
@@ -54,8 +54,8 @@ softwareUpdates() {
         printf "  ConfigDataInstall is 1.\n"
     else
         ScriptLogging "  Enabling system data files and security updates."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true 2>&1 >> ScriptLogging
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true 2>&1 >> ScriptLogging
     fi
 
     # Policy in Casper
@@ -66,7 +66,7 @@ softwareUpdates() {
         ScriptLogging "  OS X is set to auto update."
     else
         ScriptLogging "  Setting OS X to auto update."
-        /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE
+        /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE 2>&1 >> ScriptLogging
     fi
 
     # Policy in Casper
@@ -91,13 +91,13 @@ systemPreferences() {
                 ScriptLogging "    Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
             elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "No" ]]; then
                 ScriptLogging "    Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth."
-                /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+                /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 2>&1 >> ScriptLogging
             fi
 
         elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
             ScriptLogging "    Bluetooth ControllerPowerState is 0."
         else
-        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 2>&1 >> ScriptLogging
         fi
 
         # 2.1.2 Turn off Bluetooth "Discoverable" mode when not pairing devices
@@ -118,7 +118,7 @@ systemPreferences() {
         if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
            ScriptLogging "    Bluetooth shown in menu bar."
         else
-            /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+            /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" 2>&1 >> ScriptLogging
         fi
 
         # 2.2 Date & Time
@@ -135,31 +135,31 @@ systemPreferences() {
         else
             if [[ ! -e /etc/ntp.conf ]]; then
                 ScriptLogging "    Create '/etc/ntp.conf'"
-                /usr/bin/touch /etc/ntp.conf
+                /usr/bin/touch /etc/ntp.conf 2>&1 >> ScriptLogging
             fi
 
             ScriptLogging "    Set NetworkTime to time.apple.com."
             /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
             ScriptLogging "    Ensure NetworkTime is on."
-            /usr/sbin/systemsetup -setusingnetworktime on
+            /usr/sbin/systemsetup -setusingnetworktime on 2>&1 >> ScriptLogging
 
         fi
 
         # 2.2.2 Ensure time set is within appropriate limits
-        /usr/sbin/ntpdate -sv time.apple.com
+        /usr/sbin/ntpdate -sv time.apple.com 2>&1 >> ScriptLogging
 
         # 2.3 Desktop & Screen Saver
         ScriptLogging "  2.3 Desktop & Screen Saver"
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
-        /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
+        /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600 2>&1 >> ScriptLogging
         # going to move this to a user based configuration profile
 
         # 2.3.2 Secure screen saver corners
         # going to move this to a user based configuration profile
 
         # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
-        /usr/bin/pmset -a displaysleep 15
+        /usr/bin/pmset -a displaysleep 15 2>&1 >> ScriptLogging
 
         # 2.3.4 Set a screen corner to Start Screen Saver
         #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
@@ -171,7 +171,7 @@ systemPreferences() {
         if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
             ScriptLogging "  Remote Apple Events already set to off."
         else
-            /usr/sbin/systemsetup -setremoteappleevents off
+            /usr/sbin/systemsetup -setremoteappleevents off 2>&1 >> ScriptLogging
         fi
 
         # 2.4.2 Disable Internet Sharing (Scored)
@@ -232,7 +232,7 @@ systemPreferences() {
             ScriptLogging "  Firewall Stealth Mode enabled."
         else
             ScriptLogging "  Enabling Firewall Stealth Mode."
-            /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
+            /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on  2>&1 >> ScriptLogging
         fi
 
         # 2.6.5 Review Application Firewall Rules
@@ -244,10 +244,10 @@ systemPreferences() {
 
         # 2.8 Pair the remote control infrared receiver if enabled (Scored)
         # Disable:
-        /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
+        /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0 2>&1 >> ScriptLogging
 
         # 2.9 Enable Secure Keyboard Entry in terminal.app (Scored)
-        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
+        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1 2>&1 >> ScriptLogging
 
         # 2.10 Java 6 is not the default Java runtime
 
@@ -271,30 +271,30 @@ loggingAndAuditing() {
     # 3.1.1 Retain system.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf
+    /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf 2>&1 >> ScriptLogging
 
     # 3.1.2 Retain appfirewall.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf
+    /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf 2>&1 >> ScriptLogging
 
     # 3.1.3 Retain authd.log for 90 or more days (Scored)
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
+    /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd 2>&1 >> ScriptLogging
 
     # 3.2 Enable security auditing (Scored)
     if [[ "$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')" = "com.apple.auditd" ]]; then
         ScriptLogging "  Security Auditing enabled."
     else
-        /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
+        /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist 2>&1 >> ScriptLogging
     fi
 
     # 3.3 Configure Security Auditing Flags
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control
-    /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control
+    /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control 2>&1 >> ScriptLogging
+    /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control 2>&1 >> ScriptLogging
 
     # 3.4 Enable remote logging for Desktops on trusted networks
     # Needs work. Do not have remote logging server setup in my environment to test.
@@ -302,7 +302,7 @@ loggingAndAuditing() {
     # 3.5 Retain install.log for 365 or more days
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
+    /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install 2>&1 >> ScriptLogging
 
 sleep 5
 
@@ -318,7 +318,7 @@ networkConfigurations() {
     export checkBonjourAdvertising
     checkBonjourAdvertising="$(defaults read /Library/Preferences/com.apple.alf globalstate)"
     if [ "$checkBonjourAdvertising" = "1" ] || [ "$checkBonjourAdvertising" = "2" ]; then
-        ScriptLogging "  Bonjour Advertising is off.\n"
+        ScriptLogging "  Bonjour Advertising is off."
     else
         # need to work this section out. Editing a plist.
         ScriptLogging "  Bonjour Advertising is on. Shut it down."
@@ -336,7 +336,7 @@ networkConfigurations() {
     # /System/Library/LaunchDaemons/org.apache.httpd.plist: Could not find specified service
     if /bin/ps -ef | grep -i httpd > /dev/null; then
         ScriptLogging "  HTTP server is running. Shut it down."
-        /usr/sbin/apachectl stop && /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true
+        /usr/sbin/apachectl stop && /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true 2>&1 >> ScriptLogging
     else
         ScriptLogging "  HTTP server not enabled."
     fi
@@ -344,7 +344,7 @@ networkConfigurations() {
     # 4.5 Ensure ftp server is not running
     if /bin/launchctl list | egrep ftp > /dev/null; then
         ScriptLogging "  FTP server is running. Shut it down."
-        /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
+        /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist 2>&1 >> ScriptLogging
     else
         ScriptLogging "  FTP server not enabled."
     fi
@@ -422,7 +422,7 @@ systemAccess() {
         ScriptLogging "  Auto login is disabled."
     else
         ScriptLogging "  Auto login enabled. Disabling."
-        /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
+        /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser 2>&1 >> ScriptLogging
     fi
 
     # 5.9 Require a password to wake the computer from sleep or screen saver (Scored)
@@ -457,23 +457,23 @@ userEnvironment() {
     ScriptLogging "  6.1 Accounts Preferences Action Items"
 
     # 6.1.1 Display login window as name and password (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
+    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes 2>&1 >> ScriptLogging
 
     # 6.1.2 Disable "Show password hints" (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
+    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0 2>&1 >> ScriptLogging
 
     # 6.1.3 Disable guest account login (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
+    /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO 2>&1 >> ScriptLogging
 
     # 6.1.4 Disable "Allow guests to connect to shared folders" (Scored)
-    /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
-    /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
+    /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no 2>&1 >> ScriptLogging
+    /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no 2>&1 >> ScriptLogging
 
     # 6.2 Turn on filename extensions (Scored)
-    /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+    /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true 2>&1 >> ScriptLogging
 
     # 6.3 Disable the automatic run of safe files in Safari (Scored)
-    /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
+    /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no 2>&1 >> ScriptLogging
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Centrally Managed
@@ -530,10 +530,16 @@ cleanAndReboot() {
 
 ScriptLogging(){
 
+    if [ -n "$1" ]; then
+        IN="$1"
+    else
+        read IN # This reads a string from stdin and stores it in a variable called IN
+    fi
+
     DATE=`date +%Y-%m-%d\ %H:%M:%S`
     LOG="$log_location"
 
-    echo "$DATE" " $1" >> $LOG
+    echo "$DATE" " $IN" >> $LOG
 }
 
 mainScript() {
