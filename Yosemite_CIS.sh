@@ -186,7 +186,7 @@ systemPreferences() {
         # Screen sharing controlled by Remote Management Preferences
 
         # 2.4.4 Disable Printer Sharing (Scored)
-        /usr/sbin/cupsctl --no-share-printers
+        /usr/sbin/cupsctl --no-share-printers 2>&1 >> ScriptLogging
 
         # 2.4.5 Disable Remote Login (Scored)
         # Controlled at Firewall
@@ -208,10 +208,10 @@ systemPreferences() {
         ScriptLogging "  2.5 Energy Saver"
 
         # 2.5.1 Disable "Wake for network access"
-        /usr/bin/pmset -a womp 0
+        /usr/bin/pmset -a womp 0 2>&1 >> ScriptLogging
 
         # 2.5.2 Disable sleeping the computer when connected to power
-        /usr/bin/pmset -c sleep 0
+        /usr/bin/pmset -c sleep 0 2>&1 >> ScriptLogging
 
         # 2.6 Security & Privacy
         ScriptLogging "  2.6 Security & Privacy"
@@ -220,10 +220,10 @@ systemPreferences() {
         # We do not use FileVault in our environment
 
         # 2.6.2 Enable Gatekeeper (Scored)
-        /usr/sbin/spctl --master-enable
+        /usr/sbin/spctl --master-enable 2>&1 >> ScriptLogging
 
         # 2.6.3 Enable Firewall (Scored)
-        /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
+        /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1 2>&1 >> ScriptLogging
 
         # 2.6.4 Enable Firewall Stealth Mode
         local stealthMode
