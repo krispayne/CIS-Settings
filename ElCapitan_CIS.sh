@@ -69,7 +69,6 @@ softwareUpdates() {
         ScriptLogging "  Setting OS X to auto update."
         /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE 2>&1 >> ScriptLogging
     fi
-
     # Policy in Casper
 sleep 5
 }
@@ -304,9 +303,7 @@ loggingAndAuditing() {
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install 2>&1 >> ScriptLogging
-
 sleep 5
-
 }
 
 # 4 Network Configurations
