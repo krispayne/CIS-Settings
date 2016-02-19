@@ -252,7 +252,7 @@ systemPreferences() {
         # 2.10 Java 6 is not the default Java runtime
 
         # 2.11 Securely delete files as needed (Recommended)
-        # Need to re-work this into either configuration profile or User Template.
+        # user cis-finder.plist in a configuration profile
         # /usr/bin/defaults write ~/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
 sleep 5
 }
