@@ -152,8 +152,8 @@ systemPreferences() {
         ScriptLogging "  2.3 Desktop & Screen Saver"
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
-        /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600 2>&1 >> ScriptLogging
-        # going to move this to a user based configuration profile
+        # /usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600 2>&1 >> ScriptLogging
+        # use cis-screensaver.plist in a configuration profile
 
         # 2.3.2 Secure screen saver corners
         # going to move this to a user based configuration profile
