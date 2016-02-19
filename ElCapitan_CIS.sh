@@ -159,7 +159,8 @@ systemPreferences() {
         # going to move this to a user based configuration profile
 
         # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
-        /usr/bin/pmset -a displaysleep 15 2>&1 >> ScriptLogging
+        # /usr/bin/pmset -a displaysleep 15 2>&1 >> ScriptLogging
+        # Set in config profile > Energy Saver
 
         # 2.3.4 Set a screen corner to Start Screen Saver
         #/usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-tl-corner 5
