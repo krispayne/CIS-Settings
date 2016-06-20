@@ -1,6 +1,6 @@
 #!/bin/bash
 ########################################################################
-# CIS Level 1 Benchmark Settings 1.2.0
+# CIS Level 1 Benchmark Settings 1.2.0 (some settings are Level 2, too.)
 # Yosemite (10.10)
 # Kris Payne
 # Run as root
