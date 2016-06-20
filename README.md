@@ -3,7 +3,7 @@ CIS Settings
 
 ## CIS settings for Mac (10.9, 10.10, and 10.11)
 
-This is an attempt at checking off the list for auditing and remediating CIS Level 1 settings on an OS X installation via BASH
+This is an attempt at checking off the list for auditing and remediating CIS Level 1 settings on an OS X installation via `bash`
 
 Several lines do not work and have been commented out. Certain one's will hose a system. Left in the script for reference.
 
