@@ -1,9 +1,13 @@
 #!/bin/bash
 ########################################################################
-# CIS Level 1 Benchmark Settings 1.2.0 (some settings are Level 2, too.)
+# CIS Level 1 Benchmark Settings 1.2.0
 # Yosemite (10.10)
 # Kris Payne
 # Run as root
+# # Usage: scriptname.sh -l [1,2,1.5]
+# 1 = All Scored Level 1 benchmarks (default)
+# 2 = All Scored Level 1 and 2 benchmarks
+# 1.5 = All Scored Level 1 benchmarks with sensible secure recommendations as well as some Level 2
 ########################################################################
 
 # 1 Install Updates, Patches and Additional Security Software
@@ -13,6 +17,7 @@ softwareUpdates() {
     ScriptLogging "  -------------------  "
 
     # 1.1 Verify all Apple provided software is current
+    # Level 1 Scored
     if [[ "$(/usr/sbin/softwareupdate -l | grep -ic "No new software available.")" -eq 0 ]]; then
         ScriptLogging "  No new software available."
     else
@@ -21,6 +26,7 @@ softwareUpdates() {
     fi
 
     # 1.2 Enable Auto Update
+    # Level 1 Scored
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
         ScriptLogging "  Automatic Update Check already enabled."
     else
@@ -28,7 +34,7 @@ softwareUpdates() {
     fi
 
     # 1.3 Enable app update installs
-    # Requires log out to take visual effect in GUI.
+    # Level 1 Scored
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
         ScriptLogging "  Auto Update Apps already enabled."
     else
@@ -36,6 +42,7 @@ softwareUpdates() {
     fi
 
     # 1.4 Enable system data files and security update installs
+    # Level 1 Scored
     if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | egrep '(ConfigDataInstall)')" = "ConfigDataInstall = 1;" ]]; then
         ScriptLogging "  ConfigDataInstall is 1."
     elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | egrep '(CriticalUpdateInstall)')" = "CriticalUpdateInstall = 1;" ]]; then
@@ -47,6 +54,7 @@ softwareUpdates() {
     fi
 
     # 1.5 Enable OS X update installs
+    # Level 1 Scored
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
         ScriptLogging "  OS X is set to auto update."
     else
@@ -65,6 +73,7 @@ systemPreferences() {
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
+        # Level 1 Scored
         ScriptLogging "    Turn off Bluetooth, if no paired devices exist."
         if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
             ScriptLogging "  Bluetooth ControllerPowerState is 1."
@@ -83,6 +92,7 @@ systemPreferences() {
         fi
 
         # 2.1.2 Turn off Bluetooth "Discoverable" mode when not pairing devices
+        # Level 1 Scored
         # Starting with OS X (10.9) Bluetooth is only set to Discoverable when the Bluetooth System Preference
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
@@ -91,6 +101,7 @@ systemPreferences() {
         fi
 
         # 2.1.3 Show Bluetooth status in menu bar
+        # Level 1 Scored
         # This is user level. This script is not run at user level.
         if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
            ScriptLogging "    Bluetooth shown in menu bar."
@@ -103,8 +114,8 @@ systemPreferences() {
         # 2.2 Date & Time
 
         # 2.2.1 Enable "Set time and date automatically"
-        # Level 2
-        # Level 1.5
+        # Level 2 Not Scored
+        # Level 1.5 Not Scored
         if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
             ScriptLogging "    NetworkTime on. Ensuring server is time.apple.com."
 
@@ -126,6 +137,7 @@ systemPreferences() {
         fi
 
         # 2.2.2 Ensure time set is within appropriate limits
+        # Level 1 Scored
         /usr/sbin/ntpdate -sv time.apple.com > ScriptLogging 2>&1
 
 
@@ -133,14 +145,15 @@ systemPreferences() {
         # 2.3 Desktop & Screen Saver
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
+        # Level 1 Scored
         # User configuration profiles are more useful here.
         # Make sure what is set in the config profile is smaller than section 2.3.3
 
-        #/usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600 > ScriptLogging 2>&1
+        #/usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
 
         # 2.3.2 Secure screen saver corners
-        # Level 2
-        # Level 1.5
+        # Level 2 Scored
+        # Level 1.5 Not Scored
         # Take a "clear-all" approach here, as 2.3.4 sets an active corner for enabling screensaver.
 
         # Set in User Template
@@ -171,18 +184,22 @@ systemPreferences() {
                 fi
             done
 
-        # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver (Not Scored)
+        # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver
+        # Level 1 Not Scored
+        # Level 1.5
         /usr/bin/pmset -a displaysleep 15 > ScriptLogging 2>&1
 
         # 2.3.4 Set a screen corner to Start Screen Saver
+        # Level 1 Scored
         /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-br-corner 5 > ScriptLogging 2>&1
 
 
         ScriptLogging "  2.4 Sharing"
         # 2.4 Sharing
-        # Sharing is listed as Recommendations, not subsections. They are all listed as Level 1 profile, though.
+        # Level 1
 
-        # 2.4.1 Disable Remote Apple Events (Scored)
+        # 2.4.1 Disable Remote Apple Events
+        # Level 1 Scored
         if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
             ScriptLogging "  Remote Apple Events set to off."
         else
@@ -190,7 +207,8 @@ systemPreferences() {
             ScriptLogging "  Remote Apple Events set to off."
         fi
 
-        # 2.4.2 Disable Internet Sharing (Scored)
+        # 2.4.2 Disable Internet Sharing
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -204,7 +222,8 @@ systemPreferences() {
         #     /bin/launchctl unload -w /System/Library/LaunchDaemons/ com.apple.InternetSharing.plist > ScriptLogging 2>&1
         # fi
 
-        # 2.4.3 Disable Screen Sharing (Scored)
+        # 2.4.3 Disable Screen Sharing
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -214,13 +233,17 @@ systemPreferences() {
             /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -configure -access -off > ScriptLogging 2>&1
         fi
 
-        # 2.4.4 Disable Printer Sharing (Scored)
+        # 2.4.4 Disable Printer Sharing
+        # Level 1 Scored
         # No need to audit, just remediate.
         /usr/sbin/cupsctl --no-share-printers > ScriptLogging 2>&1
 
-        # 2.4.5 Disable Remote Login (Scored)
+        # 2.4.5 Disable Remote Login
+        # Level 1 Scored
         # Only open to service accounts.
+
         #TODO: Test. New audit/remediation written.
+
         if [[ "$(/usr/sbin/systemsetup -getremotelogin | awk '{ print $3 }')" = "Off" ]]; then
             ScriptLogging "  Remote Login Disabled."
         else
@@ -228,10 +251,14 @@ systemPreferences() {
             ScriptLogging "  Remote Login Disabled."
         fi
 
-        # 2.4.6 Disable DVD or CD Sharing (Scored)
+        # 2.4.6 Disable DVD or CD Sharing
+        # Level 1 Scored
         # Devices do not have Optical Drives
 
+        # TODO design audit/remediate for older devices
+
         # 2.4.7 Disable Bluetooth Sharing
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -265,7 +292,8 @@ systemPreferences() {
             done
         fi
 
-        # 2.4.8 Disable File Sharing (Scored)
+        # 2.4.8 Disable File Sharing
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -283,7 +311,8 @@ systemPreferences() {
             ScriptLogging "  SMB is Disbled."
         fi
 
-        # 2.4.9 Disable Remote Management (Scored)
+        # 2.4.9 Disable Remote Management
+        # Level 1 Scored
 
         # TODO
         # design audit/remediate
@@ -293,12 +322,14 @@ systemPreferences() {
         # 2.5 Energy Saver
 
         # 2.5.1 Disable "Wake for network access"
-        # Listed as Level 2 profile, however, it does not get in the way of the user and provides great benefit.
+        # Level 2 Scored
+        # Level 1.5 Not Scored
         # Take a "clear-all" approach here
         /usr/bin/pmset -a womp 0 > ScriptLogging 2>&1
 
         # 2.5.2 Disable sleeping the computer when connected to power
-        # Listed as Level 2 profile, however, it does not get in the way of the user and provides great benefit.
+        # Level 2 Scored
+        # Level 1.5 Not Scored
         # Take a "clear-all" approach here
         /usr/bin/pmset -c sleep 0 > ScriptLogging 2>&1
 
@@ -306,11 +337,13 @@ systemPreferences() {
         ScriptLogging "  2.6 Security & Privacy"
         # 2.6 Security & Privacy
 
-        # 2.6.1 Enable FileVault (Scored)
+        # 2.6.1 Enable FileVault
+        # Level 1 Scored
         # This should be handled by an MDM with institutional keys.
         # audit is `diskutil cs list | grep -i encryption`
 
-        # 2.6.2 Enable Gatekeeper (Scored)
+        # 2.6.2 Enable Gatekeeper
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -321,7 +354,8 @@ systemPreferences() {
             ScriptLogging "  Gatekeeper is enabled."
         fi
 
-        # 2.6.3 Enable Firewall (Scored)
+        # 2.6.3 Enable Firewall
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -333,6 +367,7 @@ systemPreferences() {
         fi
 
         # 2.6.4 Enable Firewall Stealth Mode
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -345,6 +380,7 @@ systemPreferences() {
         fi
 
         # 2.6.5 Review Application Firewall Rules
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -356,13 +392,13 @@ systemPreferences() {
 
         # 2.7 iCloud
         # This section has moved from Recommendations over to Subsections, however, no audit or remidiation guideleins are given.
-        # The following recommedations are listed in Level 2 profile.
+        # Level 2 Not Scored
         # 2.7.1 iCloud configuration
         # 2.7.2 iCloud keychain
         # 2.7.3 iCloud Drive
 
         # 2.8 Pair the remote control infrared receiver if enabled
-        # Listed as Level 1 recommendation
+        # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
 
@@ -379,17 +415,18 @@ systemPreferences() {
         fi
 
         # 2.9 Enable Secure Keyboard Entry in terminal.app
-        # Listed as Level 1 recommendation
+        # Level 1 Scored
         # Let's not audit, let's just force it.
         /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1 > ScriptLogging 2>&1
 
         # 2.10 Java 6 is not the default Java runtime
-        # Listed as Level 1 recommendation
+        # Level 2 Scored
         # Java is the devil, installing it means you're a bad person.
 
         # 2.11 Configure Secure Empty Trash
-        # Listed as Level 1 recommendation
-        # Can be secured more securely with a configuration profile.
+        # Level 2 Scored
+        # Level 1.5 Not Scored
+        # Can be secured more appropriately with a configuration profile.
         # Issues with config profile, especially if they are not user removable, in the event that a large file has been
         # trashed, productivity can be hindered when emptying the trash. (only speaking from experience.) Gather requirements!
         # If configured here through the script, the user can easily enable/disable at will in Finder Preferences.
@@ -427,22 +464,25 @@ loggingAndAuditing() {
     # 3.1 Configure asl.conf
 
         # 3.1.1 Retain system.log for 90 or more days
+        # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
         /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf > ScriptLogging 2>&1
 
         # 3.1.2 Retain appfirewall.log for 90 or more days
+        # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
         /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf > ScriptLogging 2>&1
 
         # 3.1.3 Retain authd.log for 90 or more days
+        # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
         /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd > ScriptLogging 2>&1
 
     # 3.2 Enable security auditing
-    # Security auditing is listed as Recommendations, not subsections. They are all listed as Level 1 profile, though.
+    # Level 1 Scored
     if [[ "$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')" = "com.apple.auditd" ]]; then
         ScriptLogging "  Security Auditing enabled."
     else
@@ -450,17 +490,19 @@ loggingAndAuditing() {
     fi
 
     # 3.3 Configure Security Auditing Flags
-    # Security Auditing Flags are listed in Level 2 profile. They are also listed as recommendation.
+    # Level 2 Scored
+    # Level 1.5 Not Scored
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control > ScriptLogging 2>&1
     /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control > ScriptLogging 2>&1
 
     # 3.4 Enable remote logging for Desktops on trusted networks
-    # Remote Logging is listed in Level 2 profile. It is also listed as a recommendation.
+    # Level 2 Not Scored
     # Audit procedure is not listed. Seems nearly impossible to audit this in an automated general way.
 
     # 3.5 Retain install.log for 365 or more days
+    # Level 1 Scored
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install > ScriptLogging 2>&1
@@ -473,7 +515,8 @@ networkConfigurations() {
     ScriptLogging "  -------------------  "
 
     # 4.1 Disable Bonjour advertising service
-    # Level 2 profile
+    # Level 2 Scored
+    # Level 1.5 Not Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -487,7 +530,8 @@ networkConfigurations() {
         ScriptLogging "  Bonjour Advertising is off."
     fi
 
-    # 4.2 Enable "Show Wi-Fi status in menu bar" (Scored)
+    # 4.2 Enable "Show Wi-Fi status in menu bar"
+    # Level 1 Scored
     # This is user level. This script is not run at user level.
 
     #TODO: Test. New audit/remediation written.
@@ -499,9 +543,10 @@ networkConfigurations() {
         fi
 
     # 4.3 Create network specific locations
-    # Level 2 profile
+    # Level 2 Not Scored
 
     # 4.4 Ensure http server is not running
+    # Level 1 Scored
     # TODO
     #if /bin/ps -ef | grep -i httpd > /dev/null; then
     #    ScriptLogging "  HTTP server is running. Shut it down."
@@ -511,6 +556,7 @@ networkConfigurations() {
     #fi
 
     # 4.5 Ensure ftp server is not running
+    # Level 1 Scored
     # TODO
     #if /bin/launchctl list | egrep ftp > /dev/null; then
     #    ScriptLogging "  FTP server is running. Shut it down."
@@ -520,6 +566,7 @@ networkConfigurations() {
     #fi
 
     # 4.6 Ensure nfs server is not running
+    # Level 1 Scored
     # TODO
     #if /bin/ps -ef | grep -i nfsd > /dev/null; then
     #    ScriptLogging "  NFS server is running. Shut it down."
@@ -541,19 +588,23 @@ systemAccess() {
     ScriptLogging "  5.1 File System Permissions and Access Controls"
 
         # 5.1.1 Secure Home Folders
+        # Level 1 Scored
         # This script is intended to run BEFORE a system is deployed. Maybe a umask here, but not sure how to implement it.
 
         # 5.1.2 Repair permissions regularly to ensure binaries and other System files have appropriate permissions
+        # Level 1 Not Scored
         # Can either set this in the weekly cron, or use the MDM to control this. MDM is prefered, as it is more maleable to timing/editing.
 
         # 5.1.3 Check System Wide Applications for appropriate permissions
-        # This should be checked prior to deployment within your apps/packages.
+        # Level 1 Scored
+        # This should be checked prior to deployment within your apps/packages. Can also be run as a weekly cron or use MDM.
 
         # 5.1.4 Check System folder for world writable files
-        # So long as you do not introduce this into your environment through bad packaging, there's no need to remediate this.
+        # Level 1 Scored
+        # So long as you do not introduce this into your environment through bad packaging, there's no need to remediate this. Can also be run as a weekly cron or use MDM.
 
         # 5.1.5 Check Library folder for world writable files
-        # Level 2
+        # Level 2 Scored
         # GarageBand looks to be a culprit here. Should be removed/repackaged.
 
     # 5.2 Password Management
@@ -562,20 +613,36 @@ systemAccess() {
     # TODO
     # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remidiation procedure is for a logged in user.
     # It might be that this should be configured via Configuration Policy instead
+    # See Section 8.1 and 8.2 for possible plist that can be packaged and deployed.
 
         # 5.2.1 Configure account lockout threshold
+        # Level 1 Scored
         # pwpolicy -getaccountpolicies | grep -A 1 '<key>policyAttributeMaximumFailedAuthentications</key>' | tail -1 | cut -d'>' -f2 | cut -d '<' -f1
         #  pwpolicy -setaccountpolicies
 
         # 5.2.2 Set a minimum password length
+        # Level 1 Scored
+
         # 5.2.3 Complex passwords must contain an Alphabetic Character
+        # Level 1 Scored
+
         # 5.2.4 Complex passwords must contain a Numeric Character
+        # Level 1 Scored
+
         # 5.2.5 Complex passwords must contain a Special Character
-        # 5.2.6 Complex passwords must uppercase and lowercase letters
+        # Level 1 Scored
+
+        # 5.2.6 Complex passwords must [contain] uppercase and lowercase letters
+        # Level 1 Scored
+
         # 5.2.7 Password Age
+        # Level 1 Scored
+
         # 5.2.8 Password History
+        # Level 1 Scored
 
     # 5.3 Reduce the sudo timeout period
+    # Level 1 Scored
     if [[ "$(< /etc/sudoers | grep timestamp)" -eq 0 ]]; then
         echo "No sudo timeout modification present. Default is 5 minutes."
     else
@@ -584,15 +651,18 @@ systemAccess() {
     # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
 
     # 5.4 Automatically lock the login keychain for inactivity
+    # Level 2 Scored
     # User specific. Check to see if can be implemented via config profile. Default is 'no limit.'
 
     # 5.5 Ensure login keychain is locked when the computer sleeps
+    # Level 2 Scored
     # User specific. Check to see if can be implemented via config profile. Default is 'no limit.'
 
     # 5.6 Enable OCSP and CRL certificate checking
-    # TODO not enabled by default
+    # Level 2 Scored
 
     # 5.7 Do not enable the "root" account
+    # Level 1 Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -606,6 +676,7 @@ systemAccess() {
     fi
 
     # 5.8 Disable automatic login
+    # Level 1 Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -618,6 +689,7 @@ systemAccess() {
     fi
 
     # 5.9 Require a password to wake the computer from sleep or screen saver
+    # Level 1 Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -630,6 +702,7 @@ systemAccess() {
     fi
 
     # 5.10 Require an administrator password to access system-wide preferences
+    # Level 1 Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -644,9 +717,11 @@ systemAccess() {
     fi
 
     # 5.11 Disable ability to login to another user's active and locked session
+    # Level 1 Scored
     # Need sed here to edit /etc/pam.d/screensaver
 
     # 5.12 Create a custom message for the Login Screen
+    # Level 1 Scored
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow.plist | grep LoginwindowText)" -eq 0 ]]; then
         ScriptLogging "  Login Message not set. Setting..."
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored." > ScriptLogging 2>&1
@@ -656,7 +731,7 @@ systemAccess() {
     fi
 
     # 5.13 Create a Login window banner
-    # Level 2
+    # Level 2 Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -669,10 +744,13 @@ systemAccess() {
     fi
 
     # 5.14 Do not enter a password-related hint
-    # Per user. Need to find away to mass audit/remediate
+    # Level 1 Scored
+    # TODO
+    # Per user. for/while in USER_TEMPLATE
 
     # 5.15 Disable Fast User Switching
-    # Level 2
+    # Level 2 Not Scored
+    # Level 1.5 Not Scored
 
     #TODO: Test. New audit/remediation written.
 
@@ -685,13 +763,13 @@ systemAccess() {
     fi
 
     # 5.16 Secure individual keychain items
-    # Level 2
+    # Level 2 Not Scored
 
     # 5.17 Create specialized keychains for different purposes
-    # Level 2
+    # Level 2 Not Scored
 
     # 5.18 Install an approved tokend for smartcard authentication
-    # Level 2
+    # Level 2 Scored
 }
 
 #  6 User Accounts and Environment
@@ -705,35 +783,38 @@ userEnvironment() {
     # 6.1 Accounts Preferences Action Items
 
         # 6.1.1 Display login window as name and password
+        # Level 1 Scored
         # No audit, just do it.
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes > ScriptLogging 2>&1
 
         # 6.1.2 Disable "Show password hints"
+        # Level 1 Scored
         # No audit, just do it.
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0 > ScriptLogging 2>&1
 
         # 6.1.3 Disable guest account login
+        # Level 1 Scored
         # No audit, just do it.
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO > ScriptLogging 2>&1
 
         # 6.1.4 Disable "Allow guests to connect to shared folders"
+        # Level 1 Scored
         # No audit, just do it.
         /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no > ScriptLogging 2>&1
         /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no > ScriptLogging 2>&1
 
     # 6.2 Turn on filename extensions
-    # Recommendation
+    # Level 1 Scored
     # No audit, just do it.
     /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true > ScriptLogging 2>&1
 
     # 6.3 Disable the automatic run of safe files in Safari (Scored)
-    # Recommendation
+    # Level 1 Scored
     # No audit, just do it.
     /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no > ScriptLogging 2>&1
 
     # 6.4 Use parental controls for systems that are not centrally managed
-    # Recommendation
-    # Level 2
+    # Level 2 Not Scored
 }
 
 # 7 Appendix: Additional Considerations
@@ -746,33 +827,33 @@ additionalConsiderations() {
     ScriptLogging "  -------------------  "
 
     # 7.1 Wireless technology on OS X
-    # Level 2
+    # Level 2 Not Scored
 
     # 7.2 iSight Camera Privacy and Confidentiality Concerns
-    # Level 2
+    # Level 2 Not Scored
 
     # 7.3 Computer Name Considerations
-    # Level 2
+    # Level 2 Not Scored
 
     # 7.4 Software Inventory Considerations
-    # Level 2
+    # Level 2 Not Scored
 
     # 7.5 Firewall Consideration
-    # Level 2
+    # Level 2 Not Scored
 
     # 7.6 Automatic Actions for Optical Media
-    # Level 1
-    # No optical media drives on any endpoints.
+    # Level 1 Not Scored
+    # No optical media drives on any new endpoints.
 
     # 7.7 App Store Automatically download apps purchased on other Macs Considerations
-    # Level 2
+    # Level 2 Not Scored
 
     # 7.8 Extensible Firmware Interface (EFI) password
-    # Level 2
-    # Implement via your MDM/Imaging solution. If at all. FV2
+    # Level 2 Not Scored
+    # Implement via your MDM/Imaging solution. If at all. FV2 mitigates much of the need.
 
     # 7.9 Apple ID password reset
-    # Level 2
+    # Level 2 Not Scored
 }
 
 # 8 Artifacts
@@ -785,9 +866,11 @@ artifacts() {
     ScriptLogging "  -------------------  "
 
     # 8.1 Password Policy Plist generated through OS X Server
+    # Level 1 Not Scored
     # No Rationale, Audit or remediation provided by CIS
 
     # 8.2 Password Policy Plist from man page
+    # Level 1 Not Scored
     # No Rationale, Audit or remediation provided by CIS
 }
 
@@ -797,14 +880,8 @@ cleanAndReboot() {
     ScriptLogging "  -------------------  "
     ScriptLogging "Finished! Time to restart..."
     ScriptLogging "  -------------------  "
-
-    #/usr/bin/killall Finder
-    #/usr/bin/killall SystemUIServer
-    #/usr/bin/killall -HUP blued
-    # ^ do we really need this if rebooting?
-
     ScriptLogging "$(date +%Y-%m-%d\ %H:%M:%S)"
-    ScriptLogging " "
+    ScriptLogging " rebooting for CIS Settings "
     /sbin/shutdown -r now
 }
 
@@ -830,10 +907,6 @@ mainScript() {
 }
 
 # Set up args
-# Usage: scriptname.sh -l [1,2,1.5]
-# 1 = All Scored Level 1 benchmarks (default)
-# 2 = All Scored Level 1 and 2 benchmarks
-# 1.5 = All Scored Level 1 benchmarks with sensible secure recommendations as well as some Level 2
 
 while [[ $# -gt 1 ]]
 do
