@@ -16,3 +16,9 @@ Several lines do not work and have been commented out. Certain one's will hose a
 -10.11 El Capitan is based off 1.1.0 benchmarks.
 
 The benchmarks are available at the [Center for Internet Security] (https://benchmarks.cisecurity.org/)
+
+### Usage
+
+To use this script on an already online and available system, download the appropriate `benchmark.sh` file and then `chmod +x` then run it `./benchmark.sh`
+
+The prefered method of running this is during a first boot after imaging. This has been tested with Casper v9+.
