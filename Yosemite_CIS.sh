@@ -65,7 +65,6 @@ systemPreferences() {
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
-        # Requires `killall -HUP blued` found in cleanAndReboot()
         ScriptLogging "    Turn off Bluetooth, if no paired devices exist."
         if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
             ScriptLogging "  Bluetooth ControllerPowerState is 1."
@@ -104,7 +103,8 @@ systemPreferences() {
         # 2.2 Date & Time
 
         # 2.2.1 Enable "Set time and date automatically"
-        # Listed as Level 2 profile, however, it does not get in the way of the user and provides great benefit.
+        # Level 2
+        # Level 1.5
         if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
             ScriptLogging "    NetworkTime on. Ensuring server is time.apple.com."
 
@@ -139,7 +139,8 @@ systemPreferences() {
         #/usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600 > ScriptLogging 2>&1
 
         # 2.3.2 Secure screen saver corners
-        # Listed as Level 2 profile, however, it does not get in the way of the user and provides great benefit.
+        # Level 2
+        # Level 1.5
         # Take a "clear-all" approach here, as 2.3.4 sets an active corner for enabling screensaver.
 
         # Set in User Template
@@ -819,14 +820,45 @@ mainScript() {
     ScriptLogging " "
 
     # comment out sections you do not want to run.
-    softwareUpdates
-    systemPreferences
-    loggingAndAuditing
-    networkConfigurations
-    systemAccess
-    userEnvironment
-    cleanAndReboot
+    #softwareUpdates
+    #systemPreferences
+    #loggingAndAuditing
+    #networkConfigurations
+    #systemAccess
+    #userEnvironment
+    #cleanAndReboot
 }
+
+# Set up args
+# Usage: scriptname.sh -l [1,2,1.5]
+# 1 = All Scored Level 1 benchmarks (default)
+# 2 = All Scored Level 1 and 2 benchmarks
+# 1.5 = All Scored Level 1 benchmarks with sensible secure recommendations as well as some Level 2
+
+while [[ $# -gt 1 ]]
+do
+key="$1"
+
+case $key in
+    -l|--level)
+    CISLEVEL="$2"
+    shift # past argument
+    ;;
+    --default)
+    DEFAULT=YES
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+shift # past argument or value
+done
+
+if [[ ${CISLEVEL} = "" ]]; then
+    CISLEVEL="1"    # Make sure this is a string, not an integer.
+fi
+
+ScriptLogging "    CIS LEVEL = ${CISLEVEL}"
 
 # Run mainScript
 mainScript
