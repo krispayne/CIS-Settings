@@ -137,30 +137,25 @@ systemPreferences() {
 
         # TODO
         # Getting errors in STDOUT
+        # Could be related to Server.app
         # 2016-06-22 12:54:21.315 system_profiler[77638:1038574] httpdEnabled is deprecated !!
         # 2016-06-22 12:54:30.842 system_profiler[77675:1038866] __agent_connection_block_invoke_2: Connection error - Connection invalid
 
         local BTControllerPowerState
         BTControllerPowerState="$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)"
         local BTSysPaired
-        BTSysPaired="$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')"
-        if [[ ${BTControllerPowerState} = "1" ]]; then
-            ScriptLogging "  Bluetooth is powered on. Digging deeper..."
-
+        BTSysPaired="$(/usr/sbin/system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }' 2>/dev/null)"
+        if [[ ${BTControllerPowerState} = "0" ]]; then
+            ScriptLogging "  Bluetooth is powered off."
+        elif [[ ${BTControllerPowerState} = "1" ]]; then
+            ScriptLogging "  Bluetooth is powered on. Searching for paired devices..."
             if [[ ${BTSysPaired} = "Yes" ]]; then
-                ScriptLogging "  Bluetooth is powered on and there are paired devices. Bluetooth should remain powered on."
+                ScriptLogging "  Bluetooth has found a paired device."
             elif [[ ${BTSysPaired} = "No" ]]; then
-                ScriptLogging "  Bluetooth is powered on and there are no paired devices. Turning off Bluetooth..."
+                ScriptLogging "  Bluetooth has NOT found a paired device. Turning off Bluetooth..."
                 /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
                 ScriptLogging "  Bluetooth is powered off."
             fi
-
-        elif [[ ${BTControllerPowerState} = "0" ]]; then
-            ScriptLogging "  Bluetooth is powered off."
-        else
-            ScriptLogging "  Bluetooth is NOT powered off. Powering off..."
-            /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
-            ScriptLogging "  Bluetooth is powered off."
         fi
 
         # 2.1.2 Turn off Bluetooth "Discoverable" mode when not pairing devices
@@ -170,6 +165,8 @@ systemPreferences() {
 
         if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = "Off" ]]; then
             ScriptLogging "  Bluetooth is not discoverable."
+        else
+            ScriptLogging "  Bluetooth is discoverable, please close System Preferences."
         fi
 
         # 2.1.3 Show Bluetooth status in menu bar
@@ -356,10 +353,11 @@ systemPreferences() {
         #local BTSharing
         #BTSharing="$(/usr/sbin/system_profiler SPBluetoothDataType | grep State)"
         #if [[ ${BTSharing} = "Disabled\nDisabled\nDisabled" ]]; then
-        #    ScriptLogging "  Bluetooth Sharing Disabled."
+        #    ScriptLogging "  Bluetooth Sharing disabled."
         #else
         #    local hardwareUUID
         #    hardwareUUID=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | awk -F ": " '{print $2}')
+        #    ScriptLogging "  Bluetooth Sharing disabling..."
         #    for USER_HOME in /Users/*
         #        do
         #            USER_UID=$(basename "${USER_HOME}")
@@ -502,6 +500,9 @@ systemPreferences() {
         #./Yosemite_CIS.sh: line 509: [[: Jun 22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
         #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.: syntax error in expression (error token is "22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
         #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.")
+
+        # These errors are because system_profiler is searching the system.log and this script has already been run.
+        # Need to find a way to grep/sed out the system.log output
 
         local SysProfIRReciever
         SysProfIRReciever="$(/usr/sbin/system_profiler 2>/dev/null | egrep "IR Receiver")"
