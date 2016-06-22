@@ -134,21 +134,33 @@ systemPreferences() {
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
         # Level 1 Scored
-        ScriptLogging "  Turn off Bluetooth, if no paired devices exist."
-        if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
-            ScriptLogging "  Bluetooth ControllerPowerState is 1."
 
-            if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "Yes" ]]; then
-                ScriptLogging "  Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
-            elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "No" ]]; then
-                ScriptLogging "  Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth."
-                /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 > ScriptLogging 2>&1
+        # TODO
+        # Getting strange errors in STDOUT
+        # 2016-06-22 12:54:21.315 system_profiler[77638:1038574] httpdEnabled is deprecated !!
+        # 2016-06-22 12:54:30.842 system_profiler[77675:1038866] __agent_connection_block_invoke_2: Connection error - Connection invalid
+
+        local BTControllerPowerState
+        BTControllerPowerState="$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)"
+        local BTSysPaired
+        BTSysPaired="$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')"
+        if [[ ${BTControllerPowerState} = "1" ]]; then
+            ScriptLogging "  Bluetooth is powered on. Digging deeper..."
+
+            if [[ ${BTSysPaired} = "Yes" ]]; then
+                ScriptLogging "  Bluetooth is powered on and there are paired devices. Bluetooth should remain powered on."
+            elif [[ ${BTSysPaired} = "No" ]]; then
+                ScriptLogging "  Bluetooth is powered on and there are no paired devices. Turning off Bluetooth..."
+                /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+                ScriptLogging "  Bluetooth is powered off."
             fi
 
-        elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
-            ScriptLogging "  Bluetooth ControllerPowerState is 0."
+        elif [[ ${BTControllerPowerState} = "0" ]]; then
+            ScriptLogging "  Bluetooth is powered off."
         else
-        /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 > ScriptLogging 2>&1
+            ScriptLogging "  Bluetooth is NOT powered off. Powering off..."
+            /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
+            ScriptLogging "  Bluetooth is powered off."
         fi
 
         # 2.1.2 Turn off Bluetooth "Discoverable" mode when not pairing devices
@@ -163,11 +175,14 @@ systemPreferences() {
         # 2.1.3 Show Bluetooth status in menu bar
         # Level 1 Scored
         # This is user level. This script is not run at user level.
-        if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
-           ScriptLogging "  Bluetooth shown in menu bar."
-        else
-            /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" > ScriptLogging 2>&1
-        fi
+        # Running the below test will attempt to enable the menu in the root account.
+        # TODO: move this to user profile style like Section 2.3.2
+
+        #if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
+        #   ScriptLogging "  Bluetooth shown in menu bar."
+        #else
+        #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" > ScriptLogging 2>&1
+        #fi
 
 
         ScriptLogging "2.2 Date & Time"
@@ -200,7 +215,8 @@ systemPreferences() {
 
         # 2.2.2 Ensure time set is within appropriate limits
         # Level 1 Scored
-        /usr/sbin/ntpdate -sv time.apple.com > ScriptLogging 2>&1
+        ScriptLogging "  Checking time.apple.com skew..."
+        /usr/sbin/ntpdate -sv time.apple.com
 
 
         ScriptLogging "2.3 Desktop & Screen Saver"
@@ -252,12 +268,14 @@ systemPreferences() {
         # Level 1 Not Scored
         # Level 1.5
         if [[ ${CISLEVEL} = "1.5" ]]; then
+            ScriptLogging "  Setting Display Sleep to 15 minutes..."
             /usr/bin/pmset -a displaysleep 15 > ScriptLogging 2>&1
         fi
 
         # 2.3.4 Set a screen corner to Start Screen Saver
         # Level 1 Scored
-        /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-br-corner 5 > ScriptLogging 2>&1
+        ScriptLogging "  Setting bottom right corner to enable screensaver..."
+        /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-br-corner 5
 
 
         ScriptLogging "2.4 Sharing"
@@ -267,54 +285,64 @@ systemPreferences() {
         # 2.4.1 Disable Remote Apple Events
         # Level 1 Scored
         if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
-            ScriptLogging "  Remote Apple Events set to off."
+            ScriptLogging "  Remote Apple Events disabled."
         else
-            /usr/sbin/systemsetup -setremoteappleevents off > ScriptLogging 2>&1
-            ScriptLogging "  Remote Apple Events set to off."
+            ScriptLogging "  Remote Apple Events NOT disabled. Disabling..."
+            /usr/sbin/systemsetup -setremoteappleevents off
+            ScriptLogging "  Remote Apple Events disabled."
         fi
 
         # 2.4.2 Disable Internet Sharing
         # Level 1 Scored
 
-        #TODO: Test. New audit/remediation written.
-
         # Internet Sharing is off by default. Running these commands without checking
         # first will send the machine into a downward sprial of doom and depair.
         # It's your funeral if you uncomment. Left in for remediation/completeness sake.
+
         # if [[ ! -e "/Library/Preferences/SystemConfiguration/com.apple.nat" ]]; then
         #     ScriptLogging "  No 'com.apple.nat' file present. Internet Sharing Disabled."
         # else
-        #     /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.nat NAT -dict Enabled -int 0 > ScriptLogging 2>&1
-        #     /bin/launchctl unload -w /System/Library/LaunchDaemons/ com.apple.InternetSharing.plist > ScriptLogging 2>&1
+        #     ScriptLogging "  'com.apple.nat' file present. Internet Sharing Enabled. Disabling..."
+        #     /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.nat NAT -dict Enabled -int 0
+        #     /bin/launchctl unload -w /System/Library/LaunchDaemons/ com.apple.InternetSharing.plist
+        #     ScriptLogging "  Internet Sharing Disabled."
         # fi
 
         # 2.4.3 Disable Screen Sharing
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
-
-        if [[ "$(/bin/launchctl load /System/Library/LaunchDaemons/com.apple.screensharing.plist)" = "/System/Library/LaunchDaemons/com.apple.screensharing.plist: Service is disabled" ]]; then
+        local ScreenSharing
+        ScreenSharing="$(/usr/bin/defaults read /System/Library/LaunchDaemons/com.apple.screensharing.plist | grep "Disabled" | awk '{ print $3 }')"
+        if [[ ${ScreenSharing} = "1;" ]]; then
             ScriptLogging "  Screen Sharing Disabled."
         else
-            /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -configure -access -off > ScriptLogging 2>&1
+            ScriptLogging "  Screen Sharing Enabled. Disabling..."
+            /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -configure -access -off
+            ScriptLogging "  Screen Sharing Disabled."
         fi
 
         # 2.4.4 Disable Printer Sharing
         # Level 1 Scored
         # No need to audit, just remediate.
-        /usr/sbin/cupsctl --no-share-printers > ScriptLogging 2>&1
+        ScriptLogging "  Disabling printer sharing..."
+        /usr/sbin/cupsctl --no-share-printers
 
         # 2.4.5 Disable Remote Login
         # Level 1 Scored
         # Only open to service accounts.
 
         #TODO: Test. New audit/remediation written.
-
-        if [[ "$(/usr/sbin/systemsetup -getremotelogin | awk '{ print $3 }')" = "Off" ]]; then
-            ScriptLogging "  Remote Login Disabled."
+        local RemoteLogin
+        RemoteLogin="$(/usr/sbin/systemsetup -getremotelogin | awk '{ print $3 }')"
+        if [[ ${RemoteLogin} = "Off" ]]; then
+            ScriptLogging "  Remote Login disabled."
+        elif [[ ${RemoteLogin} = "administrator" ]]; then
+            ScriptLogging "  Remote Login enabled for Administrators. Consider removing if not needed."
         else
-            /usr/sbin/systemsetup -setremotelogin off > ScriptLogging 2>&1
-            ScriptLogging "  Remote Login Disabled."
+            ScriptLogging "  Remote Login enabled. Disabling..."
+            /usr/sbin/systemsetup -setremotelogin off
+            ScriptLogging "  Remote Login disabled."
         fi
 
         # 2.4.6 Disable DVD or CD Sharing
@@ -328,35 +356,37 @@ systemPreferences() {
 
         #TODO: Test. New audit/remediation written.
 
-        if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep State)" = "Disabled\nDisabled\nDisabled" ]]; then
-            ScriptLogging "  Bluetooth Sharing Disabled."
-        else
-            local hardwareUUID
-            hardwareUUID=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | awk -F ": " '{print $2}')
-            for USER_HOME in /Users/*
-                do
-                    USER_UID=$(basename "${USER_HOME}")
-                        if [ ! "${USER_UID}" = "Shared" ]; then
-                            if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-                                /bin/mkdir -p "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
-                                /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library > ScriptLogging 2>&1
-                                /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
-                            fi
-                            if [ ! -d "${USER_HOME}"/Library/Preferences/ByHost ]; then
-                                /bin/mkdir -p "${USER_HOME}"/Library/Preferences/ByHost > ScriptLogging 2>&1
-                                /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library > ScriptLogging 2>&1
-                                /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
-                                /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost > ScriptLogging 2>&1
-                            fi
-                            if [ -d "${USER_HOME}"/Library/Preferences/ByHost ]; then
-                                /usr/bin/defaults write "$USER_HOME"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist PrefKeyServicesEnabled -bool false > ScriptLogging 2>&1
-                                #/usr/libexec/PlistBuddy -c "Delete :PrefKeyServicesEnabled"  "$USER_HOME"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist
-                                #/usr/libexec/PlistBuddy -c "Add :PrefKeyServicesEnabled bool false"  "$USER_HOME"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist
-                                /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist > ScriptLogging 2>&1
-                            fi
-                        fi
-            done
-        fi
+        #local BTSharing
+        #BTSharing="$(/usr/sbin/system_profiler SPBluetoothDataType | grep State)"
+        #if [[ ${BTSharing} = "Disabled\nDisabled\nDisabled" ]]; then
+        #    ScriptLogging "  Bluetooth Sharing Disabled."
+        #else
+        #    local hardwareUUID
+        #    hardwareUUID=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | awk -F ": " '{print $2}')
+        #    for USER_HOME in /Users/*
+        #        do
+        #            USER_UID=$(basename "${USER_HOME}")
+        #                if [ ! "${USER_UID}" = "Shared" ]; then
+        #                    if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
+        #                        /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+        #                        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+        #                        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+        #                    fi
+        #                    if [ ! -d "${USER_HOME}"/Library/Preferences/ByHost ]; then
+        #                        /bin/mkdir -p "${USER_HOME}"/Library/Preferences/ByHost
+        #                        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+        #                        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+        #                        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost
+        #                    fi
+        #                    if [ -d "${USER_HOME}"/Library/Preferences/ByHost ]; then
+        #                        /usr/bin/defaults write "$USER_HOME"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist PrefKeyServicesEnabled -bool false
+        #                        #/usr/libexec/PlistBuddy -c "Delete :PrefKeyServicesEnabled"  "$USER_HOME"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist
+        #                        #/usr/libexec/PlistBuddy -c "Add :PrefKeyServicesEnabled bool false"  "$USER_HOME"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist
+        #                        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.Bluetooth.$hardwareUUID.plist
+        #                    fi
+        #                fi
+        #    done
+        #fi
 
         # 2.4.8 Disable File Sharing
         # Level 1 Scored
@@ -367,14 +397,14 @@ systemPreferences() {
             ScriptLogging "  AFP is enabled. Disabling..."
             echo "Disable AFP..."
         else
-            ScriptLogging "  AFP is Disabled."
+            ScriptLogging "  AFP is disabled."
         fi
 
         if [[ "$(/bin/launchctl list | egrep smbd)" -eq 0 ]]; then
             ScriptLogging "  SMB is enabled. Disabling..."
             echo "Disable SMB..."
         else
-            ScriptLogging "  SMB is Disbled."
+            ScriptLogging "  SMB is disbled."
         fi
 
         # 2.4.9 Disable Remote Management
@@ -392,7 +422,7 @@ systemPreferences() {
         # Level 1.5 Not Scored
         # Take a "clear-all" approach here
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
-            /usr/bin/pmset -a womp 0 > ScriptLogging 2>&1
+            /usr/bin/pmset -a womp 0
         fi
 
         # 2.5.2 Disable sleeping the computer when connected to power
@@ -400,7 +430,7 @@ systemPreferences() {
         # Level 1.5 Not Scored
         # Take a "clear-all" approach here
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
-            /usr/bin/pmset -c sleep 0 > ScriptLogging 2>&1
+            /usr/bin/pmset -c sleep 0
         fi
 
 
@@ -419,7 +449,8 @@ systemPreferences() {
 
         if [[ "$(/usr/sbin/spctl --status)" = "assessments disabled" ]]; then
             ScriptLogging "  Gatekeeper is disabled. Enabling..."
-            /usr/sbin/spctl --master-enable > ScriptLogging 2>&1
+            /usr/sbin/spctl --master-enable
+            ScriptLogging "  Gatekeeper is enabled."
         else
             ScriptLogging "  Gatekeeper is enabled."
         fi
@@ -428,11 +459,13 @@ systemPreferences() {
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
-
-        if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.alf globalstate)" -ge 1 ]]; then
+        local SysFirewall
+        SysFirewall="$(/usr/bin/defaults read /Library/Preferences/com.apple.alf globalstate)"
+        if [[ ${SysFirewall} -ge 1 ]]; then
             ScriptLogging "  Firewall enabled."
         else
-            /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1 > ScriptLogging 2>&1
+            ScriptLogging "  Firewall NOT enabled. Enabling..."
+            /usr/bin/defaults write /Library/Preferences/com.apple.alf globalstate -int 1
             ScriptLogging "  Firewall enabled."
         fi
 
@@ -440,12 +473,13 @@ systemPreferences() {
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
-
-        if [[ "$( /usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode | grep -ic "Stealth mode enabled" )" -eq 0 ]]; then
+        local SysFirewallStealth
+        SysFirewallStealth="$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode | grep -ic "Stealth mode enabled")"
+        if [[ ${SysFirewallStealth} -eq 0 ]]; then
             ScriptLogging "  Firewall Stealth Mode enabled."
         else
-            ScriptLogging "  Enabling Firewall Stealth Mode."
-            /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on > ScriptLogging 2>&1
+            ScriptLogging "  Firewall Stealth Mode NOT enabled. Enabling..."
+            /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
             ScriptLogging "  Firewall Stealth Mode enabled."
         fi
 
@@ -453,11 +487,12 @@ systemPreferences() {
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
-
-        if [[ "$(/usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep "ALF" | awk '{ print $7 }')" -lt 10 ]]; then
-            ScriptLogging "  Number of apps is less than 10."
+        local AppFirewall
+        AppFirewall="$(/usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep "ALF" | awk '{ print $7 }')"
+        if [[ ${AppFirewall} -lt 10 ]]; then
+            ScriptLogging "  Number of apps in Application Firewall exception list is less than 10."
         else
-            ScriptLogging "***** Number of apps is greater than 10, please investigate! *****"
+            ScriptLogging "***** Number of apps in Application Firewall exception list is greater than 10, please investigate! *****"
         fi
 
         # 2.7 iCloud
@@ -470,24 +505,38 @@ systemPreferences() {
         # 2.8 Pair the remote control infrared receiver if enabled
         # Level 1 Scored
 
-        #TODO: Test. New audit/remediation written.
+        #TODO: Getting strange errors in STDOUT.
 
-        if [[ "$(/usr/sbin/system_profiler 2>/dev/null | egrep "IR Receiver")" -eq 0 ]]; then
+        #./Yosemite_CIS.sh: line 507: [[: Jun 22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
+        #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.: syntax error in expression (error token is "22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
+        #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.")
+        #./Yosemite_CIS.sh: line 509: [[: Jun 22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
+        #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.: syntax error in expression (error token is "22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
+        #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.")
+
+        local SysProfIRReciever
+        SysProfIRReciever="$(/usr/sbin/system_profiler 2>/dev/null | egrep "IR Receiver")"
+        local AppleIRController
+        AppleIRController="$(/usr/bin/defaults read /Library/Preferences/com.apple.driver.AppleIRController | grep "DeviceEnabled" | awk '{ print $3 }')"
+
+        if [[ ${SysProfIRReciever} -eq 0 ]]; then
             ScriptLogging "  No IR Receiver present."
-        elif [[ "$(/usr/sbin/system_profiler 2>/dev/null | egrep "IR Receiver")" -gt 0 ]]; then
-            ScriptLogging "  IR Receiver present. Check to see if the interface is enabled."
-            if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.driver.AppleIRController | awk '{ print $3 }')" = "0" ]]; then
-                ScriptLogging "  IR Receiever Disabled."
+        elif [[ ${SysProfIRReciever} -gt 0 ]]; then
+            ScriptLogging "  IR Receiver present. Checking status..."
+            if [[ ${AppleIRController} = "0;" ]]; then
+                ScriptLogging "  IR Receiever disabled."
             else
-                /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0 > ScriptLogging 2>&1
-                ScriptLogging "  IR Receiever Disabled."
+                ScriptLogging "  IR Receiever enabled. Disabling..."
+                /usr/bin/defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled 0
+                ScriptLogging "  IR Receiever disabled."
             fi
         fi
 
         # 2.9 Enable Secure Keyboard Entry in terminal.app
         # Level 1 Scored
         # Let's not audit, let's just force it.
-        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1 > ScriptLogging 2>&1
+        ScriptLogging "  Enabling secure text entry in Terminal.app..."
+        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
 
         # 2.10 Java 6 is not the default Java runtime
         # Level 2 Scored
@@ -995,8 +1044,8 @@ mainScript() {
     fi
 
     # comment out sections you do not want to run.
-    softwareUpdates
-    #systemPreferences
+    #softwareUpdates
+    systemPreferences
     #loggingAndAuditing
     #networkConfigurations
     #systemAccess
