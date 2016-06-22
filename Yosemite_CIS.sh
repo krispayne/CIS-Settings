@@ -65,7 +65,7 @@ softwareUpdates() {
     # Level 1 Scored
     local AutoSoftwareUpdateCheck
     AutoSoftwareUpdateCheck="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled)"
-    if [[ ${AutoSoftwareUpdateCheck} = 1 ]]; then
+    if [[ ${AutoSoftwareUpdateCheck} = "1" ]]; then
         ScriptLogging "  Automatic Update Check enabled."
     else
         ScriptLogging "  Automatic Update Check NOT enabled. Enabling..."
@@ -87,9 +87,6 @@ softwareUpdates() {
 
     # 1.4 Enable system data files and security update installs
     # Level 1 Scored
-
-    # TODO: I feel like this could be combined into one larger if..then. It's working now as two, so there may be no need to change it.
-
     local ConfigInstall
     local CriticalInstall
     ConfigInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "ConfigDataInstall" | awk '{ print $3 }')"
