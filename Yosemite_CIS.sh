@@ -119,7 +119,7 @@ softwareUpdates() {
         ScriptLogging "  OS X is set to auto update."
     fi
 
-    ScriptLogging " "
+ScriptLogging " "
 }
 
 # 2 System Preferences
@@ -128,24 +128,24 @@ systemPreferences() {
     ScriptLogging "2 System Preferences"
     ScriptLogging " "
 
-        ScriptLogging "  2.1 Bluetooth"
+        ScriptLogging "2.1 Bluetooth"
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
         # Level 1 Scored
-        ScriptLogging "    Turn off Bluetooth, if no paired devices exist."
+        ScriptLogging "  Turn off Bluetooth, if no paired devices exist."
         if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "1" ]]; then
             ScriptLogging "  Bluetooth ControllerPowerState is 1."
 
             if [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "Yes" ]]; then
-                ScriptLogging "    Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
+                ScriptLogging "  Bluetooth ControllerPowerState is 1 and there are paired devices.\n"
             elif [[ "$(system_profiler | grep "Bluetooth:" -A 20 | grep Connectable | awk '{ print $2 }')" = "No" ]]; then
-                ScriptLogging "    Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth."
+                ScriptLogging "  Bluetooth ControllerPowerState is 1 and there are no paired devices. Turning off Bluetooth."
                 /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 > ScriptLogging 2>&1
             fi
 
         elif [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)" = "0" ]]; then
-            ScriptLogging "    Bluetooth ControllerPowerState is 0."
+            ScriptLogging "  Bluetooth ControllerPowerState is 0."
         else
         /usr/bin/defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0 > ScriptLogging 2>&1
         fi
@@ -156,20 +156,20 @@ systemPreferences() {
         # is selected. To ensure that the computer is not Discoverable do not leave that preference open.
 
         if [[ "$(/usr/sbin/system_profiler SPBluetoothDataType | grep -i discoverable | awk '{ print $2 }')" = "Off" ]]; then
-            ScriptLogging "    Bluetooth is not discoverable."
+            ScriptLogging "  Bluetooth is not discoverable."
         fi
 
         # 2.1.3 Show Bluetooth status in menu bar
         # Level 1 Scored
         # This is user level. This script is not run at user level.
         if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
-           ScriptLogging "    Bluetooth shown in menu bar."
+           ScriptLogging "  Bluetooth shown in menu bar."
         else
             /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" > ScriptLogging 2>&1
         fi
 
 
-        ScriptLogging "  2.2 Date & Time"
+        ScriptLogging "2.2 Date & Time"
         # 2.2 Date & Time
 
         # 2.2.1 Enable "Set time and date automatically"
@@ -177,21 +177,21 @@ systemPreferences() {
         # Level 1.5 Not Scored
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
-                ScriptLogging "    NetworkTime on. Ensuring server is time.apple.com."
+                ScriptLogging "  NetworkTime on. Ensuring server is time.apple.com."
 
                 if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
-                    ScriptLogging "    NetworkTime is on and set to time.apple.com."
+                    ScriptLogging "  NetworkTime is on and set to time.apple.com."
                 fi
 
             else
                 if [[ ! -e /etc/ntp.conf ]]; then
-                    ScriptLogging "    Create '/etc/ntp.conf'"
+                    ScriptLogging "  Create '/etc/ntp.conf'"
                     /usr/bin/touch /etc/ntp.conf > ScriptLogging 2>&1
                 fi
 
-                ScriptLogging "    Set NetworkTime to time.apple.com."
+                ScriptLogging "  Set NetworkTime to time.apple.com."
                 /usr/sbin/systemsetup -setnetworktimeserver time.apple.com > ScriptLogging 2>&1
-                ScriptLogging "    Ensure NetworkTime is on."
+                ScriptLogging "  Ensure NetworkTime is on."
                 /usr/sbin/systemsetup -setusingnetworktime on > ScriptLogging 2>&1
 
             fi
@@ -202,7 +202,7 @@ systemPreferences() {
         /usr/sbin/ntpdate -sv time.apple.com > ScriptLogging 2>&1
 
 
-        ScriptLogging "  2.3 Desktop & Screen Saver"
+        ScriptLogging "2.3 Desktop & Screen Saver"
         # 2.3 Desktop & Screen Saver
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
@@ -259,7 +259,7 @@ systemPreferences() {
         /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-br-corner 5 > ScriptLogging 2>&1
 
 
-        ScriptLogging "  2.4 Sharing"
+        ScriptLogging "2.4 Sharing"
         # 2.4 Sharing
         # Level 1
 
@@ -383,7 +383,7 @@ systemPreferences() {
         # design audit/remediate
 
 
-        ScriptLogging "  2.5 Energy Saver"
+        ScriptLogging "2.5 Energy Saver"
         # 2.5 Energy Saver
 
         # 2.5.1 Disable "Wake for network access"
@@ -403,7 +403,7 @@ systemPreferences() {
         fi
 
 
-        ScriptLogging "  2.6 Security & Privacy"
+        ScriptLogging "2.6 Security & Privacy"
         # 2.6 Security & Privacy
 
         # 2.6.1 Enable FileVault
@@ -522,6 +522,8 @@ systemPreferences() {
                     fi
             done
         fi
+
+ScriptLogging " "
 }
 
 # 3 Logging and Auditing
@@ -579,6 +581,8 @@ loggingAndAuditing() {
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install > ScriptLogging 2>&1
+
+ScriptLogging " "
 }
 
 # 4 Network Configurations
@@ -651,6 +655,8 @@ networkConfigurations() {
     #else
     #    ScriptLogging "  NFS server not enabled."
     #fi
+
+ScriptLogging " "
 }
 
 # 5 System Access, Authentication and Authorization
@@ -848,6 +854,8 @@ systemAccess() {
 
     # 5.18 Install an approved tokend for smartcard authentication
     # Level 2 Scored
+
+ScriptLogging " "
 }
 
 #  6 User Accounts and Environment
@@ -893,6 +901,8 @@ userEnvironment() {
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Level 2 Not Scored
+
+ScriptLogging " "
 }
 
 # 7 Appendix: Additional Considerations
@@ -984,7 +994,7 @@ mainScript() {
     fi
 
     # comment out sections you do not want to run.
-    softwareUpdates
+    #softwareUpdates
     #systemPreferences
     #loggingAndAuditing
     #networkConfigurations
