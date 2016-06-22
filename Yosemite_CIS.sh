@@ -69,7 +69,7 @@ softwareUpdates() {
         ScriptLogging "  Automatic Update Check enabled."
     else
         ScriptLogging "  Automatic Update Check NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -int 1 > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -int 1
         ScriptLogging "  Automatic Update Check enabled."
     fi
 
@@ -81,7 +81,7 @@ softwareUpdates() {
         ScriptLogging "  Auto Update Apps enabled."
     else
         ScriptLogging "  Auto Update Apps NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
         ScriptLogging "  Auto Update Apps enabled."
     fi
 
@@ -96,19 +96,19 @@ softwareUpdates() {
     CriticalInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "CriticalUpdateInstall" | awk '{ print $3 }')"
 
     if [[ ${ConfigInstall} = "1;" ]]; then
-        ScriptLogging "  Configuration Data updates enabled. (ConfigDataInstall)"
+        ScriptLogging "  Configuration Data updates enabled."
     else
-        ScriptLogging "  Configuration Data updates NOT enabled. (ConfigDataInstall) Enabling..."
+        ScriptLogging "  Configuration Data updates NOT enabled. Enabling..."
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool true
-        ScriptLogging "  Configuration Data updates enabled. (ConfigDataInstall)"
+        ScriptLogging "  Configuration Data updates enabled."
     fi
 
     if [[ ${CriticalInstall} = "1;" ]]; then
-        ScriptLogging "  Critical security updates enabled. (CriticalUpdateInstall)"
+        ScriptLogging "  Critical security updates enabled."
     else
-        ScriptLogging "  Critical security updates NOT enabled. (CriticalUpdateInstall) Enabling..."
+        ScriptLogging "  Critical security updates NOT enabled. Enabling..."
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool true
-        ScriptLogging "  Critical security updates enabled. (CriticalUpdateInstall)"
+        ScriptLogging "  Critical security updates enabled."
     fi
 
     # 1.5 Enable OS X update installs
@@ -116,11 +116,11 @@ softwareUpdates() {
     local AutoRestartReq
     AutoRestartReq="$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired)"
     if [[ ${AutoRestartReq} = "1" ]]; then
-        ScriptLogging "  OS X is set to auto update."
+        ScriptLogging "  OS X Auto Updates enabled."
     else
-        ScriptLogging "  Setting OS X to auto update."
-        /usr/bin/defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool TRUE > ScriptLogging 2>&1
-        ScriptLogging "  OS X is set to auto update."
+        ScriptLogging "  OS X Auto Updates NOT enabled. Enabling..."
+        /usr/bin/defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool TRUE
+        ScriptLogging "  OS X Auto Updates enabled."
     fi
 
 ScriptLogging " "
