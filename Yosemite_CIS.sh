@@ -42,8 +42,6 @@ if [[ ${CISLEVEL} = "" ]]; then
     CISLEVEL="1"    # Make sure this is a string, not an integer.
 fi
 
-ScriptLogging "    CIS LEVEL = ${CISLEVEL}"
-
 # 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
 
@@ -52,49 +50,76 @@ softwareUpdates() {
 
     # 1.1 Verify all Apple provided software is current
     # Level 1 Scored
-    if [[ "$(/usr/sbin/softwareupdate -l | grep -ic "No new software available.")" -eq 0 ]]; then
-        ScriptLogging "  No new software available."
+    ScriptLogging "Checking for software updates from Apple..."
+    local SoftwareUpdateCommand
+    SoftwareUpdateCommand="$(/usr/sbin/softwareupdate -l | wc -l)"
+    if [[ ${SoftwareUpdateCommand} -eq 4 ]]; then
+        ScriptLogging "  "
     else
         ScriptLogging "  Installing Software Updates."
         /usr/sbin/softwareupdate -i -a > ScriptLogging 2>&1
+        ScriptLogging "  All available software updates have been installed."
     fi
 
     # 1.2 Enable Auto Update
     # Level 1 Scored
-    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled)" = 1 ]]; then
-        ScriptLogging "  Automatic Update Check already enabled."
+    local AutoSoftwareUpdateCheck
+    AutoSoftwareUpdateCheck="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled)"
+    if [[ ${AutoSoftwareUpdateCheck} = 1 ]]; then
+        ScriptLogging "  Automatic Update Check enabled."
     else
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -int 1 > ScriptLogging 2>&1
+        ScriptLogging "  Automatic Update Check NOT enabled. Enabling..."
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -int 1 > ScriptLogging 2>&1
+        ScriptLogging "  Automatic Update Check enabled."
     fi
 
     # 1.3 Enable app update installs
     # Level 1 Scored
-    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)" = "1" ]]; then
-        ScriptLogging "  Auto Update Apps already enabled."
+    local AppAutoUpdate
+    AppAutoUpdate="$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdate)"
+    if [[ ${AppAutoUpdate} = "1" ]]; then
+        ScriptLogging "  Auto Update Apps enabled."
     else
+        ScriptLogging "  Auto Update Apps NOT enabled. Enabling..."
         /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE > ScriptLogging 2>&1
+        ScriptLogging "  Auto Update Apps enabled."
     fi
 
     # 1.4 Enable system data files and security update installs
     # Level 1 Scored
-    if [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | egrep '(ConfigDataInstall)')" = "ConfigDataInstall = 1;" ]]; then
-        ScriptLogging "  ConfigDataInstall is 1."
-    elif [[ "$(defaults read /Library/Preferences/com.apple.SoftwareUpdate | egrep '(CriticalUpdateInstall)')" = "CriticalUpdateInstall = 1;" ]]; then
-        ScriptLogging "  CriticalUpdateInstall is 1."
+
+    # TODO
+    # This section is not working as intended and seems over engineered in a messy way. Clean this up.
+
+    local ConfigInstall
+    local CriticalInstall
+    ConfigInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | egrep '(ConfigDataInstall)')"
+    CriticalInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | egrep '(CriticalUpdateInstall)')"
+
+    if [[ ${ConfigInstall} = "    ConfigDataInstall = 1;" ]]; then
+        ScriptLogging "  System data files and security updates enabled. (ConfigDataInstall)"
+    elif [[ ${CriticalInstall} = "    CriticalUpdateInstall = 1;" ]]; then
+        ScriptLogging "  System data files and security updates enabled. (CriticalUpdateInstall)"
     else
-        ScriptLogging "  Enabling system data files and security updates."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate ConfigDataInstall -bool true > ScriptLogging 2>&1
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true > ScriptLogging 2>&1
+        ScriptLogging "  System data files and security updates NOT enabled. Enabling..."
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool true > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool true > ScriptLogging 2>&1
+        ScriptLogging "  System data files and security updates enabled."
     fi
 
     # 1.5 Enable OS X update installs
     # Level 1 Scored
-    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired)" = "1" ]]; then
+    local AutoRestartReq
+    AutoRestartReq="$(/usr/bin/defaults read /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired)"
+    if [[ ${AutoRestartReq} = "1" ]]; then
         ScriptLogging "  OS X is set to auto update."
     else
         ScriptLogging "  Setting OS X to auto update."
-        /usr/bin/defaults write /Library/Preferences/com.apple.commerce AutoUpdateRestartRequired -bool TRUE > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool TRUE > ScriptLogging 2>&1
+        ScriptLogging "  OS X is set to auto update."
     fi
+
+    ScriptLogging " "
 }
 
 # 2 System Preferences
@@ -929,7 +954,8 @@ artifacts() {
     # No Rationale, Audit or remediation provided by CIS
 }
 
-# The Restarts
+# Reboot function
+# left as a function in case you don't want to reboot after running the rest of the script
 cleanAndReboot() {
 
     ScriptLogging " "
@@ -942,15 +968,23 @@ cleanAndReboot() {
 
 mainScript() {
 
+    ScriptLogging " "
     ScriptLogging "  **************************************************  "
-    ScriptLogging "           Starting CIS Level ${CISLEVEL} Settings"
+    ScriptLogging "            Starting CIS Level ${CISLEVEL} Settings"
     ScriptLogging "  **************************************************  "
     ScriptLogging " "
-    ScriptLogging "             $(date +%Y-%m-%d\ %H:%M:%S)"
+    ScriptLogging "                $(date +%Y-%m-%d\ %H:%M:%S)"
     ScriptLogging " "
 
+    if [[ ${CISLEVEL} = "1" ]] || [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+        ScriptLogging " "
+    else
+        ScriptLogging "  OH NO! You picked a CIS Level that doesn't exist. Maybe try again?"
+        exit 1;
+    fi
+
     # comment out sections you do not want to run.
-    #softwareUpdates
+    softwareUpdates
     #systemPreferences
     #loggingAndAuditing
     #networkConfigurations
