@@ -574,33 +574,40 @@ loggingAndAuditing() {
     ScriptLogging "  "
 
 
-    ScriptLogging "  Configure asl.conf"
+    ScriptLogging "  3.1 Configure asl.conf"
     # 3.1 Configure asl.conf
 
         # 3.1.1 Retain system.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf > ScriptLogging 2>&1
+        ScriptLogging "   Setting system.log to be kept for 90 Days..."
+        /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf
 
         # 3.1.2 Retain appfirewall.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf > ScriptLogging 2>&1
+        ScriptLogging "   Setting appfirewall.log to be kept for 90 Days..."
+        /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf
 
         # 3.1.3 Retain authd.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd > ScriptLogging 2>&1
+        ScriptLogging "   Setting authd.log to be kept for 90 Days..."
+        /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
 
     # 3.2 Enable security auditing
     # Level 1 Scored
-    if [[ "$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')" = "com.apple.auditd" ]]; then
+    local AuditD
+    AuditD="$(/bin/launchctl list | grep -i auditd | awk '{ print $3 }')"
+    if [[ ${AuditD} = "com.apple.auditd" ]]; then
         ScriptLogging "  Security Auditing enabled."
     else
-        /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist > ScriptLogging 2>&1
+        ScriptLogging "  Security Auditing NOT enabled."
+        /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.auditd.plist
+        ScriptLogging "  Security Auditing enabled."
     fi
 
     # 3.3 Configure Security Auditing Flags
@@ -609,8 +616,8 @@ loggingAndAuditing() {
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
-        /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control > ScriptLogging 2>&1
-        /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control > ScriptLogging 2>&1
+        /usr/bin/sed -i '' 's/^flags:.*/flags:ad,aa,lo/' /etc/security/audit_control
+        /usr/bin/sed -i '' 's/^expire-after:.*/expire-after:90d\ AND\ 1G/' /etc/security/audit_control
     fi
 
     # 3.4 Enable remote logging for Desktops on trusted networks
@@ -621,7 +628,8 @@ loggingAndAuditing() {
     # Level 1 Scored
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-    /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install > ScriptLogging 2>&1
+    ScriptLogging "  Setting install.log to be kept for 365 Days..."
+    /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
 
 ScriptLogging " "
 }
@@ -1036,8 +1044,8 @@ mainScript() {
 
     # comment out sections you do not want to run.
     #softwareUpdates
-    systemPreferences
-    #loggingAndAuditing
+    #systemPreferences
+    loggingAndAuditing
     #networkConfigurations
     #systemAccess
     #userEnvironment
