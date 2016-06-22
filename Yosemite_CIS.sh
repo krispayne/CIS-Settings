@@ -136,7 +136,7 @@ systemPreferences() {
         # Level 1 Scored
 
         # TODO
-        # Getting strange errors in STDOUT
+        # Getting errors in STDOUT
         # 2016-06-22 12:54:21.315 system_profiler[77638:1038574] httpdEnabled is deprecated !!
         # 2016-06-22 12:54:30.842 system_profiler[77675:1038866] __agent_connection_block_invoke_2: Connection error - Connection invalid
 
@@ -191,7 +191,7 @@ systemPreferences() {
         # 2.2.1 Enable "Set time and date automatically"
         # Level 2 Not Scored
         # Level 1.5 Not Scored
-        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+        if [[ ${CISLEVEL} = "1.5" ]]; then
             if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
                 ScriptLogging "  NetworkTime on. Ensuring server is time.apple.com."
 
@@ -236,6 +236,7 @@ systemPreferences() {
 
         # Set in User Template
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+            ScriptLogging "  Setting all corners to '1'..."
             for USER_TEMPLATE in "/System/Library/User Template"/*
                 do
                     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tl-corner 1 > ScriptLogging 2>&1
@@ -310,8 +311,6 @@ systemPreferences() {
 
         # 2.4.3 Disable Screen Sharing
         # Level 1 Scored
-
-        #TODO: Test. New audit/remediation written.
         local ScreenSharing
         ScreenSharing="$(/usr/bin/defaults read /System/Library/LaunchDaemons/com.apple.screensharing.plist | grep "Disabled" | awk '{ print $3 }')"
         if [[ ${ScreenSharing} = "1;" ]]; then
@@ -331,8 +330,6 @@ systemPreferences() {
         # 2.4.5 Disable Remote Login
         # Level 1 Scored
         # Only open to service accounts.
-
-        #TODO: Test. New audit/remediation written.
         local RemoteLogin
         RemoteLogin="$(/usr/sbin/systemsetup -getremotelogin | awk '{ print $3 }')"
         if [[ ${RemoteLogin} = "Off" ]]; then
@@ -392,6 +389,7 @@ systemPreferences() {
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
+        # Test is successful, need to write the commands to disable AFP and SMB.
 
         if [[ "$(/bin/launchctl list | egrep AppleFileServer)" -eq 0 ]]; then
             ScriptLogging "  AFP is enabled. Disabling..."
@@ -444,9 +442,6 @@ systemPreferences() {
 
         # 2.6.2 Enable Gatekeeper
         # Level 1 Scored
-
-        #TODO: Test. New audit/remediation written.
-
         if [[ "$(/usr/sbin/spctl --status)" = "assessments disabled" ]]; then
             ScriptLogging "  Gatekeeper is disabled. Enabling..."
             /usr/sbin/spctl --master-enable
@@ -457,8 +452,6 @@ systemPreferences() {
 
         # 2.6.3 Enable Firewall
         # Level 1 Scored
-
-        #TODO: Test. New audit/remediation written.
         local SysFirewall
         SysFirewall="$(/usr/bin/defaults read /Library/Preferences/com.apple.alf globalstate)"
         if [[ ${SysFirewall} -ge 1 ]]; then
@@ -471,8 +464,6 @@ systemPreferences() {
 
         # 2.6.4 Enable Firewall Stealth Mode
         # Level 1 Scored
-
-        #TODO: Test. New audit/remediation written.
         local SysFirewallStealth
         SysFirewallStealth="$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode | grep -ic "Stealth mode enabled")"
         if [[ ${SysFirewallStealth} -eq 0 ]]; then
@@ -485,14 +476,12 @@ systemPreferences() {
 
         # 2.6.5 Review Application Firewall Rules
         # Level 1 Scored
-
-        #TODO: Test. New audit/remediation written.
         local AppFirewall
         AppFirewall="$(/usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep "ALF" | awk '{ print $7 }')"
         if [[ ${AppFirewall} -lt 10 ]]; then
-            ScriptLogging "  Number of apps in Application Firewall exception list is less than 10."
+            ScriptLogging "  Application Firewall exception list is less than 10."
         else
-            ScriptLogging "***** Number of apps in Application Firewall exception list is greater than 10, please investigate! *****"
+            ScriptLogging "***** Application Firewall exception list is greater than 10, please investigate! *****"
         fi
 
         # 2.7 iCloud
@@ -505,7 +494,7 @@ systemPreferences() {
         # 2.8 Pair the remote control infrared receiver if enabled
         # Level 1 Scored
 
-        #TODO: Getting strange errors in STDOUT.
+        #TODO: Getting errors in STDOUT.
 
         #./Yosemite_CIS.sh: line 507: [[: Jun 22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
         #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.: syntax error in expression (error token is "22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
@@ -551,6 +540,7 @@ systemPreferences() {
         # If configured here through the script, the user can easily enable/disable at will in Finder Preferences.
 
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+            ScriptLogging "  Enabling Secure Empty Trash..."
             for USER_TEMPLATE in "/System/Library/User Template"/*
                 do
                     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1 > ScriptLogging 2>&1
