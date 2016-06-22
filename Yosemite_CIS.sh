@@ -88,23 +88,27 @@ softwareUpdates() {
     # 1.4 Enable system data files and security update installs
     # Level 1 Scored
 
-    # TODO
-    # This section is not working as intended and seems over engineered in a messy way. Clean this up.
+    # TODO: I feel like this could be combined into one larger if..then. It's working now as two, so there may be no need to change it.
 
     local ConfigInstall
     local CriticalInstall
-    ConfigInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | egrep '(ConfigDataInstall)')"
-    CriticalInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | egrep '(CriticalUpdateInstall)')"
+    ConfigInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "ConfigDataInstall" | awk '{ print $3 }')"
+    CriticalInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "CriticalUpdateInstall" | awk '{ print $3 }')"
 
-    if [[ ${ConfigInstall} = "    ConfigDataInstall = 1;" ]]; then
-        ScriptLogging "  System data files and security updates enabled. (ConfigDataInstall)"
-    elif [[ ${CriticalInstall} = "    CriticalUpdateInstall = 1;" ]]; then
-        ScriptLogging "  System data files and security updates enabled. (CriticalUpdateInstall)"
+    if [[ ${ConfigInstall} = "1;" ]]; then
+        ScriptLogging "  Configuration Data updates enabled. (ConfigDataInstall)"
     else
-        ScriptLogging "  System data files and security updates NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool true > ScriptLogging 2>&1
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool true > ScriptLogging 2>&1
-        ScriptLogging "  System data files and security updates enabled."
+        ScriptLogging "  Configuration Data updates NOT enabled. (ConfigDataInstall) Enabling..."
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool true
+        ScriptLogging "  Configuration Data updates enabled. (ConfigDataInstall)"
+    fi
+
+    if [[ ${CriticalInstall} = "1;" ]]; then
+        ScriptLogging "  Critical security updates enabled. (CriticalUpdateInstall)"
+    else
+        ScriptLogging "  Critical security updates NOT enabled. (CriticalUpdateInstall) Enabling..."
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool true
+        ScriptLogging "  Critical security updates enabled. (CriticalUpdateInstall)"
     fi
 
     # 1.5 Enable OS X update installs
@@ -971,7 +975,7 @@ cleanAndReboot() {
     ScriptLogging " "
     ScriptLogging "CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
     ScriptLogging "  **************************************************  "
-    ScriptLogging "              $(date +%Y-%m-%d\ %H:%M:%S)"
+    ScriptLogging "               $(date +%Y-%m-%d\ %H:%M:%S)"
     ScriptLogging " Rebooting for CIS Settings "
     /sbin/shutdown -r now
 }
@@ -994,7 +998,7 @@ mainScript() {
     fi
 
     # comment out sections you do not want to run.
-    #softwareUpdates
+    softwareUpdates
     #systemPreferences
     #loggingAndAuditing
     #networkConfigurations
