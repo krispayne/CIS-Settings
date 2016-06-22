@@ -57,7 +57,7 @@ softwareUpdates() {
         ScriptLogging "  "
     else
         ScriptLogging "  Installing Software Updates."
-        /usr/sbin/softwareupdate -i -a > ScriptLogging 2>&1
+        /usr/sbin/softwareupdate -i -a
         ScriptLogging "  All available software updates have been installed."
     fi
 
@@ -178,7 +178,7 @@ systemPreferences() {
         #if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
         #   ScriptLogging "  Bluetooth shown in menu bar."
         #else
-        #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" > ScriptLogging 2>&1
+        #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
         #fi
 
 
@@ -199,13 +199,13 @@ systemPreferences() {
             else
                 if [[ ! -e /etc/ntp.conf ]]; then
                     ScriptLogging "  Create '/etc/ntp.conf'"
-                    /usr/bin/touch /etc/ntp.conf > ScriptLogging 2>&1
+                    /usr/bin/touch /etc/ntp.conf
                 fi
 
                 ScriptLogging "  Set NetworkTime to time.apple.com."
-                /usr/sbin/systemsetup -setnetworktimeserver time.apple.com > ScriptLogging 2>&1
+                /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
                 ScriptLogging "  Ensure NetworkTime is on."
-                /usr/sbin/systemsetup -setusingnetworktime on > ScriptLogging 2>&1
+                /usr/sbin/systemsetup -setusingnetworktime on
 
             fi
         fi
@@ -236,10 +236,10 @@ systemPreferences() {
             ScriptLogging "  Setting all corners to '1'..."
             for USER_TEMPLATE in "/System/Library/User Template"/*
                 do
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tl-corner 1 > ScriptLogging 2>&1
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tr-corner 1 > ScriptLogging 2>&1
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-bl-corner 1 > ScriptLogging 2>&1
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-br-corner 1 > ScriptLogging 2>&1
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tl-corner 1
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tr-corner 1
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-bl-corner 1
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-br-corner 1
             done
 
             # Set for already created users
@@ -248,15 +248,15 @@ systemPreferences() {
                     USER_UID=$(basename "${USER_HOME}")
                     if [ ! "${USER_UID}" = "Shared" ]; then
                         if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library > ScriptLogging 2>&1
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
+                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
                         fi
                         if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-tl-corner 1 > ScriptLogging 2>&1
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-tr-corner 1 > ScriptLogging 2>&1
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-bl-corner 1 > ScriptLogging 2>&1
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-br-corner 1 > ScriptLogging 2>&1
+                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-tl-corner 1
+                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-tr-corner 1
+                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-bl-corner 1
+                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-br-corner 1
                         fi
                     fi
             done
@@ -267,7 +267,7 @@ systemPreferences() {
         # Level 1.5
         if [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Setting Display Sleep to 15 minutes..."
-            /usr/bin/pmset -a displaysleep 15 > ScriptLogging 2>&1
+            /usr/bin/pmset -a displaysleep 15
         fi
 
         # 2.3.4 Set a screen corner to Start Screen Saver
@@ -544,7 +544,7 @@ systemPreferences() {
             ScriptLogging "  Enabling Secure Empty Trash..."
             for USER_TEMPLATE in "/System/Library/User Template"/*
                 do
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1 > ScriptLogging 2>&1
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
             done
 
             # Set for already created users
@@ -553,12 +553,12 @@ systemPreferences() {
                     USER_UID=$(basename "${USER_HOME}")
                     if [ ! "${USER_UID}" = "Shared" ]; then
                         if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library > ScriptLogging 2>&1
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences > ScriptLogging 2>&1
+                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
                         fi
                         if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1 > ScriptLogging 2>&1
+                            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
                         fi
                     fi
             done
@@ -573,8 +573,6 @@ loggingAndAuditing() {
     ScriptLogging "3 Logging and Audting"
     ScriptLogging "  "
 
-
-    ScriptLogging "  3.1 Configure asl.conf"
     # 3.1 Configure asl.conf
 
         # 3.1.1 Retain system.log for 90 or more days
@@ -650,60 +648,71 @@ networkConfigurations() {
         local checkBonjourAdvertising
         checkBonjourAdvertising="$(/usr/bin/defaults read /Library/Preferences/com.apple.alf globalstate)"
         if [ "$checkBonjourAdvertising" = "1" ] || [ "$checkBonjourAdvertising" = "2" ]; then
-            ScriptLogging "  Bonjour Advertising is off."
+            ScriptLogging "  Bonjour Advertising is disabled."
         else
-            ScriptLogging "  Bonjour Advertising is on. Shut it down."
-            defaults write /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist ProgramArguements -array-add '{-NoMulticastAdvertisements;}' > ScriptLogging 2>&1
-            ScriptLogging "  Bonjour Advertising is off."
+            ScriptLogging "  Bonjour Advertising is enabled. Disabling..."
+            defaults write /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist ProgramArguements -array-add '{-NoMulticastAdvertisements;}'
+            ScriptLogging "  Bonjour Advertising is disabled."
         fi
     fi
 
     # 4.2 Enable "Show Wi-Fi status in menu bar"
     # Level 1 Scored
-    # This is user level. This script is not run at user level.
-
-    #TODO: Test. New audit/remediation written.
-
-    if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep AirPort.menu)" = "/System/Library/CoreServices/Menu Extras/AirPort.menu" ]]; then
-       ScriptLogging "    Airport shown in menu bar."
-    else
-        /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/AirPort.menu" > ScriptLogging 2>&1
-    fi
+    ScriptLogging "  Ensuring Airport is shown in MenuBar..."
+    for USER_TEMPLATE in "/System/Library/User Template"/*
+        do
+            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/AirPort.menu"
+    done
+    # Set for already created users
+    for USER_HOME in /Users/*
+        do
+            USER_UID=$(basename "${USER_HOME}")
+            if [ ! "${USER_UID}" = "Shared" ]; then
+                if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
+                    /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+                    /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+                    /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+                fi
+                if [ -d "${USER_HOME}"/Library/Preferences ]; then
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/AirPort.menu"
+                fi
+            fi
+    done
 
     # 4.3 Create network specific locations
     # Level 2 Not Scored
 
     # 4.4 Ensure http server is not running
     # Level 1 Scored
-    # TODO
-    #if /bin/ps -ef | grep -i httpd > /dev/null; then
-    #    ScriptLogging "  HTTP server is running. Shut it down."
-    #    /usr/sbin/apachectl stop && /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true > ScriptLogging 2>&1
-    #else
-    #    ScriptLogging "  HTTP server not enabled."
-    #fi
+    if /bin/launchctl list | egrep httpd > /dev/null; then
+        ScriptLogging "  HTTP server is enabled. Disabling..."
+        /usr/sbin/apachectl stop && /usr/bin/defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool true
+        ScriptLogging "  HTTP server disabled."
+    else
+        ScriptLogging "  HTTP server disabled."
+    fi
 
     # 4.5 Ensure ftp server is not running
     # Level 1 Scored
-    # TODO
-    #if /bin/launchctl list | egrep ftp > /dev/null; then
-    #    ScriptLogging "  FTP server is running. Shut it down."
-    #    /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist > ScriptLogging 2>&1
-    #else
-    #    ScriptLogging "  FTP server not enabled."
-    #fi
+    if /bin/launchctl list | egrep ftp > /dev/null; then
+        ScriptLogging "  FTP server is enabled. Disabling..."
+        /usr/sbin/launchctl unload -w /System/Library/LaunchDaemons/ftp.plist
+        ScriptLogging "  FTP server disabled."
+    else
+        ScriptLogging "  FTP server disabled."
+    fi
 
     # 4.6 Ensure nfs server is not running
     # Level 1 Scored
-    # TODO
-    #if /bin/ps -ef | grep -i nfsd > /dev/null; then
-    #    ScriptLogging "  NFS server is running. Shut it down."
-    #    /sbin/nfsd disable > ScriptLogging 2>&1
-    #elif [[ -e /etc/exports ]]; then
-    #    rm /etc/export
-    #else
-    #    ScriptLogging "  NFS server not enabled."
-    #fi
+    if /bin/launchctl list | egrep nfsd > /dev/null; then
+        ScriptLogging "  NFS server is enabled. Disabling..."
+        /sbin/nfsd disable
+        ScriptLogging "  NFS server disabled."
+    elif [[ -e /etc/exports ]]; then
+        rm /etc/export
+    else
+        ScriptLogging "  NFS server disabled."
+    fi
 
 ScriptLogging " "
 }
@@ -801,7 +810,7 @@ systemAccess() {
         ScriptLogging "  'root' is disabled."
     else
         ScriptLogging "  'root' is enabled. Disabling..."
-        /usr/sbin/dsenableroot -d > ScriptLogging 2>&1
+        /usr/sbin/dsenableroot -d
         ScriptLogging "  'root' is disabled."
     fi
 
@@ -814,7 +823,7 @@ systemAccess() {
         ScriptLogging "  Auto login is disabled."
     else
         ScriptLogging "  Auto login enabled. Disabling..."
-        /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser > ScriptLogging 2>&1
+        /usr/bin/defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
         ScriptLogging "  Auto login is disabled."
     fi
 
@@ -827,7 +836,7 @@ systemAccess() {
         ScriptLogging "  Password required to wake from sleep or screensaver."
     else
         ScriptLogging "  Password NOT required to wake from sleep or screensaver. Fixing..."
-        /usr/bin/defaults write com.apple.screensaver askForPassword -int 1 > ScriptLogging 2>&1
+        /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
         ScriptLogging "  Password required to wake from sleep or screensaver."
     fi
 
@@ -854,7 +863,7 @@ systemAccess() {
     # Level 1 Scored
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow.plist | grep LoginwindowText)" -eq 0 ]]; then
         ScriptLogging "  Login Message not set. Setting..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored." > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
         ScriptLogging "  Login Message set."
     else
         ScriptLogging "  Login Message set."
@@ -890,7 +899,7 @@ systemAccess() {
             ScriptLogging "  Fast User Switching disabled."
         else
             ScriptLogging "  Fast User Switching enabled. Disabling..."
-            /usr/bin/defaults write /Library/Preferences/.GlobalPreferences MultipleSessionEnabled -bool NO > ScriptLogging 2>&1
+            /usr/bin/defaults write /Library/Preferences/.GlobalPreferences MultipleSessionEnabled -bool NO
             ScriptLogging "  Fast User Switching disabled."
         fi
     fi
@@ -920,33 +929,33 @@ userEnvironment() {
         # 6.1.1 Display login window as name and password
         # Level 1 Scored
         # No audit, just do it.
-        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
         # 6.1.2 Disable "Show password hints"
         # Level 1 Scored
         # No audit, just do it.
-        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0 > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
 
         # 6.1.3 Disable guest account login
         # Level 1 Scored
         # No audit, just do it.
-        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 
         # 6.1.4 Disable "Allow guests to connect to shared folders"
         # Level 1 Scored
         # No audit, just do it.
-        /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no > ScriptLogging 2>&1
-        /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no > ScriptLogging 2>&1
+        /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
+        /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
     # 6.2 Turn on filename extensions
     # Level 1 Scored
     # No audit, just do it.
-    /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true > ScriptLogging 2>&1
+    /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
     # 6.3 Disable the automatic run of safe files in Safari (Scored)
     # Level 1 Scored
     # No audit, just do it.
-    /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no > ScriptLogging 2>&1
+    /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Level 2 Not Scored
@@ -1045,8 +1054,8 @@ mainScript() {
     # comment out sections you do not want to run.
     #softwareUpdates
     #systemPreferences
-    loggingAndAuditing
-    #networkConfigurations
+    #loggingAndAuditing
+    networkConfigurations
     #systemAccess
     #userEnvironment
     #cleanAndReboot
