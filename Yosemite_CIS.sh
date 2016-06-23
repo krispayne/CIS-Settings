@@ -57,7 +57,7 @@ softwareUpdates() {
         ScriptLogging "  "
     else
         ScriptLogging "  Installing Software Updates."
-        /usr/sbin/softwareupdate -i -a
+        /usr/sbin/softwareupdate -i -a > ScriptLogging 2>&1
         ScriptLogging "  All available software updates have been installed."
     fi
 
@@ -129,7 +129,6 @@ systemPreferences() {
     ScriptLogging "2 System Preferences"
     ScriptLogging " "
 
-        ScriptLogging "2.1 Bluetooth"
         # 2.1 Bluetooth
 
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
@@ -181,8 +180,6 @@ systemPreferences() {
         #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
         #fi
 
-
-        ScriptLogging "2.2 Date & Time"
         # 2.2 Date & Time
 
         # 2.2.1 Enable "Set time and date automatically"
@@ -275,8 +272,6 @@ systemPreferences() {
         ScriptLogging "  Setting bottom right corner to enable screensaver..."
         /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-br-corner 5
 
-
-        ScriptLogging "2.4 Sharing"
         # 2.4 Sharing
         # Level 1
 
@@ -409,8 +404,6 @@ systemPreferences() {
         # TODO
         # design audit/remediate
 
-
-        ScriptLogging "2.5 Energy Saver"
         # 2.5 Energy Saver
 
         # 2.5.1 Disable "Wake for network access"
@@ -429,8 +422,6 @@ systemPreferences() {
             /usr/bin/pmset -c sleep 0
         fi
 
-
-        ScriptLogging "2.6 Security & Privacy"
         # 2.6 Security & Privacy
 
         # 2.6.1 Enable FileVault
@@ -724,7 +715,6 @@ systemAccess() {
     ScriptLogging "  "
 
     # 5.1 File System Permissions and Access Controls
-    ScriptLogging "  5.1 File System Permissions and Access Controls"
 
         # 5.1.1 Secure Home Folders
         # Level 1 Scored
@@ -744,10 +734,9 @@ systemAccess() {
 
         # 5.1.5 Check Library folder for world writable files
         # Level 2 Scored
-        # GarageBand looks to be a culprit here. Should be removed/repackaged.
+        # GarageBand looks to be a culprit here. Should be removed/repackaged on systems through imaging/MDM.
 
     # 5.2 Password Management
-    ScriptLogging "  5.2 Password Management"
 
     # TODO
     # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remidiation procedure is for a logged in user.
@@ -785,7 +774,7 @@ systemAccess() {
     if [[ "$(< /etc/sudoers | grep timestamp)" -eq 0 ]]; then
         echo "No sudo timeout modification present. Default is 5 minutes."
     else
-        echo "Change sudo timeout."
+        echo "sudo timeout modification present."
     fi
     # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
 
@@ -804,15 +793,15 @@ systemAccess() {
     # Level 1 Scored
 
     #TODO: Test. New audit/remediation written.
+    # this is requiring expected statements. will look into expect
 
-
-    if [[ "$(/usr/bin/dscl . -read /Users/root AuthenticationAuthority)" = "No such key: AuthenticationAuthority" ]]; then
-        ScriptLogging "  'root' is disabled."
-    else
-        ScriptLogging "  'root' is enabled. Disabling..."
-        /usr/sbin/dsenableroot -d
-        ScriptLogging "  'root' is disabled."
-    fi
+    #if [[ "$(/usr/bin/dscl . -read /Users/root AuthenticationAuthority)" = "No such key: AuthenticationAuthority" ]]; then
+    #    ScriptLogging "  Root user is disabled."
+    #else
+    #    ScriptLogging "  Root user is enabled. Disabling..."
+    #    /usr/sbin/dsenableroot -d
+    #    ScriptLogging "  Root user is disabled."
+    #fi
 
     # 5.8 Disable automatic login
     # Level 1 Scored
@@ -835,7 +824,7 @@ systemAccess() {
     if [[ "$(/usr/bin/defaults read com.apple.screensaver askForPassword)" = "1" ]]; then
         ScriptLogging "  Password required to wake from sleep or screensaver."
     else
-        ScriptLogging "  Password NOT required to wake from sleep or screensaver. Fixing..."
+        ScriptLogging "  Password NOT required to wake from sleep or screensaver. Enabling..."
         /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
         ScriptLogging "  Password required to wake from sleep or screensaver."
     fi
@@ -845,13 +834,14 @@ systemAccess() {
 
     #TODO: Test. New audit/remediation written.
 
-    if [[ "$(/usr/bin/security authorizationdb read system.preferences 2> /dev/null | grep -A1 shared | grep -E '(true|false)')" = "<false/>" ]]; then
+    if [[ "$(/usr/bin/security authorizationdb read system.preferences 2> /dev/null | grep -A1 shared | grep -E '(true|false)')" = "        <false/>" ]]; then
         ScriptLogging "  Password required to access system-wide preferences."
     else
-        ScriptLogging "  Password NOT required to access system-wide preferences. Fixing..."
+        ScriptLogging "  Password NOT required to access system-wide preferences. Enabling..."
         /usr/bin/security authorizationdb read system.preferences > /tmp/system.preferences.plist
         /usr/bin/defaults write /tmp/system.preferences.plist shared -bool false
         /usr/bin/security authorizationdb write system.preferences < /tmp/system.preferences.plist
+        rm /tmp/system.preferences.plist
         ScriptLogging "  Password required to access system-wide preferences."
     fi
 
@@ -861,11 +851,11 @@ systemAccess() {
 
     # 5.12 Create a custom message for the Login Screen
     # Level 1 Scored
-    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow.plist | grep LoginwindowText)" -eq 0 ]]; then
-        ScriptLogging "  Login Message not set. Setting..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
+    if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow.plist | grep LoginwindowText 2> /dev/null)" ]]; then
         ScriptLogging "  Login Message set."
     else
+        ScriptLogging "  Login Message not set. Setting..."
+        /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText "This system is reserved for authorized use only. The use of this system may be monitored."
         ScriptLogging "  Login Message set."
     fi
 
@@ -912,6 +902,7 @@ systemAccess() {
 
     # 5.18 Install an approved tokend for smartcard authentication
     # Level 2 Scored
+    # TODO
 
 ScriptLogging " "
 }
@@ -922,39 +913,43 @@ userEnvironment() {
     ScriptLogging "6 User Accounts and Environment"
     ScriptLogging "  "
 
-
-    ScriptLogging "  6.1 Accounts Preferences Action Items"
     # 6.1 Accounts Preferences Action Items
 
         # 6.1.1 Display login window as name and password
         # Level 1 Scored
         # No audit, just do it.
+        ScriptLogging "  Setting LoginWindow to display as username and password..."
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
         # 6.1.2 Disable "Show password hints"
         # Level 1 Scored
         # No audit, just do it.
+        ScriptLogging "  Disabling password hints..."
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow RetriesUntilHint -int 0
 
         # 6.1.3 Disable guest account login
         # Level 1 Scored
         # No audit, just do it.
+        ScriptLogging "  Disabling the Guest account..."
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 
         # 6.1.4 Disable "Allow guests to connect to shared folders"
         # Level 1 Scored
         # No audit, just do it.
+        ScriptLogging "  Disabling Guests from connecting to Shared folders..."
         /usr/bin/defaults write /Library/Preferences/com.apple.AppleFileServer guestAccess -bool no
         /usr/bin/defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server AllowGuestAccess -bool no
 
     # 6.2 Turn on filename extensions
     # Level 1 Scored
     # No audit, just do it.
+    ScriptLogging "  Enabling file extensions..."
     /usr/bin/defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
     # 6.3 Disable the automatic run of safe files in Safari (Scored)
     # Level 1 Scored
     # No audit, just do it.
+    ScriptLogging "  Disabling auto-run of safe files in Safari..."
     /usr/bin/defaults write com.apple.Safari AutoOpenSafeDownloads -boolean no
 
     # 6.4 Use parental controls for systems that are not centrally managed
@@ -1055,9 +1050,9 @@ mainScript() {
     #softwareUpdates
     #systemPreferences
     #loggingAndAuditing
-    networkConfigurations
-    #systemAccess
-    #userEnvironment
+    #networkConfigurations
+    systemAccess
+    userEnvironment
     #cleanAndReboot
 }
 
