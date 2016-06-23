@@ -212,8 +212,6 @@ systemPreferences() {
         ScriptLogging "  Checking time.apple.com skew..."
         /usr/sbin/ntpdate -sv time.apple.com
 
-
-        ScriptLogging "2.3 Desktop & Screen Saver"
         # 2.3 Desktop & Screen Saver
 
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
@@ -1022,10 +1020,10 @@ artifacts() {
 cleanAndReboot() {
 
     ScriptLogging " "
-    ScriptLogging "CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
+    ScriptLogging "   CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
     ScriptLogging "  **************************************************  "
-    ScriptLogging "               $(date +%Y-%m-%d\ %H:%M:%S)"
-    ScriptLogging " Rebooting for CIS Settings "
+    ScriptLogging "                   $(date +%Y-%m-%d\ %H:%M:%S)"
+    ScriptLogging "  Rebooting for CIS Settings "
     /sbin/shutdown -r now
 }
 
@@ -1036,7 +1034,7 @@ mainScript() {
     ScriptLogging "            Starting CIS Level ${CISLEVEL} Settings"
     ScriptLogging "  **************************************************  "
     ScriptLogging " "
-    ScriptLogging "                $(date +%Y-%m-%d\ %H:%M:%S)"
+    ScriptLogging "                  $(date +%Y-%m-%d\ %H:%M:%S)"
     ScriptLogging " "
 
     if [[ ${CISLEVEL} = "1" ]] || [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
@@ -1047,13 +1045,13 @@ mainScript() {
     fi
 
     # comment out sections you do not want to run.
-    #softwareUpdates
-    #systemPreferences
-    #loggingAndAuditing
-    #networkConfigurations
+    softwareUpdates
+    systemPreferences
+    loggingAndAuditing
+    networkConfigurations
     systemAccess
     userEnvironment
-    #cleanAndReboot
+    cleanAndReboot
 }
 
 # Run mainScript
