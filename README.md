@@ -5,7 +5,7 @@ CIS Settings
 
 This is an attempt at checking off the list for auditing and remediating CIS Level 1 settings on an OS X installation. Some Level 2 sections are implemented as well, as they make sense in the two environments this has been used in. Level 2 coming soon. For now, the script defaults to Level 1. 
 
-There are some elements of Level 2 that I consider to be important. These elements have been deemed Level 1.5 by me. You can now select `-l [1, 1.5, 2]` when running the script. Defaults to Level 1.
+There are some elements of Level 2 that I consider to be important. These elements have been deemed Level 1.5 by me. You can now select `-l [1, 1.5, 2]` when running the script. Defaults to Level 1. (**Only on 3.0 branch**)
 - Level 1 attempts to include all Scored recommendations from the benchmark
 - Level 1.5 includes all from Level 1, plus additional considerations from Level 2.
 - Level 2 includes all from Level 1, plus attempts to include all Scored Level 2 recommendations.
