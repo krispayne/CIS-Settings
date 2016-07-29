@@ -169,15 +169,35 @@ systemPreferences() {
 
         # 2.1.3 Show Bluetooth status in menu bar
         # Level 1 Scored
-        # This is user level. This script is not run at user level.
-        # Running the below test will attempt to enable the menu in the root account.
-        # TODO: move this to user profile style like Section 2.3.2
+        # TODO: Test new audit/remidiate
 
-        #if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
-        #   ScriptLogging "  Bluetooth shown in menu bar."
-        #else
-        #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
-        #fi
+        local BluetoothMenuStatus
+        BluetoothMenuStatus="$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)"
+        if [[ "${BluetoothMenuStatus}" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
+           ScriptLogging "  Bluetooth shown in menu bar."
+        else
+            ScriptLogging "  Bluetooth Not shown in menu bar. Enabling..."
+            for USER_TEMPLATE in "/System/Library/User Template"/*
+                do
+                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+            done
+
+            # Set for already created users
+            for USER_HOME in /Users/*
+                do
+                    USER_UID=$(basename "${USER_HOME}")
+                    if [ ! "${USER_UID}" = "Shared" ]; then
+                        if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
+                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+                        fi
+                        if [ -d "${USER_HOME}"/Library/Preferences ]; then
+                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+                        fi
+                    fi
+            done
+        fi
 
         # 2.2 Date & Time
 
