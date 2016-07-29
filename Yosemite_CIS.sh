@@ -12,7 +12,6 @@
 # 1.5 = All Scored Level 1 benchmarks with sensible secure recommendations as well as some Level 2
 ########################################################################
 
-
 # ScriptLogging
 ScriptLogging() { logger -t CIS_SETTINGS "$@"; echo "$@"; }
 
@@ -218,7 +217,8 @@ systemPreferences() {
         # Level 1 Scored
         # User configuration profiles are more useful here.
         # Make sure what is set in the config profile is smaller than section 2.3.3
-
+        # This will also set this as root, not the actual user.
+        # Could do User Template like as in 2.3.2, however this has not been tested.
         #/usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
 
         # 2.3.2 Secure screen saver corners
@@ -409,7 +409,9 @@ systemPreferences() {
         # Level 1.5 Not Scored
         # Take a "clear-all" approach here
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+            ScriptLogging "  Wake for network Access disabling."
             /usr/bin/pmset -a womp 0
+            ScriptLogging "  Wake for network Access disabled."
         fi
 
         # 2.5.2 Disable sleeping the computer when connected to power
@@ -417,7 +419,9 @@ systemPreferences() {
         # Level 1.5 Not Scored
         # Take a "clear-all" approach here
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+            ScriptLogging "  Sleep when connected to power disabling."
             /usr/bin/pmset -c sleep 0
+            ScriptLogging "  Sleep when connected to power disabled."
         fi
 
         # 2.6 Security & Privacy
@@ -473,6 +477,7 @@ systemPreferences() {
 
         # 2.7 iCloud
         # This section has moved from Recommendations over to Subsections, however, no audit or remidiation guideleins are given.
+        # General thought (mine, not CIS) is that if you are Level 1, these can be left alone. Anything above (1.5+) should be audited,
         # Level 2 Not Scored
         # 2.7.1 iCloud configuration
         # 2.7.2 iCloud keychain
@@ -737,7 +742,7 @@ systemAccess() {
     # 5.2 Password Management
 
     # TODO
-    # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remidiation procedure is for a logged in user.
+    # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remediation procedure is for a logged in user.
     # It might be that this should be configured via Configuration Policy instead
     # See Section 8.1 and 8.2 for possible plist that can be packaged and deployed.
 
@@ -769,13 +774,13 @@ systemAccess() {
 
     # 5.3 Reduce the sudo timeout period
     # Level 1 Scored
+    # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
     if [[ "$(< /etc/sudoers | grep timestamp)" -eq 0 ]]; then
         echo "No sudo timeout modification present. Default is 5 minutes."
     else
         echo "sudo timeout modification present."
     fi
-    # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
-
+   
     # 5.4 Automatically lock the login keychain for inactivity
     # Level 2 Scored
     # User specific. Check to see if can be implemented via config profile. Default is 'no limit.'
@@ -861,7 +866,7 @@ systemAccess() {
     # Level 2 Scored
 
     #TODO: Test. New audit/remediation written.
-    if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+    if [[ ${CISLEVEL} = "2" ]]; then
         if [[ ! -e /Library/Security/PolicyBanner.txt ]]; then
             ScriptLogging "  'PolicyBanner.txt' not found."
             echo "This system is reserved for authorized use only. The use of this system may be monitored." > /Library/Security/PolicyBanner.txt
@@ -999,7 +1004,7 @@ additionalConsiderations() {
 # 8 Artifacts
 artifacts() {
 
-    # These have been removed from the mainScript () to be cleaner, since they don't do anything.
+    # These have been removed from the mainScript() to be cleaner, since they don't do anything.
     # Leaving the function as a "completionist"
 
     ScriptLogging "8 Artifacts"
@@ -1009,16 +1014,17 @@ artifacts() {
     # 8.1 Password Policy Plist generated through OS X Server
     # Level 1 Not Scored
     # No Rationale, Audit or remediation provided by CIS
+    # plist file is provided
 
     # 8.2 Password Policy Plist from man page
     # Level 1 Not Scored
     # No Rationale, Audit or remediation provided by CIS
+    # plist file is provided
 }
 
 # Reboot function
 # left as a function in case you don't want to reboot after running the rest of the script
 cleanAndReboot() {
-
     ScriptLogging "  Rebooting for CIS Settings "
     /sbin/shutdown -r now
 }
