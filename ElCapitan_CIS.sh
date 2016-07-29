@@ -354,9 +354,18 @@ systemPreferences() {
 
         # 2.4.6 Disable DVD or CD Sharing
         # Level 1 Scored
-        # Devices do not have Optical Drives
+        # Newer devices do not have Optical Drives
 
-        # TODO design audit/remediate for older devices
+        # TODO Test. New audit/remediation written.
+        local OpticalSharingAudit
+        OpticalSharingAudit=$(/bin/launchctl list | egrep ODSAgent)
+        if [[ ${OpticalSharingAudit} -ge 0 ]]; then
+            ScriptLogging "  Optical Drive Sharing is disabled."
+        else
+            ScriptLogging "  Optical Drive Sharing is NOT disabled. Disabling..."
+            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.ODSAgent.plist
+            ScriptLogging "  Optical Drive Sharing is disabled."
+        fi
 
         # 2.4.7 Disable Bluetooth Sharing
         # Level 1 Scored
@@ -400,19 +409,24 @@ systemPreferences() {
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
-        # Test is successful, need to write the commands to disable AFP and SMB.
-
-        if [[ "$(/bin/launchctl list | egrep AppleFileServer)" -eq 0 ]]; then
-            ScriptLogging "  AFP is enabled. Disabling..."
-            echo "Disable AFP..."
+        
+        local AppleFileServerAudit
+        AppleFileServerAudit="$(/bin/launchctl list | egrep AppleFileServer)"
+        if [[ "${AppleFileServerAudit}" -ge 0 ]]; then
+            ScriptLogging "  AFP is disabled."
         else
+            ScriptLogging "  AFP is NOT disabled. Disabling..."
+            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.AppleFileServer.plist
             ScriptLogging "  AFP is disabled."
         fi
 
-        if [[ "$(/bin/launchctl list | egrep smbd)" -eq 0 ]]; then
-            ScriptLogging "  SMB is enabled. Disabling..."
-            echo "Disable SMB..."
+        local SMBAudit
+        SMBAudit="$(/bin/launchctl list | egrep smbd)"
+        if [[ ${SMBAudit} -ge 0 ]]; then
+            ScriptLogging "  SMB is disbled."
         else
+            ScriptLogging "  SMB is NOT disabled. Disabling..."
+            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.smbd.plist
             ScriptLogging "  SMB is disbled."
         fi
 
