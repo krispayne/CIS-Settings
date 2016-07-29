@@ -409,7 +409,7 @@ systemPreferences() {
         # Level 1 Scored
 
         #TODO: Test. New audit/remediation written.
-        
+
         local AppleFileServerAudit
         AppleFileServerAudit="$(/bin/launchctl list | egrep AppleFileServer)"
         if [[ "${AppleFileServerAudit}" -ge 0 ]]; then
@@ -433,8 +433,16 @@ systemPreferences() {
         # 2.4.9 Disable Remote Management
         # Level 1 Scored
 
-        # TODO
-        # design audit/remediate
+        # TODO: Test. New audit/remediation written.
+        local ARDAgentAudit
+        ARDAgentAudit="$(ps -ef | egrep ARDAgent)"
+        if [[ ${ARDAgentAudit} -ge 0 ]]; then
+            ScriptLogging "  Remote Management is disabled."
+        else
+            ScriptLogging "  Remote Management is NOT disabled. Disabling..."
+            /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop
+            ScriptLogging "  Remote Management is disabled."
+        fi
 
         # 2.5 Energy Saver
 
