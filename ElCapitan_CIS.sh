@@ -794,7 +794,7 @@ artifacts() {
 cleanAndReboot() {
 
     ScriptLogging "  -------------------  "
-    ScriptLogging "Finished! Time to restart..."
+    ScriptLogging "   Time to restart..."
     ScriptLogging "  -------------------  "
 
     #/usr/bin/killall Finder
@@ -802,7 +802,6 @@ cleanAndReboot() {
     #/usr/bin/killall -HUP blued
     # ^ do we really need this if rebooting?
 
-    ScriptLogging "$(date +%Y-%m-%d\ %H:%M:%S)"
     ScriptLogging " "
     /sbin/shutdown -r now
 }
@@ -826,6 +825,12 @@ mainScript() {
     systemAccess
     userEnvironment
     cleanAndReboot
+    
+    ScriptLogging "  -------------------  "
+    ScriptLogging "       Finished!"
+    ScriptLogging "  -------------------  "
+    ScriptLogging " "
+    ScriptLogging "$(date +%Y-%m-%d\ %H:%M:%S)"
 }
 
 # Run mainScript
