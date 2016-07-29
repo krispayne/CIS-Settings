@@ -6,7 +6,7 @@
 #
 # Run as root
 #
-# # Usage: scriptname.sh -l [1,2,1.5]
+# Usage: scriptname.sh -l [1,2,1.5]
 # 1 = All Scored Level 1 benchmarks (default)
 # 2 = All Scored Level 1 and 2 benchmarks
 # 1.5 = All Scored Level 1 benchmarks with sensible secure recommendations as well as some Level 2
