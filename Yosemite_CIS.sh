@@ -1019,10 +1019,6 @@ artifacts() {
 # left as a function in case you don't want to reboot after running the rest of the script
 cleanAndReboot() {
 
-    ScriptLogging " "
-    ScriptLogging "   CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
-    ScriptLogging "  **************************************************  "
-    ScriptLogging "                   $(date +%Y-%m-%d\ %H:%M:%S)"
     ScriptLogging "  Rebooting for CIS Settings "
     /sbin/shutdown -r now
 }
@@ -1052,6 +1048,11 @@ mainScript() {
     systemAccess
     userEnvironment
     cleanAndReboot
+    
+    ScriptLogging " "
+    ScriptLogging "   CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
+    ScriptLogging "  **************************************************  "
+    ScriptLogging "                   $(date +%Y-%m-%d\ %H:%M:%S)"
 }
 
 # Run mainScript
