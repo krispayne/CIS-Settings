@@ -980,7 +980,7 @@ user_template() {
                     /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
                 fi
                 if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ACTION_1}" "${PREFERENCE_ACTION_2}" "${PREFERENCE_ACTION_3}"
+                    /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ACTION_1}" "${PREFERENCE_ACTION_2}" "${PREFERENCE_ACTION_3}"
                 fi
             fi
     done
