@@ -5,7 +5,6 @@
 # Kris Payne
 #
 # Run as root
-#
 # Usage: scriptname.sh [-l|--level] [1,2,1.5]
 # 1 = All Scored Level 1 benchmarks (default)
 # 2 = All Scored Level 1 and 2 benchmarks (coming someday)
@@ -15,7 +14,6 @@
 softwareUpdates() {
 # 1 Install Updates, Patches and Additional Security Software
     ScriptLogging "1 Install Updates, Patches, and Additional Security Software"
-    ScriptLogging "  "
 
     # 1.1 Verify all Apple provided software is current
     # Level 1 Scored
@@ -23,10 +21,10 @@ softwareUpdates() {
     local SoftwareUpdateCommand
     SoftwareUpdateCommand="$(/usr/sbin/softwareupdate -l | wc -l)"
     if [[ ${SoftwareUpdateCommand} -eq 4 ]]; then
-        ScriptLogging "  "
+        ScriptLogging "  All available software updates have been installed."
     else
         ScriptLogging "  Installing Software Updates."
-        /usr/sbin/softwareupdate -i -a > ScriptLogging 2>&1
+        /usr/sbin/softwareupdate -i -a
         ScriptLogging "  All available software updates have been installed."
     fi
 
@@ -90,13 +88,11 @@ softwareUpdates() {
         /usr/bin/defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool TRUE
         ScriptLogging "  OS X Auto Updates enabled."
     fi
-ScriptLogging " "
 }
 
 systemPreferences() {
 # 2 System Preferences
     ScriptLogging "2 System Preferences"
-    ScriptLogging " "
 
     # 2.1 Bluetooth
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
@@ -146,6 +142,7 @@ systemPreferences() {
         else
             ScriptLogging "  Bluetooth Not shown in menu bar. Enabling..."
             user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+            ScriptLogging "  Bluetooth shown in menu bar."
         fi
 
     # 2.2 Date & Time
@@ -206,6 +203,7 @@ systemPreferences() {
         # Level 1 Scored
         ScriptLogging "  Setting bottom right corner to enable screensaver..."
         user_template com.apple.dock wvous-br-corner 5
+        user_template com.apple.dock wvous-br-modifier 0
 
     # 2.4 Sharing
         # 2.4.1 Disable Remote Apple Events
@@ -407,7 +405,7 @@ systemPreferences() {
         # Level 1 Scored
         local SysFirewallStealth
         SysFirewallStealth="$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode | grep -ic "Stealth mode enabled")"
-        if [[ ${SysFirewallStealth} -eq 0 ]]; then
+        if [[ ${SysFirewallStealth} -ge 1 ]]; then
             ScriptLogging "  Firewall Stealth Mode enabled."
         else
             ScriptLogging "  Firewall Stealth Mode NOT enabled. Enabling..."
@@ -467,7 +465,7 @@ systemPreferences() {
         # Level 1 Scored
         # Let's not audit, let's just force it.
         ScriptLogging "  Enabling secure text entry in Terminal.app..."
-        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
+        user_template com.apple.Terminal.plist SecureKeyboardEntry 1
 
         # 2.10 Java 6 is not the default Java runtime
         # Level 2 Scored
@@ -483,35 +481,34 @@ systemPreferences() {
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Enabling Secure Empty Trash..."
             user_template com.apple.finder EmptyTrashSecurely 1
+            ScriptLogging "  Secure Empty Trash enabled."
         fi
-ScriptLogging " "
 }
 
 loggingAndAuditing() {
 # 3 Logging and Auditing
     ScriptLogging "3 Logging and Audting"
-    ScriptLogging "  "
 
     # 3.1 Configure asl.conf
         # 3.1.1 Retain system.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        ScriptLogging "   Setting system.log to be kept for 90 Days..."
+        ScriptLogging "  Setting system.log to be kept for 90 Days..."
         /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf
 
         # 3.1.2 Retain appfirewall.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        ScriptLogging "   Setting appfirewall.log to be kept for 90 Days..."
+        ScriptLogging "  Setting appfirewall.log to be kept for 90 Days..."
         /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf
 
         # 3.1.3 Retain authd.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        ScriptLogging "   Setting authd.log to be kept for 90 Days..."
+        ScriptLogging "  Setting authd.log to be kept for 90 Days..."
         /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
 
     # 3.2 Enable security auditing
@@ -545,13 +542,11 @@ loggingAndAuditing() {
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     ScriptLogging "  Setting install.log to be kept for 365 Days..."
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
-ScriptLogging " "
 }
 
 networkConfigurations() {
 # 4 Network Configurations
     ScriptLogging "4 Network Configurations"
-    ScriptLogging "  "
 
     # 4.1 Disable Bonjour advertising service
     # Level 2 Scored, Level 1.5 Not Scored
@@ -573,6 +568,7 @@ networkConfigurations() {
     # Level 1 Scored
     ScriptLogging "  Ensuring Wi-Fi is shown in MenuBar..."
     user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Airport.menu"
+    ScriptLogging "  Wi-Fi is shown in MenuBar."
 
     # 4.3 Create network specific locations
     # Level 2 Not Scored
@@ -609,13 +605,11 @@ networkConfigurations() {
     else
         ScriptLogging "  NFS server disabled."
     fi
-ScriptLogging " "
 }
 
 systemAccess() {
 # 5 System Access, Authentication and Authorization
     ScriptLogging "5 System Access, Authenticationn and Authorization"
-    ScriptLogging "  "
 
     # 5.1 File System Permissions and Access Controls
         # 5.1.1 Secure Home Folders
@@ -672,13 +666,12 @@ systemAccess() {
 
     # 5.3 Reduce the sudo timeout period
     # Level 1 Scored
-    # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
     if [[ "$(< /etc/sudoers | grep timestamp)" -eq 0 ]]; then
         echo "No sudo timeout modification present. Default is 5 minutes."
     else
         echo "sudo timeout modification present."
     fi
-   
+
     # 5.4 Automatically lock the login keychain for inactivity
     # Level 2 Scored
     # User specific. Check to see if can be implemented via config profile. Default is 'no limit.'
@@ -799,13 +792,11 @@ systemAccess() {
     # 5.18 Install an approved tokend for smartcard authentication
     # Level 2 Scored
     # TODO
-ScriptLogging " "
 }
 
 userEnvironment() {
 # 6 User Accounts and Environment
     ScriptLogging "6 User Accounts and Environment"
-    ScriptLogging "  "
 
     # 6.1 Accounts Preferences Action Items
         # 6.1.1 Display login window as name and password
@@ -847,7 +838,6 @@ userEnvironment() {
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Level 2 Not Scored
-ScriptLogging " "
 }
 
 additionalConsiderations() {
@@ -856,7 +846,6 @@ additionalConsiderations() {
 # Leaving the function as a "completionist"
     ScriptLogging "7 Appendix: Additional Considerations"
     ScriptLogging "  Please see the Benchmark documentation for Additional Considerations."
-    ScriptLogging "  "
 
     # 7.1 Wireless technology on OS X
     # Level 2 Not Scored
@@ -894,7 +883,6 @@ artifacts() {
 # Leaving the function as a "completionist"
     ScriptLogging "8 Artifacts"
     ScriptLogging "  Please see the Benchmark documentation for Artifacts."
-    ScriptLogging "  "
 
     # 8.1 Password Policy Plist generated through OS X Server
     # Level 1 Not Scored
@@ -919,9 +907,7 @@ mainScript() {
     ScriptLogging "  **************************************************  "
     ScriptLogging "            Starting CIS Level ${CISLEVEL} Settings"
     ScriptLogging "  **************************************************  "
-    ScriptLogging " "
     ScriptLogging "                  $(date +%Y-%m-%d\ %H:%M:%S)"
-    ScriptLogging " "
 
     if [[ ${CISLEVEL} = "1" ]] || [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
         ScriptLogging " "
@@ -937,7 +923,7 @@ mainScript() {
     networkConfigurations
     systemAccess
     userEnvironment
-    
+
     ScriptLogging " "
     ScriptLogging "   CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
     ScriptLogging "  **************************************************  "
@@ -946,10 +932,10 @@ mainScript() {
     cleanAndReboot
 }
 
-ScriptLogging() { 
+ScriptLogging() {
 # ScriptLogging
-# Dumps to the system.log with prefix "CIS_SETTINGS"
-    logger -t CIS_SETTINGS "$@"; echo "$@"; 
+# Dumps to system.log with prefix "CIS_SETTINGS"
+    logger -t CIS_SETTINGS "$@"; echo "$@";
 }
 
 # Fill User Template
