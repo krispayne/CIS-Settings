@@ -940,19 +940,17 @@ ScriptLogging() {
 
 # Fill User Template
 user_template() {
-# Usage: user_template domain key action arg1 arg2 arg3
+# Usage: user_template domain key action action action action action
 # Ex: user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Airport.menu"
 
     local PREFERENCE_DOMAIN=$1
     local PREFERENCE_KEY=$2
-    local PREFERENCE_ACTION_1=$3
-    local PREFERENCE_ACTION_2=$4
-    local PREFERENCE_ACTION_3=$5
+    PREFERENCE_ARGS=( $3 $4 $5 $6 $7 )
 
     # Set for user template
     for USER_TEMPLATE in "/System/Library/User Template"/*
         do
-            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ACTION_1}" "${PREFERENCE_ACTION_2}" "${PREFERENCE_ACTION_3}"
+            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ARGS[@]}"
     done
 
     # Set for already created users
@@ -966,7 +964,7 @@ user_template() {
                     /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
                 fi
                 if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                    /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ACTION_1}" "${PREFERENCE_ACTION_2}" "${PREFERENCE_ACTION_3}"
+                    /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ARGS[@]}"
                 fi
             fi
     done
@@ -996,6 +994,5 @@ while [[ $# -gt 1 ]]
     if [[ ${CISLEVEL} = "" ]]; then
         CISLEVEL="1"    # Make sure this is a string, not an integer.
     fi
-
 # Run mainScript
 mainScript
