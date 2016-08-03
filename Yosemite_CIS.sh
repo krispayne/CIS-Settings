@@ -5,47 +5,15 @@
 # Kris Payne
 #
 # Run as root
-#
-# Usage: scriptname.sh -l [1,2,1.5]
+# Usage: scriptname.sh [-l|--level] [1,2,1.5]
 # 1 = All Scored Level 1 benchmarks (default)
-# 2 = All Scored Level 1 and 2 benchmarks
+# 2 = All Scored Level 1 and 2 benchmarks (coming someday)
 # 1.5 = All Scored Level 1 benchmarks with sensible secure recommendations as well as some Level 2
 ########################################################################
 
-# ScriptLogging
-ScriptLogging() { logger -t CIS_SETTINGS "$@"; echo "$@"; }
-
-# Set up args
-
-CISLEVEL=""
-while [[ $# -gt 1 ]]
-do
-key="$1"
-
-case $key in
-    -l|--level)
-    CISLEVEL="$2"
-    shift # past argument
-    ;;
-    --default)
-    DEFAULT=YES
-    ;;
-    *)
-            # unknown option
-    ;;
-esac
-shift # past argument or value
-done
-
-if [[ ${CISLEVEL} = "" ]]; then
-    CISLEVEL="1"    # Make sure this is a string, not an integer.
-fi
-
-# 1 Install Updates, Patches and Additional Security Software
 softwareUpdates() {
-
+# 1 Install Updates, Patches and Additional Security Software
     ScriptLogging "1 Install Updates, Patches, and Additional Security Software"
-    ScriptLogging "  "
 
     # 1.1 Verify all Apple provided software is current
     # Level 1 Scored
@@ -53,10 +21,10 @@ softwareUpdates() {
     local SoftwareUpdateCommand
     SoftwareUpdateCommand="$(/usr/sbin/softwareupdate -l | wc -l)"
     if [[ ${SoftwareUpdateCommand} -eq 4 ]]; then
-        ScriptLogging "  "
+        ScriptLogging "  All available software updates have been installed."
     else
         ScriptLogging "  Installing Software Updates."
-        /usr/sbin/softwareupdate -i -a > ScriptLogging 2>&1
+        /usr/sbin/softwareupdate -i -a
         ScriptLogging "  All available software updates have been installed."
     fi
 
@@ -68,7 +36,9 @@ softwareUpdates() {
         ScriptLogging "  Automatic Update Check enabled."
     else
         ScriptLogging "  Automatic Update Check NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -int 1
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -bool TRUE
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload -bool TRUE
+        /usr/sbin/softwareupdate --schedule on
         ScriptLogging "  Automatic Update Check enabled."
     fi
 
@@ -80,30 +50,30 @@ softwareUpdates() {
         ScriptLogging "  Auto Update Apps enabled."
     else
         ScriptLogging "  Auto Update Apps NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.storeagent AutoUpdate -bool TRUE
+        /usr/bin/defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdate -bool TRUE
         ScriptLogging "  Auto Update Apps enabled."
     fi
 
     # 1.4 Enable system data files and security update installs
     # Level 1 Scored
-    local ConfigInstall
-    local CriticalInstall
-    ConfigInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "ConfigDataInstall" | awk '{ print $3 }')"
-    CriticalInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "CriticalUpdateInstall" | awk '{ print $3 }')"
+    local ConfigDataInstall
+    local CriticalUpdateInstall
+    ConfigDataInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "ConfigDataInstall" | awk '{ print $3 }')"
+    CriticalUpdateInstall="$(/usr/bin/defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist | grep "CriticalUpdateInstall" | awk '{ print $3 }')"
 
-    if [[ ${ConfigInstall} = "1;" ]]; then
+    if [[ ${ConfigDataInstall} = "1;" ]]; then
         ScriptLogging "  Configuration Data updates enabled."
     else
         ScriptLogging "  Configuration Data updates NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool true
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool TRUE
         ScriptLogging "  Configuration Data updates enabled."
     fi
 
-    if [[ ${CriticalInstall} = "1;" ]]; then
+    if [[ ${CriticalUpdateInstall} = "1;" ]]; then
         ScriptLogging "  Critical security updates enabled."
     else
         ScriptLogging "  Critical security updates NOT enabled. Enabling..."
-        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool true
+        /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool TRUE
         ScriptLogging "  Critical security updates enabled."
     fi
 
@@ -118,21 +88,15 @@ softwareUpdates() {
         /usr/bin/defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool TRUE
         ScriptLogging "  OS X Auto Updates enabled."
     fi
-
-ScriptLogging " "
 }
 
-# 2 System Preferences
 systemPreferences() {
-
+# 2 System Preferences
     ScriptLogging "2 System Preferences"
-    ScriptLogging " "
 
-        # 2.1 Bluetooth
-
+    # 2.1 Bluetooth
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
         # Level 1 Scored
-
         # TODO
         # Getting errors in STDOUT
         # Could be related to Server.app
@@ -169,21 +133,21 @@ systemPreferences() {
 
         # 2.1.3 Show Bluetooth status in menu bar
         # Level 1 Scored
-        # This is user level. This script is not run at user level.
-        # Running the below test will attempt to enable the menu in the root account.
-        # TODO: move this to user profile style like Section 2.3.2
+        # TODO: Test new audit/remidiate
 
-        #if [[ "$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
-        #   ScriptLogging "  Bluetooth shown in menu bar."
-        #else
-        #    /usr/bin/defaults write com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
-        #fi
+        local BluetoothMenuStatus
+        BluetoothMenuStatus="$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)"
+        if [[ "${BluetoothMenuStatus}" = "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" ]]; then
+           ScriptLogging "  Bluetooth shown in menu bar."
+        else
+            ScriptLogging "  Bluetooth Not shown in menu bar. Enabling..."
+            user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Bluetooth.menu"
+            ScriptLogging "  Bluetooth shown in menu bar."
+        fi
 
-        # 2.2 Date & Time
-
+    # 2.2 Date & Time
         # 2.2.1 Enable "Set time and date automatically"
-        # Level 2 Not Scored
-        # Level 1.5 Not Scored
+        # Level 2 Not Scored, Level 1.5 Not Scored
         if [[ ${CISLEVEL} = "1.5" ]]; then
             if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
                 ScriptLogging "  NetworkTime on. Ensuring server is time.apple.com."
@@ -191,18 +155,15 @@ systemPreferences() {
                 if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
                     ScriptLogging "  NetworkTime is on and set to time.apple.com."
                 fi
-
             else
                 if [[ ! -e /etc/ntp.conf ]]; then
                     ScriptLogging "  Create '/etc/ntp.conf'"
                     /usr/bin/touch /etc/ntp.conf
                 fi
-
                 ScriptLogging "  Set NetworkTime to time.apple.com."
                 /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
                 ScriptLogging "  Ensure NetworkTime is on."
                 /usr/sbin/systemsetup -setusingnetworktime on
-
             fi
         fi
 
@@ -211,55 +172,28 @@ systemPreferences() {
         ScriptLogging "  Checking time.apple.com skew..."
         /usr/sbin/ntpdate -sv time.apple.com
 
-        # 2.3 Desktop & Screen Saver
-
+    # 2.3 Desktop & Screen Saver
         # 2.3.1 Set an inactivity interval of 20 minutes or less for the screen saver
         # Level 1 Scored
         # User configuration profiles are more useful here.
-        # Make sure what is set in the config profile is smaller than section 2.3.3
+        # Make sure what is set in the config profile is less than section 2.3.3
         # This will also set this as root, not the actual user.
         # Could do User Template like as in 2.3.2, however this has not been tested.
         #/usr/bin/defaults -currentHost write com.apple.screensaver idleTime 600
 
         # 2.3.2 Secure screen saver corners
-        # Level 2 Scored
-        # Level 1.5 Not Scored
+        # Level 2 Scored, Level 1.5 Not Scored
         # Take a "clear-all" approach here, as 2.3.4 sets an active corner for enabling screensaver.
-
-        # Set in User Template
-        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
+        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]] || [[ ${CISLEVEL} = "1" ]]; then
             ScriptLogging "  Setting all corners to '1'..."
-            for USER_TEMPLATE in "/System/Library/User Template"/*
-                do
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tl-corner 1
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-tr-corner 1
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-bl-corner 1
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.dock wvous-br-corner 1
-            done
-
-            # Set for already created users
-            for USER_HOME in /Users/*
-                do
-                    USER_UID=$(basename "${USER_HOME}")
-                    if [ ! "${USER_UID}" = "Shared" ]; then
-                        if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
-                        fi
-                        if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-tl-corner 1
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-tr-corner 1
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-bl-corner 1
-                            /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.dock wvous-br-corner 1
-                        fi
-                    fi
-            done
+            user_template com.apple.dock wvous-tl-corner 1
+            user_template com.apple.dock wvous-tr-corner 1
+            user_template com.apple.dock wvous-bl-corner 1
+            user_template com.apple.dock wvous-br-corner 1
         fi
 
         # 2.3.3 Verify Display Sleep is set to a value larger than the Screen Saver
-        # Level 1 Not Scored
-        # Level 1.5
+        # Level 1 Not Scored, Level 1.5
         if [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Setting Display Sleep to 15 minutes..."
             /usr/bin/pmset -a displaysleep 15
@@ -268,11 +202,10 @@ systemPreferences() {
         # 2.3.4 Set a screen corner to Start Screen Saver
         # Level 1 Scored
         ScriptLogging "  Setting bottom right corner to enable screensaver..."
-        /usr/bin/defaults write ~/Library/Preferences/com.apple.dock wvous-br-corner 5
+        user_template com.apple.dock wvous-br-corner 5
+        user_template com.apple.dock wvous-br-modifier 0
 
-        # 2.4 Sharing
-        # Level 1
-
+    # 2.4 Sharing
         # 2.4.1 Disable Remote Apple Events
         # Level 1 Scored
         if [[ "$(/usr/sbin/systemsetup -getremoteappleevents | awk '{ print $4 }')" = "Off" ]]; then
@@ -319,7 +252,7 @@ systemPreferences() {
 
         # 2.4.5 Disable Remote Login
         # Level 1 Scored
-        # Only open to service accounts.
+        # Only open to administrator accounts. Best practice is for service accounts only.
         local RemoteLogin
         RemoteLogin="$(/usr/sbin/systemsetup -getremotelogin | awk '{ print $3 }')"
         if [[ ${RemoteLogin} = "Off" ]]; then
@@ -334,13 +267,20 @@ systemPreferences() {
 
         # 2.4.6 Disable DVD or CD Sharing
         # Level 1 Scored
-        # Devices do not have Optical Drives
-
-        # TODO design audit/remediate for older devices
+        # Newer devices do not have Optical Drives
+        # TODO Test. New audit/remediation written.
+        local OpticalSharingAudit
+        OpticalSharingAudit=$(/bin/launchctl list | egrep ODSAgent)
+        if [[ ${OpticalSharingAudit} -ge 0 ]]; then
+            ScriptLogging "  Optical Drive Sharing is disabled."
+        else
+            ScriptLogging "  Optical Drive Sharing is NOT disabled. Disabling..."
+            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.ODSAgent.plist
+            ScriptLogging "  Optical Drive Sharing is disabled."
+        fi
 
         # 2.4.7 Disable Bluetooth Sharing
         # Level 1 Scored
-
         #TODO: Test. New audit/remediation written.
 
         #local BTSharing
@@ -351,7 +291,7 @@ systemPreferences() {
         #    local hardwareUUID
         #    hardwareUUID=$(/usr/sbin/system_profiler SPHardwareDataType | grep "Hardware UUID" | awk -F ": " '{print $2}')
         #    ScriptLogging "  Bluetooth Sharing disabling..."
-        #    for USER_HOME in /Users/*
+        #   for USER_HOME in /Users/*
         #        do
         #            USER_UID=$(basename "${USER_HOME}")
         #                if [ ! "${USER_UID}" = "Shared" ]; then
@@ -378,35 +318,45 @@ systemPreferences() {
 
         # 2.4.8 Disable File Sharing
         # Level 1 Scored
-
         #TODO: Test. New audit/remediation written.
-        # Test is successful, need to write the commands to disable AFP and SMB.
 
-        if [[ "$(/bin/launchctl list | egrep AppleFileServer)" -eq 0 ]]; then
-            ScriptLogging "  AFP is enabled. Disabling..."
-            echo "Disable AFP..."
+        local AppleFileServerAudit
+        AppleFileServerAudit="$(/bin/launchctl list | egrep AppleFileServer)"
+        if [[ "${AppleFileServerAudit}" -ge 0 ]]; then
+            ScriptLogging "  AFP is disabled."
         else
+            ScriptLogging "  AFP is NOT disabled. Disabling..."
+            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.AppleFileServer.plist
             ScriptLogging "  AFP is disabled."
         fi
 
-        if [[ "$(/bin/launchctl list | egrep smbd)" -eq 0 ]]; then
-            ScriptLogging "  SMB is enabled. Disabling..."
-            echo "Disable SMB..."
+        local SMBAudit
+        SMBAudit="$(/bin/launchctl list | egrep smbd)"
+        if [[ ${SMBAudit} -ge 0 ]]; then
+            ScriptLogging "  SMB is disbled."
         else
+            ScriptLogging "  SMB is NOT disabled. Disabling..."
+            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.smbd.plist
             ScriptLogging "  SMB is disbled."
         fi
 
         # 2.4.9 Disable Remote Management
         # Level 1 Scored
+        # TODO: Test. New audit/remediation written.
 
-        # TODO
-        # design audit/remediate
+        local ARDAgentAudit
+        ARDAgentAudit="$(ps -ef | egrep ARDAgent)"
+        if [[ ${ARDAgentAudit} -ge 0 ]]; then
+            ScriptLogging "  Remote Management is disabled."
+        else
+            ScriptLogging "  Remote Management is NOT disabled. Disabling..."
+            /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop
+            ScriptLogging "  Remote Management is disabled."
+        fi
 
-        # 2.5 Energy Saver
-
+     # 2.5 Energy Saver
         # 2.5.1 Disable "Wake for network access"
-        # Level 2 Scored
-        # Level 1.5 Not Scored
+        # Level 2 Scored, Level 1.5 Not Scored
         # Take a "clear-all" approach here
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Wake for network Access disabling."
@@ -415,8 +365,7 @@ systemPreferences() {
         fi
 
         # 2.5.2 Disable sleeping the computer when connected to power
-        # Level 2 Scored
-        # Level 1.5 Not Scored
+        # Level 2 Scored, Level 1.5 Not Scored
         # Take a "clear-all" approach here
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Sleep when connected to power disabling."
@@ -424,11 +373,10 @@ systemPreferences() {
             ScriptLogging "  Sleep when connected to power disabled."
         fi
 
-        # 2.6 Security & Privacy
-
+    # 2.6 Security & Privacy
         # 2.6.1 Enable FileVault
         # Level 1 Scored
-        # This should be handled by an MDM with institutional keys.
+        # This should be handled by an MDM with personal/institutional keys.
         # audit is `diskutil cs list | grep -i encryption`
 
         # 2.6.2 Enable Gatekeeper
@@ -457,7 +405,7 @@ systemPreferences() {
         # Level 1 Scored
         local SysFirewallStealth
         SysFirewallStealth="$(/usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode | grep -ic "Stealth mode enabled")"
-        if [[ ${SysFirewallStealth} -eq 0 ]]; then
+        if [[ ${SysFirewallStealth} -ge 1 ]]; then
             ScriptLogging "  Firewall Stealth Mode enabled."
         else
             ScriptLogging "  Firewall Stealth Mode NOT enabled. Enabling..."
@@ -485,9 +433,7 @@ systemPreferences() {
 
         # 2.8 Pair the remote control infrared receiver if enabled
         # Level 1 Scored
-
         #TODO: Getting errors in STDOUT.
-
         #./Yosemite_CIS.sh: line 507: [[: Jun 22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
         #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.: syntax error in expression (error token is "22, 2016, 11:53:31 AM CIS_SETTINGS[74183]:   No IR Receiver present.
         #Jun 22 11:53:31 kvoleon CIS_SETTINGS[74183]:   No IR Receiver present.")
@@ -502,7 +448,6 @@ systemPreferences() {
         SysProfIRReciever="$(/usr/sbin/system_profiler 2>/dev/null | egrep "IR Receiver")"
         local AppleIRController
         AppleIRController="$(/usr/bin/defaults read /Library/Preferences/com.apple.driver.AppleIRController | grep "DeviceEnabled" | awk '{ print $3 }')"
-
         if [[ ${SysProfIRReciever} -eq 0 ]]; then
             ScriptLogging "  No IR Receiver present."
         elif [[ ${SysProfIRReciever} -gt 0 ]]; then
@@ -520,15 +465,14 @@ systemPreferences() {
         # Level 1 Scored
         # Let's not audit, let's just force it.
         ScriptLogging "  Enabling secure text entry in Terminal.app..."
-        /usr/bin/defaults write -app Terminal SecureKeyboardEntry 1
+        user_template com.apple.Terminal.plist SecureKeyboardEntry 1
 
         # 2.10 Java 6 is not the default Java runtime
         # Level 2 Scored
         # Java is the devil, installing it means you're a bad person.
 
         # 2.11 Configure Secure Empty Trash
-        # Level 2 Scored
-        # Level 1.5 Not Scored
+        # Level 2 Scored, Level 1.5 Not Scored
         # Can be secured more appropriately with a configuration profile.
         # Issues with config profile, especially if they are not user removable, in the event that a large file has been
         # trashed, productivity can be hindered when emptying the trash. (only speaking from experience.) Gather requirements!
@@ -536,58 +480,35 @@ systemPreferences() {
 
         if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Enabling Secure Empty Trash..."
-            for USER_TEMPLATE in "/System/Library/User Template"/*
-                do
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
-            done
-
-            # Set for already created users
-            for USER_HOME in /Users/*
-                do
-                    USER_UID=$(basename "${USER_HOME}")
-                    if [ ! "${USER_UID}" = "Shared" ]; then
-                        if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-                            /bin/mkdir -p "${USER_HOME}"/Library/Preferences
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
-                            /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
-                        fi
-                        if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.finder EmptyTrashSecurely 1
-                        fi
-                    fi
-            done
+            user_template com.apple.finder EmptyTrashSecurely 1
+            ScriptLogging "  Secure Empty Trash enabled."
         fi
-
-ScriptLogging " "
 }
 
-# 3 Logging and Auditing
 loggingAndAuditing() {
-
+# 3 Logging and Auditing
     ScriptLogging "3 Logging and Audting"
-    ScriptLogging "  "
 
     # 3.1 Configure asl.conf
-
         # 3.1.1 Retain system.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        ScriptLogging "   Setting system.log to be kept for 90 Days..."
+        ScriptLogging "  Setting system.log to be kept for 90 Days..."
         /usr/bin/sed -i.bak 's/^>\ system\.log.*/>\ system\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl.conf
 
         # 3.1.2 Retain appfirewall.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        ScriptLogging "   Setting appfirewall.log to be kept for 90 Days..."
+        ScriptLogging "  Setting appfirewall.log to be kept for 90 Days..."
         /usr/bin/sed -i.bak 's/^\?\ \[=\ Facility\ com.apple.alf.logging\]\ .*/\?\ \[=\ Facility\ com.apple.alf.logging\]\ file\ appfirewall.log\ rotate=seq\ ttl=90/' /etc/asl.conf
 
         # 3.1.3 Retain authd.log for 90 or more days
         # Level 1 Scored
         # Contributed by John Oliver on CIS forums
         # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
-        ScriptLogging "   Setting authd.log to be kept for 90 Days..."
+        ScriptLogging "  Setting authd.log to be kept for 90 Days..."
         /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/authd\.log.*/\*\ file\ \/var\/log\/authd\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=90/' /etc/asl/com.apple.authd
 
     # 3.2 Enable security auditing
@@ -603,8 +524,7 @@ loggingAndAuditing() {
     fi
 
     # 3.3 Configure Security Auditing Flags
-    # Level 2 Scored
-    # Level 1.5 Not Scored
+    # Level 2 Scored, Level 1.5 Not Scored
     # Contributed by John Oliver on CIS forums
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
@@ -622,20 +542,14 @@ loggingAndAuditing() {
     # https://community.cisecurity.org/collab/public/index.php?path_info=projects%2F28%2Fcomments%2F15292
     ScriptLogging "  Setting install.log to be kept for 365 Days..."
     /usr/bin/sed -i.bak 's/^\*\ file\ \/var\/log\/install\.log.*/\*\ file\ \/var\/log\/install\.log\ mode=640\ format=bsd\ rotate=seq\ ttl=365/' /etc/asl/com.apple.install
-
-ScriptLogging " "
 }
 
-# 4 Network Configurations
 networkConfigurations() {
-
+# 4 Network Configurations
     ScriptLogging "4 Network Configurations"
-    ScriptLogging "  "
 
     # 4.1 Disable Bonjour advertising service
-    # Level 2 Scored
-    # Level 1.5 Not Scored
-
+    # Level 2 Scored, Level 1.5 Not Scored
     #TODO: Test. New audit/remediation written.
 
     if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
@@ -645,36 +559,20 @@ networkConfigurations() {
             ScriptLogging "  Bonjour Advertising is disabled."
         else
             ScriptLogging "  Bonjour Advertising is enabled. Disabling..."
-            defaults write /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist ProgramArguements -array-add '{-NoMulticastAdvertisements;}'
+            /usr/bin/defaults write /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist ProgramArguements -array-add '{-NoMulticastAdvertisements;}'
             ScriptLogging "  Bonjour Advertising is disabled."
         fi
     fi
 
     # 4.2 Enable "Show Wi-Fi status in menu bar"
     # Level 1 Scored
-    ScriptLogging "  Ensuring Airport is shown in MenuBar..."
-    for USER_TEMPLATE in "/System/Library/User Template"/*
-        do
-            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/AirPort.menu"
-    done
-    # Set for already created users
-    for USER_HOME in /Users/*
-        do
-            USER_UID=$(basename "${USER_HOME}")
-            if [ ! "${USER_UID}" = "Shared" ]; then
-                if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-                    /bin/mkdir -p "${USER_HOME}"/Library/Preferences
-                    /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
-                    /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
-                fi
-                if [ -d "${USER_HOME}"/Library/Preferences ]; then
-                    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/AirPort.menu"
-                fi
-            fi
-    done
+    ScriptLogging "  Ensuring Wi-Fi is shown in MenuBar..."
+    user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Airport.menu"
+    ScriptLogging "  Wi-Fi is shown in MenuBar."
 
     # 4.3 Create network specific locations
     # Level 2 Not Scored
+    # TODO
 
     # 4.4 Ensure http server is not running
     # Level 1 Scored
@@ -707,18 +605,13 @@ networkConfigurations() {
     else
         ScriptLogging "  NFS server disabled."
     fi
-
-ScriptLogging " "
 }
 
-# 5 System Access, Authentication and Authorization
 systemAccess() {
-
+# 5 System Access, Authentication and Authorization
     ScriptLogging "5 System Access, Authenticationn and Authorization"
-    ScriptLogging "  "
 
     # 5.1 File System Permissions and Access Controls
-
         # 5.1.1 Secure Home Folders
         # Level 1 Scored
         # This script is intended to run BEFORE a system is deployed. Maybe a umask here, but not sure how to implement it.
@@ -740,7 +633,6 @@ systemAccess() {
         # GarageBand looks to be a culprit here. Should be removed/repackaged on systems through imaging/MDM.
 
     # 5.2 Password Management
-
     # TODO
     # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remediation procedure is for a logged in user.
     # It might be that this should be configured via Configuration Policy instead
@@ -774,13 +666,12 @@ systemAccess() {
 
     # 5.3 Reduce the sudo timeout period
     # Level 1 Scored
-    # listed as issue on github : https://github.com/krispayne/CIS-Settings/issues/2
     if [[ "$(< /etc/sudoers | grep timestamp)" -eq 0 ]]; then
         echo "No sudo timeout modification present. Default is 5 minutes."
     else
         echo "sudo timeout modification present."
     fi
-   
+
     # 5.4 Automatically lock the login keychain for inactivity
     # Level 2 Scored
     # User specific. Check to see if can be implemented via config profile. Default is 'no limit.'
@@ -794,7 +685,6 @@ systemAccess() {
 
     # 5.7 Do not enable the "root" account
     # Level 1 Scored
-
     #TODO: Test. New audit/remediation written.
     # this is requiring expected statements. will look into expect
 
@@ -808,7 +698,6 @@ systemAccess() {
 
     # 5.8 Disable automatic login
     # Level 1 Scored
-
     #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow | grep autoLoginUser > /dev/null)" -eq 0 ]]; then
@@ -821,7 +710,6 @@ systemAccess() {
 
     # 5.9 Require a password to wake the computer from sleep or screen saver
     # Level 1 Scored
-
     #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/defaults read com.apple.screensaver askForPassword)" = "1" ]]; then
@@ -834,7 +722,6 @@ systemAccess() {
 
     # 5.10 Require an administrator password to access system-wide preferences
     # Level 1 Scored
-
     #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/security authorizationdb read system.preferences 2> /dev/null | grep -A1 shared | grep -E '(true|false)')" = "        <false/>" ]]; then
@@ -851,6 +738,7 @@ systemAccess() {
     # 5.11 Disable ability to login to another user's active and locked session
     # Level 1 Scored
     # Need sed here to edit /etc/pam.d/screensaver
+    # I believe this is off by default.
 
     # 5.12 Create a custom message for the Login Screen
     # Level 1 Scored
@@ -864,7 +752,6 @@ systemAccess() {
 
     # 5.13 Create a Login window banner
     # Level 2 Scored
-
     #TODO: Test. New audit/remediation written.
     if [[ ${CISLEVEL} = "2" ]]; then
         if [[ ! -e /Library/Security/PolicyBanner.txt ]]; then
@@ -884,7 +771,6 @@ systemAccess() {
     # 5.15 Disable Fast User Switching
     # Level 2 Not Scored
     # Level 1.5 Not Scored
-
     #TODO: Test. New audit/remediation written.
 
     if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
@@ -906,18 +792,13 @@ systemAccess() {
     # 5.18 Install an approved tokend for smartcard authentication
     # Level 2 Scored
     # TODO
-
-ScriptLogging " "
 }
 
-#  6 User Accounts and Environment
 userEnvironment() {
-
+# 6 User Accounts and Environment
     ScriptLogging "6 User Accounts and Environment"
-    ScriptLogging "  "
 
     # 6.1 Accounts Preferences Action Items
-
         # 6.1.1 Display login window as name and password
         # Level 1 Scored
         # No audit, just do it.
@@ -957,19 +838,14 @@ userEnvironment() {
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Level 2 Not Scored
-
-ScriptLogging " "
 }
 
-# 7 Appendix: Additional Considerations
 additionalConsiderations() {
-
-    # These have been removed from the mainScript () to be cleaner, since they don't do anything.
-    # Leaving the function as a "completionist"
-
+# 7 Appendix: Additional Considerations
+# These have been removed from the mainScript () to be cleaner, since they don't do anything.
+# Leaving the function as a "completionist"
     ScriptLogging "7 Appendix: Additional Considerations"
     ScriptLogging "  Please see the Benchmark documentation for Additional Considerations."
-    ScriptLogging "  "
 
     # 7.1 Wireless technology on OS X
     # Level 2 Not Scored
@@ -1001,15 +877,12 @@ additionalConsiderations() {
     # Level 2 Not Scored
 }
 
-# 8 Artifacts
 artifacts() {
-
-    # These have been removed from the mainScript() to be cleaner, since they don't do anything.
-    # Leaving the function as a "completionist"
-
+# 8 Artifacts
+# These have been removed from the mainScript() to be cleaner, since they don't do anything.
+# Leaving the function as a "completionist"
     ScriptLogging "8 Artifacts"
     ScriptLogging "  Please see the Benchmark documentation for Artifacts."
-    ScriptLogging "  "
 
     # 8.1 Password Policy Plist generated through OS X Server
     # Level 1 Not Scored
@@ -1022,22 +895,19 @@ artifacts() {
     # plist file is provided
 }
 
+cleanAndReboot() {
 # Reboot function
 # left as a function in case you don't want to reboot after running the rest of the script
-cleanAndReboot() {
     ScriptLogging "  Rebooting for CIS Settings "
     /sbin/shutdown -r now
 }
 
 mainScript() {
-
     ScriptLogging " "
     ScriptLogging "  **************************************************  "
     ScriptLogging "            Starting CIS Level ${CISLEVEL} Settings"
     ScriptLogging "  **************************************************  "
-    ScriptLogging " "
     ScriptLogging "                  $(date +%Y-%m-%d\ %H:%M:%S)"
-    ScriptLogging " "
 
     if [[ ${CISLEVEL} = "1" ]] || [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
         ScriptLogging " "
@@ -1053,13 +923,75 @@ mainScript() {
     networkConfigurations
     systemAccess
     userEnvironment
-    cleanAndReboot
-    
+
     ScriptLogging " "
     ScriptLogging "   CIS Level ${CISLEVEL} Settings Finished! Time to restart..."
     ScriptLogging "  **************************************************  "
     ScriptLogging "                   $(date +%Y-%m-%d\ %H:%M:%S)"
+
+    #cleanAndReboot
 }
 
+ScriptLogging() {
+# ScriptLogging
+# Dumps to system.log with prefix "CIS_SETTINGS"
+    logger -t CIS_SETTINGS "$@"; echo "$@";
+}
+
+user_template() {
+# Usage: user_template domain key action action action action action
+# Ex: user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Airport.menu"
+
+    local PREFERENCE_DOMAIN=$1
+    local PREFERENCE_KEY=$2
+    PREFERENCE_ARGS=( $3 $4 $5 $6 $7 )
+
+    # Set for user template
+    for USER_TEMPLATE in "/System/Library/User Template"/*
+        do
+            /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ARGS[@]}"
+    done
+
+    # Set for already created users
+    for USER_HOME in /Users/*
+        do
+            USER_UID=$(basename "${USER_HOME}")
+            if [ ! "${USER_UID}" = "Shared" ]; then
+                if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
+                    /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+                    /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
+                    /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+                fi
+                if [ -d "${USER_HOME}"/Library/Preferences ]; then
+                    /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/"${PREFERENCE_DOMAIN}" "${PREFERENCE_KEY}" "${PREFERENCE_ARGS[@]}"
+                fi
+            fi
+    done
+}
+
+# Set up args for level selection
+CISLEVEL=""
+while [[ $# -gt 1 ]]
+    do
+        key="$1"
+
+        case $key in
+            -l|--level)
+            CISLEVEL="$2"
+            shift # past argument
+            ;;
+            --default)
+            DEFAULT=YES
+            ;;
+            *)
+            # unknown option
+            ;;
+        esac
+        shift # past argument or value
+    done
+
+    if [[ ${CISLEVEL} = "" ]]; then
+        CISLEVEL="1"    # Make sure this is a string, not an integer.
+    fi
 # Run mainScript
 mainScript
