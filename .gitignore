@@ -10,3 +10,7 @@ user_template.sh
 cis.log
 
 .DS_Store
+
+CIS-Settings.sublime-project
+
+CIS-Settings.sublime-workspace
