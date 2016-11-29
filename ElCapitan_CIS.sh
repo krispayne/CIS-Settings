@@ -17,7 +17,7 @@ softwareUpdates() {
 
     # 1.1 Verify all Apple provided software is current
     # Level 1 Scored
-    ScriptLogging "Checking for software updates from Apple..."
+    ScriptLogging "  Checking for software updates from Apple..."
     local SoftwareUpdateCommand
     SoftwareUpdateCommand="$(/usr/sbin/softwareupdate -l | wc -l)"
     if [[ ${SoftwareUpdateCommand} -eq 4 ]]; then
