@@ -801,6 +801,7 @@ userEnvironment() {
         # 6.1.1 Display login window as name and password
         # Level 1 Scored
         # No audit, just do it.
+        # If using FileVault 2, this does not matter and should be commented out.
         ScriptLogging "  Setting LoginWindow to display as username and password..."
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
