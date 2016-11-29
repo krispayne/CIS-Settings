@@ -149,12 +149,11 @@ systemPreferences() {
         # 2.2.1 Enable "Set time and date automatically"
         # Level 2 Not Scored, Level 1.5 Not Scored
         if [[ ${CISLEVEL} = "1.5" ]]; then
+
             if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
                 ScriptLogging "  NetworkTime on. Ensuring server is time.apple.com."
-
-                if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
+            elif [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
                     ScriptLogging "  NetworkTime is on and set to time.apple.com."
-                fi
             else
                 if [[ ! -e /etc/ntp.conf ]]; then
                     ScriptLogging "  Create '/etc/ntp.conf'"
