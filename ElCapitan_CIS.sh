@@ -147,23 +147,20 @@ systemPreferences() {
 
     # 2.2 Date & Time
         # 2.2.1 Enable "Set time and date automatically"
+        # no need to remediate, just set.
+        # If you want to remediate first, please feel free to fork and pull
         # Level 2 Not Scored, Level 1.5 Not Scored
         if [[ ${CISLEVEL} = "1.5" ]]; then
-
-            if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
-                ScriptLogging "  NetworkTime on. Ensuring server is time.apple.com."
-            elif [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
-                    ScriptLogging "  NetworkTime is on and set to time.apple.com."
-            else
-                if [[ ! -e /etc/ntp.conf ]]; then
+            if [[ ! -e /etc/ntp.conf ]]; then
                     ScriptLogging "  Create '/etc/ntp.conf'"
                     /usr/bin/touch /etc/ntp.conf
-                fi
-                ScriptLogging "  Set NetworkTime to time.apple.com."
-                /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-                ScriptLogging "  Ensure NetworkTime is on."
-                /usr/sbin/systemsetup -setusingnetworktime on
             fi
+
+            ScriptLogging "  Ensure NetworkTime is on."
+            /usr/sbin/systemsetup -setusingnetworktime on
+
+            ScriptLogging "  Set NetworkTime to time.apple.com."
+            /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
         fi
 
         # 2.2.2 Ensure time set is within appropriate limits
