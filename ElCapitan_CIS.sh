@@ -197,9 +197,11 @@ systemPreferences() {
 
         # 2.3.4 Set a screen corner to Start Screen Saver
         # Level 1 Scored
-        ScriptLogging "  Setting bottom right corner to enable screensaver..."
-        user_template com.apple.dock wvous-br-corner 5
-        user_template com.apple.dock wvous-br-modifier 0
+        # Not currently setting.
+        # TODO
+        #ScriptLogging "  Setting bottom right corner to enable screensaver..."
+        #user_template com.apple.dock wvous-br-corner 5
+        #user_template com.apple.dock wvous-br-modifier 0
 
     # 2.4 Sharing
         # 2.4.1 Disable Remote Apple Events
