@@ -180,7 +180,7 @@ systemPreferences() {
         # 2.3.2 Secure screen saver corners
         # Level 2 Scored, Level 1.5 Not Scored
         # Take a "clear-all" approach here, as 2.3.4 sets an active corner for enabling screensaver.
-        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]] || [[ ${CISLEVEL} = "1" ]]; then
+        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Setting all corners to '1'..."
             user_template com.apple.dock wvous-tl-corner 1
             user_template com.apple.dock wvous-tr-corner 1
