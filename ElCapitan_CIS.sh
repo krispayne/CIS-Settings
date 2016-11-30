@@ -700,15 +700,15 @@ systemAccess() {
 
     # 5.9 Require a password to wake the computer from sleep or screen saver
     # Level 1 Scored
-    #TODO: Test. New audit/remediation written.
+    # This should be within a configuration profile so that it is set and not changeable.
 
-    if [[ "$(/usr/bin/defaults read com.apple.screensaver askForPassword)" = "1" ]]; then
-        ScriptLogging "  Password required to wake from sleep or screensaver."
-    else
-        ScriptLogging "  Password NOT required to wake from sleep or screensaver. Enabling..."
-        /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
-        ScriptLogging "  Password required to wake from sleep or screensaver."
-    fi
+    #if [[ "$(/usr/bin/defaults read com.apple.screensaver askForPassword)" = "1" ]]; then
+    #    ScriptLogging "  Password required to wake from sleep or screensaver."
+    #else
+    #    ScriptLogging "  Password NOT required to wake from sleep or screensaver. Enabling..."
+    #    /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
+    #    ScriptLogging "  Password required to wake from sleep or screensaver."
+    #fi
 
     # 5.10 Require an administrator password to access system-wide preferences
     # Level 1 Scored
