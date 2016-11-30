@@ -335,7 +335,6 @@ systemPreferences() {
 
         # 2.4.9 Disable Remote Management
         # Level 1 Scored
-        # TODO: Test. New audit/remediation written.
 
         local ARDAgentAudit
         ARDAgentAudit="$(ps -ef | egrep ARDAgent)"
