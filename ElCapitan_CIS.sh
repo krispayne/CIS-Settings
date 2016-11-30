@@ -134,6 +134,7 @@ systemPreferences() {
         # 2.1.3 Show Bluetooth status in menu bar
         # Level 1 Scored
         # TODO: Test new audit/remidiate
+        # This possibly may not work anymore.
 
         local BluetoothMenuStatus
         BluetoothMenuStatus="$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)"
