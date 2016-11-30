@@ -626,15 +626,13 @@ systemAccess() {
         # GarageBand looks to be a culprit here. Should be removed/repackaged on systems through imaging/MDM.
 
     # 5.2 Password Management
-    # TODO
-    # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remediation procedure is for a logged in user.
-    # It might be that this should be configured via Configuration Policy instead
+    # This should be set within a configuration profile in the Passcode payload.
     # See Section 8.1 and 8.2 for possible plist that can be packaged and deployed.
 
         # 5.2.1 Configure account lockout threshold
         # Level 1 Scored
         # pwpolicy -getaccountpolicies | grep -A 1 '<key>policyAttributeMaximumFailedAuthentications</key>' | tail -1 | cut -d'>' -f2 | cut -d '<' -f1
-        #  pwpolicy -setaccountpolicies
+        # pwpolicy -setaccountpolicies
 
         # 5.2.2 Set a minimum password length
         # Level 1 Scored
