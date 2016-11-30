@@ -765,8 +765,7 @@ systemAccess() {
 
     # 5.14 Do not enter a password-related hint
     # Level 1 Scored
-    # TODO
-    # Per user. for/while in USER_TEMPLATE
+    # Should be inside a configuration profile with the Login Window payload.
 
     # 5.15 Disable Fast User Switching
     # Level 2 Not Scored
