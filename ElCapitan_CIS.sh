@@ -712,7 +712,6 @@ systemAccess() {
 
     # 5.10 Require an administrator password to access system-wide preferences
     # Level 1 Scored
-    #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/security authorizationdb read system.preferences 2> /dev/null | grep -A1 shared | grep -E '(true|false)')" = "        <false/>" ]]; then
         ScriptLogging "  Password required to access system-wide preferences."
