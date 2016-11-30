@@ -689,7 +689,6 @@ systemAccess() {
 
     # 5.8 Disable automatic login
     # Level 1 Scored
-    #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow | grep autoLoginUser > /dev/null)" -eq 0 ]]; then
         ScriptLogging "  Auto login is disabled."
