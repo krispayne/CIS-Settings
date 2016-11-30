@@ -726,8 +726,14 @@ systemAccess() {
 
     # 5.11 Disable ability to login to another user's active and locked session
     # Level 1 Scored
-    # Need sed here to edit /etc/pam.d/screensaver
-    # I believe this is off by default.
+
+    if [[ $(grep -ic "group=admin,wheel fail_safe" /etc/pam.d/screensaver) -eq 0 ]]; then
+        ScriptLogging "  Admins disabled from unlocking other users sessions."
+    else
+        ScriptLogging "  Admins allowed to unlock other users sessions...."
+        sed -i.bak s/admin,//g /etc/pam.d/screensaver
+        ScriptLogging "  Admins disabled from unlocking other users sessions."
+    fi
 
     # 5.12 Create a custom message for the Login Screen
     # Level 1 Scored
