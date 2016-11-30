@@ -565,6 +565,7 @@ networkConfigurations() {
 
     # 4.2 Enable "Show Wi-Fi status in menu bar"
     # Level 1 Scored
+    # TODO
     ScriptLogging "  Ensuring Wi-Fi is shown in MenuBar..."
     user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Airport.menu"
     ScriptLogging "  Wi-Fi is shown in MenuBar."
