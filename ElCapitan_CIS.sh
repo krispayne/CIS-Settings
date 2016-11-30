@@ -97,12 +97,7 @@ systemPreferences() {
     # 2.1 Bluetooth
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
         # Level 1 Scored
-        # TODO
-        # Getting errors in STDOUT
-        # Could be related to Server.app
-        # 2016-06-22 12:54:21.315 system_profiler[77638:1038574] httpdEnabled is deprecated !!
-        # 2016-06-22 12:54:30.842 system_profiler[77675:1038866] __agent_connection_block_invoke_2: Connection error - Connection invalid
-
+        
         local BTControllerPowerState
         BTControllerPowerState="$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)"
         local BTSysPaired
