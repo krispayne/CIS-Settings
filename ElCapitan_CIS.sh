@@ -608,6 +608,7 @@ systemAccess() {
     # 5.1 File System Permissions and Access Controls
         # 5.1.1 Secure Home Folders
         # Level 1 Scored
+        # TODO
         # This script is intended to run BEFORE a system is deployed. Maybe a umask here, but not sure how to implement it.
 
         # 5.1.2 Repair permissions regularly to ensure binaries and other System files have appropriate permissions
@@ -632,8 +633,6 @@ systemAccess() {
 
         # 5.2.1 Configure account lockout threshold
         # Level 1 Scored
-        # pwpolicy -getaccountpolicies | grep -A 1 '<key>policyAttributeMaximumFailedAuthentications</key>' | tail -1 | cut -d'>' -f2 | cut -d '<' -f1
-        # pwpolicy -setaccountpolicies
 
         # 5.2.2 Set a minimum password length
         # Level 1 Scored
