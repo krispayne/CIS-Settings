@@ -263,16 +263,16 @@ systemPreferences() {
         # 2.4.6 Disable DVD or CD Sharing
         # Level 1 Scored
         # Newer devices do not have Optical Drives
-        # TODO Test. New audit/remediation written.
-        local OpticalSharingAudit
-        OpticalSharingAudit=$(/bin/launchctl list | egrep ODSAgent)
-        if [[ ${OpticalSharingAudit} -ge 0 ]]; then
-            ScriptLogging "  Optical Drive Sharing is disabled."
-        else
-            ScriptLogging "  Optical Drive Sharing is NOT disabled. Disabling..."
-            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.ODSAgent.plist
-            ScriptLogging "  Optical Drive Sharing is disabled."
-        fi
+        # code not tested. unable to test as I haven't seen a CD/DVD drive on a machine in many years.
+        #local OpticalSharingAudit
+        #OpticalSharingAudit=$(/bin/launchctl list | egrep ODSAgent)
+        #if [[ ${OpticalSharingAudit} -ge 0 ]]; then
+        #    ScriptLogging "  Optical Drive Sharing is disabled."
+        #else
+        #    ScriptLogging "  Optical Drive Sharing is NOT disabled. Disabling..."
+        #    /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.ODSAgent.plist
+        #    ScriptLogging "  Optical Drive Sharing is disabled."
+        #fi
 
         # 2.4.7 Disable Bluetooth Sharing
         # Level 1 Scored
