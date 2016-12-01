@@ -834,61 +834,6 @@ userEnvironment() {
     # Level 2 Not Scored
 }
 
-additionalConsiderations() {
-# 7 Appendix: Additional Considerations
-# These have been removed from the mainScript () to be cleaner, since they don't do anything.
-# Leaving the function as a "completionist"
-    ScriptLogging "7 Appendix: Additional Considerations"
-    ScriptLogging "  Please see the Benchmark documentation for Additional Considerations."
-
-    # 7.1 Wireless technology on OS X
-    # Level 2 Not Scored
-
-    # 7.2 iSight Camera Privacy and Confidentiality Concerns
-    # Level 2 Not Scored
-
-    # 7.3 Computer Name Considerations
-    # Level 2 Not Scored
-
-    # 7.4 Software Inventory Considerations
-    # Level 2 Not Scored
-
-    # 7.5 Firewall Consideration
-    # Level 2 Not Scored
-
-    # 7.6 Automatic Actions for Optical Media
-    # Level 1 Not Scored
-    # No optical media drives on any new endpoints.
-
-    # 7.7 App Store Automatically download apps purchased on other Macs Considerations
-    # Level 2 Not Scored
-
-    # 7.8 Extensible Firmware Interface (EFI) password
-    # Level 2 Not Scored
-    # Implement via your MDM/Imaging solution. If at all. FV2 mitigates much of the need.
-
-    # 7.9 Apple ID password reset
-    # Level 2 Not Scored
-}
-
-artifacts() {
-# 8 Artifacts
-# These have been removed from the mainScript() to be cleaner, since they don't do anything.
-# Leaving the function as a "completionist"
-    ScriptLogging "8 Artifacts"
-    ScriptLogging "  Please see the Benchmark documentation for Artifacts."
-
-    # 8.1 Password Policy Plist generated through OS X Server
-    # Level 1 Not Scored
-    # No Rationale, Audit or remediation provided by CIS
-    # plist file is provided
-
-    # 8.2 Password Policy Plist from man page
-    # Level 1 Not Scored
-    # No Rationale, Audit or remediation provided by CIS
-    # plist file is provided
-}
-
 cleanAndReboot() {
 # Reboot function
 # left as a function in case you don't want to reboot after running the rest of the script
