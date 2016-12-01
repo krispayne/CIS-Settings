@@ -418,7 +418,8 @@ systemPreferences() {
 
         # 2.7 iCloud
         # This section has moved from Recommendations over to Subsections, however, no audit or remidiation guideleins are given.
-        # General thought (mine, not CIS) is that if you are Level 1, these can be left alone. Anything above (1.5+) should be audited,
+        # General thought (mine, not CIS) is that if you are Level 1, these can be left alone. Anything above (1.5+) should be audited.
+        # This should be handled via configuration profile.
         # Level 2 Not Scored
         # 2.7.1 iCloud configuration
         # 2.7.2 iCloud keychain
