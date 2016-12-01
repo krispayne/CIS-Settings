@@ -765,7 +765,6 @@ systemAccess() {
     # 5.15 Disable Fast User Switching
     # Level 2 Not Scored
     # Level 1.5 Not Scored
-    #TODO: Test. New audit/remediation written.
 
     if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
         if [[ "$(/usr/bin/defaults read /Library/Preferences/.GlobalPreferences.plist MultipleSessionEnabled)" = "0" ]]; then
