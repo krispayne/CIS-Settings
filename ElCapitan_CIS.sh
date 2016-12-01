@@ -727,11 +727,11 @@ systemAccess() {
     # 5.11 Disable ability to login to another user's active and locked session
     # Level 1 Scored
 
-    if [[ $(grep -ic "group=admin,wheel fail_safe" /etc/pam.d/screensaver) -eq 0 ]]; then
+    if [[ $(/usr/bin/grep -ic "group=admin,wheel fail_safe" /etc/pam.d/screensaver) -eq 0 ]]; then
         ScriptLogging "  Admins disabled from unlocking other users sessions."
     else
         ScriptLogging "  Admins allowed to unlock other users sessions...."
-        sed -i.bak s/admin,//g /etc/pam.d/screensaver
+        /usr/bin/sed -i.bak s/admin,//g /etc/pam.d/screensaver
         ScriptLogging "  Admins disabled from unlocking other users sessions."
     fi
 
