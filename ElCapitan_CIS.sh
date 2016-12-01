@@ -37,6 +37,7 @@ softwareUpdates() {
     else
         ScriptLogging "  Automatic Update Check NOT enabled. Enabling..."
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -bool TRUE
+        # comment out below to disable for Sierra auto downloads.
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload -bool TRUE
         /usr/sbin/softwareupdate --schedule on
         ScriptLogging "  Automatic Update Check enabled."
