@@ -748,7 +748,6 @@ systemAccess() {
 
     # 5.13 Create a Login window banner
     # Level 2 Scored
-    #TODO: Test. New audit/remediation written.
     if [[ ${CISLEVEL} = "2" ]]; then
         if [[ ! -e /Library/Security/PolicyBanner.txt ]]; then
             ScriptLogging "  'PolicyBanner.txt' not found."
