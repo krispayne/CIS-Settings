@@ -319,6 +319,7 @@ systemPreferences() {
         # 2.4.8 Disable File Sharing
         # Level 1 Scored
         #TODO: Test. New audit/remediation written.
+        # these two are made into profiles.
 
         local AppleFileServerAudit
         AppleFileServerAudit="$(/bin/launchctl list | egrep AppleFileServer)"
