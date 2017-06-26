@@ -17,7 +17,7 @@ softwareUpdates() {
 
     # 1.1 Verify all Apple provided software is current
     # Level 1 Scored
-    ScriptLogging "Checking for software updates from Apple..."
+    ScriptLogging "  Checking for software updates from Apple..."
     local SoftwareUpdateCommand
     SoftwareUpdateCommand="$(/usr/sbin/softwareupdate -l | wc -l)"
     if [[ ${SoftwareUpdateCommand} -eq 4 ]]; then
@@ -37,6 +37,7 @@ softwareUpdates() {
     else
         ScriptLogging "  Automatic Update Check NOT enabled. Enabling..."
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -bool TRUE
+        # comment out below to disable for Sierra auto downloads.
         /usr/bin/defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload -bool TRUE
         /usr/sbin/softwareupdate --schedule on
         ScriptLogging "  Automatic Update Check enabled."
@@ -97,12 +98,7 @@ systemPreferences() {
     # 2.1 Bluetooth
         # 2.1.1 Turn off Bluetooth, if no paired devices exist
         # Level 1 Scored
-        # TODO
-        # Getting errors in STDOUT
-        # Could be related to Server.app
-        # 2016-06-22 12:54:21.315 system_profiler[77638:1038574] httpdEnabled is deprecated !!
-        # 2016-06-22 12:54:30.842 system_profiler[77675:1038866] __agent_connection_block_invoke_2: Connection error - Connection invalid
-
+        
         local BTControllerPowerState
         BTControllerPowerState="$(/usr/bin/defaults read /Library/Preferences/com.apple.Bluetooth ControllerPowerState)"
         local BTSysPaired
@@ -134,6 +130,7 @@ systemPreferences() {
         # 2.1.3 Show Bluetooth status in menu bar
         # Level 1 Scored
         # TODO: Test new audit/remidiate
+        # This possibly may not work anymore.
 
         local BluetoothMenuStatus
         BluetoothMenuStatus="$(/usr/bin/defaults read com.apple.systemuiserver menuExtras | grep Bluetooth.menu)"
@@ -147,24 +144,20 @@ systemPreferences() {
 
     # 2.2 Date & Time
         # 2.2.1 Enable "Set time and date automatically"
+        # no need to remediate, just set.
+        # If you want to remediate first, please feel free to fork and pull
         # Level 2 Not Scored, Level 1.5 Not Scored
         if [[ ${CISLEVEL} = "1.5" ]]; then
-            if [[ "$(/usr/sbin/systemsetup -getusingnetworktime | awk '{ print $3 }')" = "On" ]]; then
-                ScriptLogging "  NetworkTime on. Ensuring server is time.apple.com."
-
-                if [[ "$(/usr/sbin/systemsetup -getnetworktimeserver | awk '{ print $4 }')" = "time.apple.com" ]]; then
-                    ScriptLogging "  NetworkTime is on and set to time.apple.com."
-                fi
-            else
-                if [[ ! -e /etc/ntp.conf ]]; then
+            if [[ ! -e /etc/ntp.conf ]]; then
                     ScriptLogging "  Create '/etc/ntp.conf'"
                     /usr/bin/touch /etc/ntp.conf
-                fi
-                ScriptLogging "  Set NetworkTime to time.apple.com."
-                /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
-                ScriptLogging "  Ensure NetworkTime is on."
-                /usr/sbin/systemsetup -setusingnetworktime on
             fi
+
+            ScriptLogging "  Ensure NetworkTime is on."
+            /usr/sbin/systemsetup -setusingnetworktime on
+
+            ScriptLogging "  Set NetworkTime to time.apple.com."
+            /usr/sbin/systemsetup -setnetworktimeserver time.apple.com
         fi
 
         # 2.2.2 Ensure time set is within appropriate limits
@@ -184,7 +177,7 @@ systemPreferences() {
         # 2.3.2 Secure screen saver corners
         # Level 2 Scored, Level 1.5 Not Scored
         # Take a "clear-all" approach here, as 2.3.4 sets an active corner for enabling screensaver.
-        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]] || [[ ${CISLEVEL} = "1" ]]; then
+        if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
             ScriptLogging "  Setting all corners to '1'..."
             user_template com.apple.dock wvous-tl-corner 1
             user_template com.apple.dock wvous-tr-corner 1
@@ -201,9 +194,11 @@ systemPreferences() {
 
         # 2.3.4 Set a screen corner to Start Screen Saver
         # Level 1 Scored
-        ScriptLogging "  Setting bottom right corner to enable screensaver..."
-        user_template com.apple.dock wvous-br-corner 5
-        user_template com.apple.dock wvous-br-modifier 0
+        # Not currently setting.
+        # TODO
+        #ScriptLogging "  Setting bottom right corner to enable screensaver..."
+        #user_template com.apple.dock wvous-br-corner 5
+        #user_template com.apple.dock wvous-br-modifier 0
 
     # 2.4 Sharing
         # 2.4.1 Disable Remote Apple Events
@@ -268,16 +263,16 @@ systemPreferences() {
         # 2.4.6 Disable DVD or CD Sharing
         # Level 1 Scored
         # Newer devices do not have Optical Drives
-        # TODO Test. New audit/remediation written.
-        local OpticalSharingAudit
-        OpticalSharingAudit=$(/bin/launchctl list | egrep ODSAgent)
-        if [[ ${OpticalSharingAudit} -ge 0 ]]; then
-            ScriptLogging "  Optical Drive Sharing is disabled."
-        else
-            ScriptLogging "  Optical Drive Sharing is NOT disabled. Disabling..."
-            /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.ODSAgent.plist
-            ScriptLogging "  Optical Drive Sharing is disabled."
-        fi
+        # code not tested. unable to test as I haven't seen a CD/DVD drive on a machine in many years.
+        #local OpticalSharingAudit
+        #OpticalSharingAudit=$(/bin/launchctl list | egrep ODSAgent)
+        #if [[ ${OpticalSharingAudit} -ge 0 ]]; then
+        #    ScriptLogging "  Optical Drive Sharing is disabled."
+        #else
+        #    ScriptLogging "  Optical Drive Sharing is NOT disabled. Disabling..."
+        #    /bin/launchctl unload -w /System/Library/LaunchDaemons/com.apple.ODSAgent.plist
+        #    ScriptLogging "  Optical Drive Sharing is disabled."
+        #fi
 
         # 2.4.7 Disable Bluetooth Sharing
         # Level 1 Scored
@@ -343,7 +338,6 @@ systemPreferences() {
 
         # 2.4.9 Disable Remote Management
         # Level 1 Scored
-        # TODO: Test. New audit/remediation written.
 
         local ARDAgentAudit
         ARDAgentAudit="$(ps -ef | egrep ARDAgent)"
@@ -426,7 +420,8 @@ systemPreferences() {
 
         # 2.7 iCloud
         # This section has moved from Recommendations over to Subsections, however, no audit or remidiation guideleins are given.
-        # General thought (mine, not CIS) is that if you are Level 1, these can be left alone. Anything above (1.5+) should be audited,
+        # General thought (mine, not CIS) is that if you are Level 1, these can be left alone. Anything above (1.5+) should be audited.
+        # This should be handled via configuration profile.
         # Level 2 Not Scored
         # 2.7.1 iCloud configuration
         # 2.7.2 iCloud keychain
@@ -567,6 +562,7 @@ networkConfigurations() {
 
     # 4.2 Enable "Show Wi-Fi status in menu bar"
     # Level 1 Scored
+    # TODO
     ScriptLogging "  Ensuring Wi-Fi is shown in MenuBar..."
     user_template com.apple.systemuiserver menuExtras -array-add "/System/Library/CoreServices/Menu Extras/Airport.menu"
     ScriptLogging "  Wi-Fi is shown in MenuBar."
@@ -615,6 +611,7 @@ systemAccess() {
     # 5.1 File System Permissions and Access Controls
         # 5.1.1 Secure Home Folders
         # Level 1 Scored
+        # TODO
         # This script is intended to run BEFORE a system is deployed. Maybe a umask here, but not sure how to implement it.
 
         # 5.1.2 Repair permissions regularly to ensure binaries and other System files have appropriate permissions
@@ -634,15 +631,11 @@ systemAccess() {
         # GarageBand looks to be a culprit here. Should be removed/repackaged on systems through imaging/MDM.
 
     # 5.2 Password Management
-    # TODO
-    # Need to find a way to set the pwpolicy for users that don't yet exist in the system. The remediation procedure is for a logged in user.
-    # It might be that this should be configured via Configuration Policy instead
+    # This should be set within a configuration profile in the Passcode payload.
     # See Section 8.1 and 8.2 for possible plist that can be packaged and deployed.
 
         # 5.2.1 Configure account lockout threshold
         # Level 1 Scored
-        # pwpolicy -getaccountpolicies | grep -A 1 '<key>policyAttributeMaximumFailedAuthentications</key>' | tail -1 | cut -d'>' -f2 | cut -d '<' -f1
-        #  pwpolicy -setaccountpolicies
 
         # 5.2.2 Set a minimum password length
         # Level 1 Scored
@@ -699,7 +692,6 @@ systemAccess() {
 
     # 5.8 Disable automatic login
     # Level 1 Scored
-    #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow | grep autoLoginUser > /dev/null)" -eq 0 ]]; then
         ScriptLogging "  Auto login is disabled."
@@ -711,19 +703,18 @@ systemAccess() {
 
     # 5.9 Require a password to wake the computer from sleep or screen saver
     # Level 1 Scored
-    #TODO: Test. New audit/remediation written.
+    # This should be within a configuration profile so that it is set and not changeable.
 
-    if [[ "$(/usr/bin/defaults read com.apple.screensaver askForPassword)" = "1" ]]; then
-        ScriptLogging "  Password required to wake from sleep or screensaver."
-    else
-        ScriptLogging "  Password NOT required to wake from sleep or screensaver. Enabling..."
-        /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
-        ScriptLogging "  Password required to wake from sleep or screensaver."
-    fi
+    #if [[ "$(/usr/bin/defaults read com.apple.screensaver askForPassword)" = "1" ]]; then
+    #    ScriptLogging "  Password required to wake from sleep or screensaver."
+    #else
+    #    ScriptLogging "  Password NOT required to wake from sleep or screensaver. Enabling..."
+    #    /usr/bin/defaults write com.apple.screensaver askForPassword -int 1
+    #    ScriptLogging "  Password required to wake from sleep or screensaver."
+    #fi
 
     # 5.10 Require an administrator password to access system-wide preferences
     # Level 1 Scored
-    #TODO: Test. New audit/remediation written.
 
     if [[ "$(/usr/bin/security authorizationdb read system.preferences 2> /dev/null | grep -A1 shared | grep -E '(true|false)')" = "        <false/>" ]]; then
         ScriptLogging "  Password required to access system-wide preferences."
@@ -738,8 +729,14 @@ systemAccess() {
 
     # 5.11 Disable ability to login to another user's active and locked session
     # Level 1 Scored
-    # Need sed here to edit /etc/pam.d/screensaver
-    # I believe this is off by default.
+
+    if [[ $(/usr/bin/grep -ic "group=admin,wheel fail_safe" /etc/pam.d/screensaver) -eq 0 ]]; then
+        ScriptLogging "  Admins disabled from unlocking other users sessions."
+    else
+        ScriptLogging "  Admins allowed to unlock other users sessions...."
+        /usr/bin/sed -i.bak s/admin,//g /etc/pam.d/screensaver
+        ScriptLogging "  Admins disabled from unlocking other users sessions."
+    fi
 
     # 5.12 Create a custom message for the Login Screen
     # Level 1 Scored
@@ -753,7 +750,6 @@ systemAccess() {
 
     # 5.13 Create a Login window banner
     # Level 2 Scored
-    #TODO: Test. New audit/remediation written.
     if [[ ${CISLEVEL} = "2" ]]; then
         if [[ ! -e /Library/Security/PolicyBanner.txt ]]; then
             ScriptLogging "  'PolicyBanner.txt' not found."
@@ -766,13 +762,11 @@ systemAccess() {
 
     # 5.14 Do not enter a password-related hint
     # Level 1 Scored
-    # TODO
-    # Per user. for/while in USER_TEMPLATE
+    # Should be inside a configuration profile with the Login Window payload.
 
     # 5.15 Disable Fast User Switching
     # Level 2 Not Scored
     # Level 1.5 Not Scored
-    #TODO: Test. New audit/remediation written.
 
     if [[ ${CISLEVEL} = "2" ]] || [[ ${CISLEVEL} = "1.5" ]]; then
         if [[ "$(/usr/bin/defaults read /Library/Preferences/.GlobalPreferences.plist MultipleSessionEnabled)" = "0" ]]; then
@@ -803,6 +797,7 @@ userEnvironment() {
         # 6.1.1 Display login window as name and password
         # Level 1 Scored
         # No audit, just do it.
+        # If using FileVault 2, this does not matter and should be commented out.
         ScriptLogging "  Setting LoginWindow to display as username and password..."
         /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow SHOWFULLNAME -bool yes
 
@@ -839,61 +834,6 @@ userEnvironment() {
 
     # 6.4 Use parental controls for systems that are not centrally managed
     # Level 2 Not Scored
-}
-
-additionalConsiderations() {
-# 7 Appendix: Additional Considerations
-# These have been removed from the mainScript () to be cleaner, since they don't do anything.
-# Leaving the function as a "completionist"
-    ScriptLogging "7 Appendix: Additional Considerations"
-    ScriptLogging "  Please see the Benchmark documentation for Additional Considerations."
-
-    # 7.1 Wireless technology on OS X
-    # Level 2 Not Scored
-
-    # 7.2 iSight Camera Privacy and Confidentiality Concerns
-    # Level 2 Not Scored
-
-    # 7.3 Computer Name Considerations
-    # Level 2 Not Scored
-
-    # 7.4 Software Inventory Considerations
-    # Level 2 Not Scored
-
-    # 7.5 Firewall Consideration
-    # Level 2 Not Scored
-
-    # 7.6 Automatic Actions for Optical Media
-    # Level 1 Not Scored
-    # No optical media drives on any new endpoints.
-
-    # 7.7 App Store Automatically download apps purchased on other Macs Considerations
-    # Level 2 Not Scored
-
-    # 7.8 Extensible Firmware Interface (EFI) password
-    # Level 2 Not Scored
-    # Implement via your MDM/Imaging solution. If at all. FV2 mitigates much of the need.
-
-    # 7.9 Apple ID password reset
-    # Level 2 Not Scored
-}
-
-artifacts() {
-# 8 Artifacts
-# These have been removed from the mainScript() to be cleaner, since they don't do anything.
-# Leaving the function as a "completionist"
-    ScriptLogging "8 Artifacts"
-    ScriptLogging "  Please see the Benchmark documentation for Artifacts."
-
-    # 8.1 Password Policy Plist generated through OS X Server
-    # Level 1 Not Scored
-    # No Rationale, Audit or remediation provided by CIS
-    # plist file is provided
-
-    # 8.2 Password Policy Plist from man page
-    # Level 1 Not Scored
-    # No Rationale, Audit or remediation provided by CIS
-    # plist file is provided
 }
 
 cleanAndReboot() {
