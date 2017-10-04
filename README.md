@@ -3,6 +3,8 @@ CIS Settings
 
 ## CIS settings for Mac (~~10.9~~, 10.10, and 10.11)
 
+As of Oct 2017, I am attempting to migrate all of these settings to Config Profiles, rather than Bash or Python. These settings should be configurable via MDM and not set once and forget it. Setting via Bash is inevitably insecure, as anyone with Google can figure out how to change the settings back to whatever they want. Config profiles via MDM at least require considerable effort to remove.
+
 This is an attempt at checking off the list for auditing and remediating CIS Level 1 settings on an OS X installation. Some Level 2 sections are implemented as well, as they make sense in the two environments this has been used in. All Level 2 Scored coming soon. For now, the script defaults to Level 1. 
 
 There are some elements of Level 2 that I consider to be important. These elements have been deemed Level 1.5 by me. You can now select `[-l|--level] [1, 1.5, 2]` when running the script. Defaults to Level 1.
